@@ -30,6 +30,16 @@
 
 ---
 
+## PWA как справочник функций
+
+- `Docs/PWA_FUNCTIONS_AUDIT.md` содержит аудит PWA.
+- PWA используется только как источник продуктовых функций и пользовательских сценариев.
+- PWA не является архитектурным эталоном iOS.
+- Веб-код и веб-архитектуру нельзя автоматически переносить в iOS.
+- Подписки и DEMO сейчас исключены из работ.
+
+---
+
 ## Как устроена архитектура (коротко)
 
 ```
@@ -100,7 +110,7 @@ App (BuildChecklistsApp / RootView)
 | `Views/Welcome/WelcomeView.swift` | Вход в DEMO / регистрацию |
 | `Views/WhatsNew/WhatsNewView.swift` | «Что нового» на Version |
 
-Документы: этот файл + `PROJECT_OVERVIEW.md`, `ARCHITECTURE.md`, `DATA_FLOW.md`, `DEMO_MODE.md`, `SUBSCRIPTIONS.md`, `RELEASE_PROCESS.md`, `DEVELOPMENT_RULES.md`, `ANDROID_SYNC.md`.
+Документы: этот файл + `PROJECT_OVERVIEW.md`, `ARCHITECTURE.md`, `DATA_FLOW.md`, `DEMO_MODE.md`, `SUBSCRIPTIONS.md`, `RELEASE_PROCESS.md`, `DEVELOPMENT_RULES.md`, `ANDROID_SYNC.md`, `PWA_FUNCTIONS_AUDIT.md`.
 
 ---
 
