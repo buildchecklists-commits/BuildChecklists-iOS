@@ -1,0 +1,60 @@
+{
+  "title": "Стены — керамоблок",
+  "stages": [
+    {
+      "title": "Этап 1. Подготовка и материалы",
+      "items": [
+        { "text": "Проект: тип/толщина блока, схема перевязки, доборы.", "infoSlug": "walls/keramblock/masonry" },
+        { "text": "Основание и гидроизоляция первого ряда.", "infoSlug": "walls/keramblock/base" }
+      ]
+    },
+    {
+      "title": "Этап 2. Первый ряд",
+      "items": [
+        { "text": "Раствор/клей по ТУ, выравнивание по уровню/лазеру.", "infoSlug": "walls/keramblock/firstrow" },
+        { "text": "Контроль перепада: ≤ 3 мм между блоками.", "infoSlug": "walls/keramblock/flatness" }
+      ]
+    },
+    {
+      "title": "Этап 3. Кладка",
+      "items": [
+        { "text": "Заполнение швов по ТУ (гориз./вертик.), без пустот.", "infoSlug": "walls/keramblock/bonding" },
+        { "text": "Перевязка, смещение вертикальных швов.", "infoSlug": "walls/keramblock/bonding" },
+        { "text": "Армирование зон по проекту.", "infoSlug": "walls/keramblock/rebar" }
+      ]
+    },
+    {
+      "title": "Этап 4. Узлы/проёмы",
+      "items": [
+        { "text": "Примыкания внутренних стен: анкера/перевязка.", "infoSlug": "walls/keramblock/joints" },
+        { "text": "Проёмы: четверти/ровность, закладные под крепёж.", "infoSlug": "walls/keramblock/openings" }
+      ]
+    },
+    {
+      "title": "Этап 5. Перемычки/армопояса",
+      "items": [
+        { "text": "Перемычки по проекту, утепление перемычек.", "infoSlug": "walls/keramblock/lintels" },
+        { "text": "Армопояс под перекрытие/кровлю.", "infoSlug": "walls/keramblock/ringbeam" }
+      ]
+    },
+    {
+      "title": "Этап 6. Теплозащита/ошибки",
+      "items": [
+        { "text": "Исключить мостики холода, узлы утепления/пароизоляции.", "infoSlug": "walls/keramblock/insulation" },
+        { "text": "Защита кладки от осадков/грязи.", "infoSlug": "walls/keramblock/protection" }
+      ]
+    },
+    {
+      "title": "Этап 7. Зима (если актуально)",
+      "items": [
+        { "text": "Противоморозные добавки, укрытие.", "infoSlug": "walls/keramblock/winter" }
+      ]
+    },
+    {
+      "title": "Этап 8. Приёмка",
+      "items": [
+        { "text": "Вертикальность/плоскость/диагонали, заполнение швов.", "infoSlug": "walls/keramblock/acceptance" }
+      ]
+    }
+  ]
+}

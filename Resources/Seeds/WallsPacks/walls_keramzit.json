@@ -1,0 +1,59 @@
+{
+  "title": "Стены — керамзитобетон",
+  "stages": [
+    {
+      "title": "Этап 1. Подготовка",
+      "items": [
+        { "text": "Проект: тип/толщина блока, узлы, доборные элементы.", "infoSlug": "walls/keramzit/masonry" },
+        { "text": "Основание ровное, гидроизоляция первого ряда.", "infoSlug": "walls/keramzit/base" }
+      ]
+    },
+    {
+      "title": "Этап 2. Первый ряд",
+      "items": [
+        { "text": "Раствор/клей по ТУ, выравнивание по уровню.", "infoSlug": "walls/keramzit/firstrow" },
+        { "text": "Контроль перепадов/плоскости.", "infoSlug": "walls/keramzit/flatness" }
+      ]
+    },
+    {
+      "title": "Этап 3. Кладка",
+      "items": [
+        { "text": "Заполнение швов, перевязка, смещение швов.", "infoSlug": "walls/keramzit/bonding" },
+        { "text": "Армирование рядов/поясов по проекту.", "infoSlug": "walls/keramzit/rebar" }
+      ]
+    },
+    {
+      "title": "Этап 4. Узлы/проёмы",
+      "items": [
+        { "text": "Примыкания, анкера, гибкие связи.", "infoSlug": "walls/keramzit/joints" },
+        { "text": "Проёмы и закладные под крепёж.", "infoSlug": "walls/keramzit/openings" }
+      ]
+    },
+    {
+      "title": "Этап 5. Перемычки/армопояс",
+      "items": [
+        { "text": "Перемычки по проекту с утеплением.", "infoSlug": "walls/keramzit/lintels" },
+        { "text": "Армопояс и узлы сопряжений.", "infoSlug": "walls/keramzit/ringbeam" }
+      ]
+    },
+    {
+      "title": "Этап 6. Теплозащита/защита",
+      "items": [
+        { "text": "Утепление/пароизоляция узлов, исключение мостиков.", "infoSlug": "walls/keramzit/insulation" },
+        { "text": "Защита кладки/материалов от осадков.", "infoSlug": "walls/keramzit/protection" }
+      ]
+    },
+    {
+      "title": "Этап 7. Зима (если актуально)",
+      "items": [
+        { "text": "ПМД, укрытие, температурный режим.", "infoSlug": "walls/keramzit/winter" }
+      ]
+    },
+    {
+      "title": "Этап 8. Приёмка",
+      "items": [
+        { "text": "Вертикаль/плоскость/диагонали, документы и фото.", "infoSlug": "walls/keramzit/acceptance" }
+      ]
+    }
+  ]
+}

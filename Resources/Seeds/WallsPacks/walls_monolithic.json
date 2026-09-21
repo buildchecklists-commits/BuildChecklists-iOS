@@ -1,0 +1,59 @@
+{
+  "title": "Стены — монолит",
+  "stages": [
+    {
+      "title": "Этап 1. Подготовка и основание",
+      "items": [
+        { "text": "Проект монолитных стен, схемы армирования и опалубки.", "infoSlug": "walls/monolithic/design" },
+        { "text": "Основание, выпуски арматуры и гидроизоляция стыка со стеной.", "infoSlug": "walls/monolithic/base" }
+      ]
+    },
+    {
+      "title": "Этап 2. Армирование стен",
+      "items": [
+        { "text": "Каркас по проекту: шаг, диаметр, защитный слой.", "infoSlug": "walls/monolithic/rebar" },
+        { "text": "Нахлёст, хомуты, анкера и стыки арматуры.", "infoSlug": "walls/monolithic/joints" }
+      ]
+    },
+    {
+      "title": "Этап 3. Опалубка и закладные",
+      "items": [
+        { "text": "Жёсткость, геометрия опалубки, стяжки/распорки.", "infoSlug": "walls/monolithic/formwork" },
+        { "text": "Закладные под инженерку, окна/двери и крепёж.", "infoSlug": "walls/monolithic/inserts" }
+      ]
+    },
+    {
+      "title": "Этап 4. Бетонирование",
+      "items": [
+        { "text": "Подача, вибрация, послойность, высота сброса.", "infoSlug": "walls/monolithic/pouring" },
+        { "text": "Уход за бетоном первые 3–7 суток.", "infoSlug": "walls/monolithic/cure" }
+      ]
+    },
+    {
+      "title": "Этап 5. Распалубка и поверхность",
+      "items": [
+        { "text": "Сроки распалубки по марке бетона и температуре.", "infoSlug": "walls/monolithic/stripping" },
+        { "text": "Ровность, раковины, сколы, подготовка под отделку.", "infoSlug": "walls/monolithic/flatness" }
+      ]
+    },
+    {
+      "title": "Этап 6. Тепло- и гидроизоляция",
+      "items": [
+        { "text": "Утепление стен, узлы примыканий, мостики холода.", "infoSlug": "walls/monolithic/insulation" },
+        { "text": "Гидроизоляция цоколя и заглублённых стен.", "infoSlug": "walls/monolithic/waterproof" }
+      ]
+    },
+    {
+      "title": "Этап 7. Зима (если актуально)",
+      "items": [
+        { "text": "ПМД, прогрев, тёплая опалубка, режим бетона.", "infoSlug": "walls/monolithic/winter" }
+      ]
+    },
+    {
+      "title": "Этап 8. Приёмка",
+      "items": [
+        { "text": "Геометрия/швы, акты и фото скрытых работ.", "infoSlug": "walls/monolithic/acceptance" }
+      ]
+    }
+  ]
+}

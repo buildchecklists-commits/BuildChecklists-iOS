@@ -1,0 +1,37 @@
+{
+  "title": "Стены — газобетон (AAC)",
+  "stages": [
+    { "title": "Этап 1. Подготовка и материалы", "items": [
+      { "text": "Проект: марка/плотность блока, толщина стены, узлы.", "infoSlug": "walls/gasblock/masonry" },
+      { "text": "Основание ровное, гидроизоляция под первым рядом.", "infoSlug": "walls/gasblock/base" },
+      { "text": "Разметка осей и диагоналей.", "infoSlug": "walls/gasblock/layout" }
+    ]},
+    { "title": "Этап 2. Первый ряд", "items": [
+      { "text": "Первый ряд на ЦПР, выравнивание по лазеру/правилу.", "infoSlug": "walls/gasblock/firstrow" },
+      { "text": "Перепад по высоте между блоками ≤ 3 мм.", "infoSlug": "walls/gasblock/flatness" },
+      { "text": "Гидроизоляция без разрывов.", "infoSlug": "walls/gasblock/waterproof" }
+    ]},
+    { "title": "Этап 3. Кладка рядов", "items": [
+      { "text": "Клей 2–3 мм по ТУ; смещение швов ≥ 80 мм.", "infoSlug": "walls/gasblock/bonding" },
+      { "text": "Армирование по проекту (ряды, зоны нагрузок).", "infoSlug": "walls/gasblock/rebar" }
+    ]},
+    { "title": "Этап 4. Узлы и проёмы", "items": [
+      { "text": "Примыкания, анкера, перевязка.", "infoSlug": "walls/gasblock/joints" },
+      { "text": "Проёмы и закладные под крепёж.", "infoSlug": "walls/gasblock/openings" }
+    ]},
+    { "title": "Этап 5. Перемычки и армопояс", "items": [
+      { "text": "Перемычки по проекту с утеплением.", "infoSlug": "walls/gasblock/lintels" },
+      { "text": "Армопояс/монолитные участки.", "infoSlug": "walls/gasblock/ringbeam" }
+    ]},
+    { "title": "Этап 6. Теплотехника и защита", "items": [
+      { "text": "Узлы утепления/пароизоляции.", "infoSlug": "walls/gasblock/insulation" },
+      { "text": "Защита кладки/складирование.", "infoSlug": "walls/gasblock/protection" }
+    ]},
+    { "title": "Этап 7. Зима (если актуально)", "items": [
+      { "text": "ПМД, укрытие, режим.", "infoSlug": "walls/gasblock/winter" }
+    ]},
+    { "title": "Этап 8. Приёмка", "items": [
+      { "text": "Плоскость/вертикаль/диагонали, документы.", "infoSlug": "walls/gasblock/acceptance" }
+    ]}
+  ]
+}

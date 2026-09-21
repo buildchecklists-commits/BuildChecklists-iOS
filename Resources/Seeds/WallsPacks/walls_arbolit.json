@@ -1,0 +1,61 @@
+{
+  "title": "Стены — арболит",
+  "stages": [
+    {
+      "title": "Этап 1. Подготовка и материалы",
+      "items": [
+        { "text": "Сертификаты на блок/раствор; проект узлов.", "infoSlug": "walls/arbolit/masonry" },
+        { "text": "Основание ровное; гидроизоляция первого ряда.", "infoSlug": "walls/arbolit/base" }
+      ]
+    },
+    {
+      "title": "Этап 2. Первый ряд",
+      "items": [
+        { "text": "Первый ряд на растворе с выравниванием в уровень.", "infoSlug": "walls/arbolit/firstrow" },
+        { "text": "Контроль перепадов и плоскости.", "infoSlug": "walls/arbolit/flatness" }
+      ]
+    },
+    {
+      "title": "Этап 3. Кладка и крепёж",
+      "items": [
+        { "text": "Раствор/клей по ТУ, перевязка, заполнение швов.", "infoSlug": "walls/arbolit/bonding" },
+        { "text": "Армирование рядов/зон по проекту.", "infoSlug": "walls/arbolit/rebar" },
+        { "text": "Спец. крепёж/закладные под навесные элементы.", "infoSlug": "walls/arbolit/inserts" }
+      ]
+    },
+    {
+      "title": "Этап 4. Узлы/проёмы",
+      "items": [
+        { "text": "Примыкания, анкера/перевязка.", "infoSlug": "walls/arbolit/joints" },
+        { "text": "Проёмы: ровность/закладные.", "infoSlug": "walls/arbolit/openings" }
+      ]
+    },
+    {
+      "title": "Этап 5. Перемычки/армопояс",
+      "items": [
+        { "text": "Перемычки по проекту с теплоразрывом.", "infoSlug": "walls/arbolit/lintels" },
+        { "text": "Армопояс под перекрытие/кровлю.", "infoSlug": "walls/arbolit/ringbeam" }
+      ]
+    },
+    {
+      "title": "Этап 6. Теплозащита/влага",
+      "items": [
+        { "text": "Узлы утепления/пароизоляции, защита от увлажнения.", "infoSlug": "walls/arbolit/insulation" },
+        { "text": "Временная защита кладки от дождя.", "infoSlug": "walls/arbolit/protection" }
+      ]
+    },
+    {
+      "title": "Этап 7. Зима (если актуально)",
+      "items": [
+        { "text": "Технология работ при минусе, укрытие.", "infoSlug": "walls/arbolit/winter" }
+      ]
+    },
+    {
+      "title": "Этап 8. Приёмка",
+      "items": [
+        { "text": "Геометрия/швы/документы, фото скрытых работ.", "infoSlug": "walls/arbolit/acceptance" }
+      ]
+    }
+  ]
+}
+

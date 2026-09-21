@@ -1,0 +1,55 @@
+{
+  "title": "Фундамент — свайно-ростверковый",
+  "stages": [
+    {
+      "title": "Этап 1. Сваи: разбивка/бурение/забивка",
+      "items": [
+        { "text": "Координаты свай по проекту, номера, отметки голов.", "infoSlug": "foundation/piles/layout" },
+        { "text": "Вертикальность/отклонения в допуске, глубина/длина по проекту.", "infoSlug": "foundation/piles/verticality" }
+      ]
+    },
+    {
+      "title": "Этап 2. Армирование и оголовки",
+      "items": [
+        { "text": "Каркасы и выпуски: защитный слой, анкеровка, длина выпусков.", "infoSlug": "foundation/piles/rebar_cages" },
+        { "text": "Оголовки выведены в отметку и готовы к сварке/связи с ростверком.", "infoSlug": "foundation/piles/heads_level" }
+      ]
+    },
+    {
+      "title": "Этап 3. Ростверк: опалубка",
+      "items": [
+        { "text": "Опалубка в размер и по высоте, жёсткая, без щелей.", "infoSlug": "foundation/piles/formwork" },
+        { "text": "Гильзы/закладные под коммуникации установлены.", "infoSlug": "foundation/piles/inserts" }
+      ]
+    },
+    {
+      "title": "Этап 4. Ростверк: армирование",
+      "items": [
+        { "text": "Диаметр и количество стержней, шаг хомутов, защитный слой.", "infoSlug": "foundation/piles/rebar_rostverk_layout" },
+        { "text": "Связь каркаса ростверка с выпусками свай (длина, оси, анкеровка).", "infoSlug": "foundation/piles/rebar_rostverk_connection" }
+      ]
+    },
+    {
+      "title": "Этап 5. Бетон и уход",
+      "items": [
+        { "text": "Марка/подвижность, виброуплотнение, непрерывность заливки.", "infoSlug": "foundation/piles/concrete" },
+        { "text": "Уход/температурный режим: укрытие, увлажнение, защита бетона.", "infoSlug": "foundation/piles/cure" }
+      ]
+    },
+    {
+      "title": "Этап 6. Гидроизоляция, засыпка, приёмка",
+      "items": [
+        { "text": "Гидроизоляция ростверка, узлы примыканий, защита оголовков.", "infoSlug": "foundation/piles/waterproof" },
+        { "text": "Акты скрытых работ, паспорта материалов, засыпка слоями.", "infoSlug": "foundation/piles/acceptance_docs" }
+      ]
+    },
+    {
+      "title": "Этап 7. Зимний период",
+      "items": [
+        { "text": "Температура бетона и основания при заливке ростверка.", "infoSlug": "foundation/piles/winter_temp" },
+        { "text": "Прогрев ростверка: кабели/маты, укрытие, устранение продуваний.", "infoSlug": "foundation/piles/winter_heat" },
+        { "text": "ПМД: дозировка, совместимость, применение согласно температуре.", "infoSlug": "foundation/piles/winter_pmd" }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,52 @@
+{
+  "title": "Фундамент — ТИСЭ",
+  "stages": [
+    {
+      "title": "Этап 1. Разметка и бурение",
+      "items": [
+        { "text": "Разбивка точек, глубины по проекту, бурение без «смазывания» стенок.", "infoSlug": "foundation/tise/drilling" }
+      ]
+    },
+    {
+      "title": "Этап 2. Пятки/расширения",
+      "items": [
+        { "text": "Диаметр/высота расширений по проекту, чистое формирование пятки.", "infoSlug": "foundation/tise/footing" }
+      ]
+    },
+    {
+      "title": "Этап 3. Армирование",
+      "items": [
+        { "text": "Кол-во/диаметр стержней, хомуты, выпуски под ростверк.", "infoSlug": "foundation/tise/rebar" }
+      ]
+    },
+    {
+      "title": "Этап 4. Бетонирование и уход",
+      "items": [
+        { "text": "Заливка с вибрацией, без разрывов, защита от размыва/осыпания.", "infoSlug": "foundation/tise/concrete" },
+        { "text": "Уход/температурный режим, при морозе — прогрев/ПМД.", "infoSlug": "foundation/tise/cure" }
+      ]
+    },
+    {
+      "title": "Этап 5. Ростверк (если предусмотрен)",
+      "items": [
+        { "text": "Опалубка/армирование/бетон — по правилам ростверка.", "infoSlug": "foundation/tise/rostverk" }
+      ]
+    },
+    {
+      "title": "Этап 6. Гидроизоляция и приёмка",
+      "items": [
+        { "text": "Гидроизоляция оголовков/ростверка, герметичные вводы.", "infoSlug": "foundation/tise/waterproof" },
+        { "text": "Акты скрытых работ, паспорта материалов.", "infoSlug": "foundation/tise/acceptance" }
+      ]
+    },
+    {
+      "title": "Этап 7. Зимний период",
+      "items": [
+        { "text": "Подготовка скважин, очистка от снега/льда, работа в мороз.", "infoSlug": "foundation/tise/winter" },
+        { "text": "Контроль температуры смеси, грунта и зоны работ.", "infoSlug": "foundation/tise/winter_temp" },
+        { "text": "Укрытие, утепление, защита от ветра и осадков.", "infoSlug": "foundation/tise/winter_heat" },
+        { "text": "Использование противоморозных добавок по правилам.", "infoSlug": "foundation/tise/winter_pmd" }
+      ]
+    }
+  ]
+}

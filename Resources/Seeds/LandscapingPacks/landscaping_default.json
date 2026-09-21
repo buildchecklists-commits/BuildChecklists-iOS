@@ -1,0 +1,109 @@
+{
+  "stages": [
+    {
+      "title": "Планировка участка",
+      "items": [
+        {
+          "text": "Разметка по генплану, вынос осей",
+          "infoSlug": "land-plan-layout-marking"
+        },
+        {
+          "text": "Подсыпка, отсыпка, уклоны, дренаж",
+          "infoSlug": "land-plan-drainage-slopes"
+        },
+        {
+          "text": "Разводка коммуникаций по участку",
+          "infoSlug": "land-plan-utilities-routing"
+        },
+        {
+          "text": "Формирование зон: парковка, газон, площадки",
+          "infoSlug": "land-plan-zoning"
+        }
+      ]
+    },
+    {
+      "title": "Ограждения и ворота",
+      "items": [
+        {
+          "text": "Фундамент под забор, столбы по уровню",
+          "infoSlug": "land-fence-foundation-posts"
+        },
+        {
+          "text": "Монтаж секций, натяжка сетки/профнастила",
+          "infoSlug": "land-fence-panels-install"
+        },
+        {
+          "text": "Установка ворот, автоматика, откат",
+          "infoSlug": "land-fence-gate-automation"
+        },
+        {
+          "text": "Покраска/антикоррозия металла",
+          "infoSlug": "land-fence-metal-protection"
+        }
+      ]
+    },
+    {
+      "title": "Дорожки и покрытия",
+      "items": [
+        {
+          "text": "Подготовка основания, песчаная подушка",
+          "infoSlug": "land-paths-base-preparation"
+        },
+        {
+          "text": "Укладка плитки/асфальта/щебня по уровню",
+          "infoSlug": "land-paths-surface-leveling"
+        },
+        {
+          "text": "Уклон для водоотвода, бордюры",
+          "infoSlug": "land-paths-slope-curbs"
+        },
+        {
+          "text": "Фотофиксация готовых зон",
+          "infoSlug": "land-paths-photo-report"
+        }
+      ]
+    },
+    {
+      "title": "Озеленение и мелкие формы",
+      "items": [
+        {
+          "text": "Газон, растения, мульча, полив",
+          "infoSlug": "land-green-lawn-plants"
+        },
+        {
+          "text": "Скамейки, костровые, малые формы",
+          "infoSlug": "land-green-small-forms"
+        },
+        {
+          "text": "Освещение участка, розетки, датчики",
+          "infoSlug": "land-green-lighting-sockets"
+        },
+        {
+          "text": "Проверка на соответствие генплану",
+          "infoSlug": "land-green-plan-check"
+        }
+      ]
+    },
+    {
+      "title": "Приёмка",
+      "items": [
+        {
+          "text": "Фотофиксация участка до/после",
+          "infoSlug": "land-accept-photo-before-after"
+        },
+        {
+          "text": "Проверка функционирования ворот, света, полива",
+          "infoSlug": "land-accept-function-check"
+        },
+        {
+          "text": "Подписание акта сдачи",
+          "infoSlug": "land-accept-sign-off"
+        },
+        {
+          "text": "Передача паспорта благоустройства",
+          "infoSlug": "land-accept-passport-transfer"
+        }
+      ]
+    }
+  ]
+}

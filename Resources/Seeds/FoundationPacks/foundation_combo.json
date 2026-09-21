@@ -1,0 +1,104 @@
+{
+  "title": "Фундамент — комбинированный",
+  "stages": [
+    {
+      "title": "Этап 1. Схема и узлы",
+      "items": [
+        {
+          "text": "Согласована схема сочетаний (лента/сваи/плита), узлы сопряжения.",
+          "infoSlug": "foundation/combo/design"
+        },
+        {
+          "text": "Отметки/нагрузки/деформационные швы по проекту.",
+          "infoSlug": "foundation/combo/levels"
+        }
+      ]
+    },
+    {
+      "title": "Этап 2. Свайная часть (если есть)",
+      "items": [
+        {
+          "text": "Разбивка/вертикальность/глубина свай по проекту.",
+          "infoSlug": "foundation/piles/verticality"
+        },
+        {
+          "text": "Каркасы/выпуски/оголовки — под связывание с лентой/ростверком.",
+          "infoSlug": "foundation/combo/releases"
+        }
+      ]
+    },
+    {
+      "title": "Этап 3. Ленточная часть (если есть)",
+      "items": [
+        {
+          "text": "Траншея/основание/опалубка — по картам ленты.",
+          "infoSlug": "foundation/strip/formwork"
+        },
+        {
+          "text": "Армирование/бетон/уход — по картам ленты.",
+          "infoSlug": "foundation/strip/rebar"
+        }
+      ]
+    },
+    {
+      "title": "Этап 4. Плитная часть (если есть)",
+      "items": [
+        {
+          "text": "Основание/утепление/коммуникации — по картам плиты.",
+          "infoSlug": "foundation/slab/prep"
+        },
+        {
+          "text": "Армирование/бетон/уход — по картам плиты.",
+          "infoSlug": "foundation/combo/slab_care"
+        }
+      ]
+    },
+    {
+      "title": "Этап 5. Гидроизоляция/дренаж/засыпка",
+      "items": [
+        {
+          "text": "Единая система гидроизоляции и водоотвода узлов сопряжения.",
+          "infoSlug": "foundation/combo/waterproof"
+        },
+        {
+          "text": "Засыпка слоями, защитные слои/отмостка.",
+          "infoSlug": "foundation/combo/backfill"
+        }
+      ]
+    },
+    {
+      "title": "Этап 6. Приёмка",
+      "items": [
+        {
+          "text": "Геометрия и отметки всех частей согласованы, узлы выполнены.",
+          "infoSlug": "foundation/combo/acceptance_geom"
+        },
+        {
+          "text": "Акты скрытых работ, паспорта материалов.",
+          "infoSlug": "foundation/combo/acceptance_docs"
+        }
+      ]
+    },
+    {
+      "title": "Этап 7. Зимний период",
+      "items": [
+        {
+          "text": "Температура бетона и основания — контроль до/после заливки.",
+          "infoSlug": "foundation/combo/winter_temp"
+        },
+        {
+          "text": "Прогрев: кабели/маты, укрытие, исключение продувания.",
+          "infoSlug": "foundation/combo/winter_heat"
+        },
+        {
+          "text": "ПМД: дозировка, совместимость, правила применения.",
+          "infoSlug": "foundation/combo/winter_pmd"
+        },
+        {
+          "text": "Общий режим зимнего бетонирования комбинированного фундамента.",
+          "infoSlug": "foundation/combo/winter_general"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,78 @@
+{
+  "title": "Перекрытие — по стальным балкам",
+  "stages": [
+    {
+      "title": "Этап 1. Подготовка балок",
+      "items": [
+        {
+          "text": "Сечения и шаг балок по проекту.",
+          "infoSlug": "floors/steel/beams_section"
+        },
+        {
+          "text": "Антикор/огнезащита, опирание, проверка узлов крепления.",
+          "infoSlug": "floors/steel/beams_protection"
+        }
+      ]
+    },
+    {
+      "title": "Этап 2. Настил",
+      "items": [
+        {
+          "text": "Настил (профнастил/дерево/сборные панели) по проекту.",
+          "infoSlug": "floors/steel/decking"
+        },
+        {
+          "text": "Крепление настила к балкам — анкера, сварка, болты.",
+          "infoSlug": "floors/steel/decking_fix"
+        }
+      ]
+    },
+    {
+      "title": "Этап 3. Заполнение и стяжка",
+      "items": [
+        {
+          "text": "Монолит/стяжка: толщина, плотность заполнения, подготовка основания.",
+          "infoSlug": "floors/steel/concrete"
+        },
+        {
+          "text": "Армирование стяжки, укладка маяков, демпферные ленты.",
+          "infoSlug": "floors/steel/rebar"
+        }
+      ]
+    },
+    {
+      "title": "Этап 4. Зимний период",
+      "items": [
+        {
+          "text": "Температура основания, балок и раствора.",
+          "infoSlug": "floors/steel/winter_temp"
+        },
+        {
+          "text": "Укрытие, прогрев, тепляк для стяжек/бетона.",
+          "infoSlug": "floors/steel/winter_heat"
+        },
+        {
+          "text": "Противоморозные добавки и контроль дозировки.",
+          "infoSlug": "floors/steel/winter_pmd"
+        },
+        {
+          "text": "Общий режим зимнего бетонирования на стальных балках.",
+          "infoSlug": "floors/steel/winter_general"
+        }
+      ]
+    },
+    {
+      "title": "Этап 5. Приёмка",
+      "items": [
+        {
+          "text": "Проверка прогибов, ровности настила и стяжки.",
+          "infoSlug": "floors/steel/acceptance"
+        },
+        {
+          "text": "Акты скрытых работ, сертификаты на металл и покрытия.",
+          "infoSlug": "floors/steel/docs"
+        }
+      ]
+    }
+  ]
+}

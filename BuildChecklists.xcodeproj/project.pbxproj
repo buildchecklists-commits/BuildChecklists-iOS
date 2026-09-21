@@ -6,14 +6,1012 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		CF0524792EBBCFA4008A66AD /* SeedPackLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF0524782EBBCFA0008A66AD /* SeedPackLoader.swift */; };
+		CF0AFFB02ED6F70B00BB7DF8 /* ProjectContact.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF0AFFAF2ED6F70400BB7DF8 /* ProjectContact.swift */; };
+		CF0AFFB22ED6FE8B00BB7DF8 /* ProjectContactsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF0AFFB12ED6FE8600BB7DF8 /* ProjectContactsView.swift */; };
+		CF0AFFB42ED6FEAE00BB7DF8 /* EditProjectContactView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF0AFFB32ED6FEA700BB7DF8 /* EditProjectContactView.swift */; };
+		CF0AFFB62ED7043500BB7DF8 /* ProjectFilesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF0AFFB52ED7043000BB7DF8 /* ProjectFilesView.swift */; };
+		CF0D49E52EBFEF7100FF29AE /* StageListCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF0D49E42EBFEF6F00FF29AE /* StageListCard.swift */; };
+		CF0D4A192EC020A300FF29AE /* InfoTextManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF0D4A182EC020A100FF29AE /* InfoTextManager.swift */; };
+		CF0D4A1B2EC020CF00FF29AE /* InfoSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF0D4A1A2EC020CD00FF29AE /* InfoSheetView.swift */; };
+		CF0D4AF02EC1275C00FF29AE /* InfoTexts in Resources */ = {isa = PBXBuildFile; fileRef = CF0D4AEF2EC1275C00FF29AE /* InfoTexts */; };
+		CF0D4AF82EC1364300FF29AE /* ItemTemplate.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF0D4AF72EC1363400FF29AE /* ItemTemplate.swift */; };
+		CF1510D32EEEE12C00C4BE97 /* SubscriptionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF1510D22EEEE12600C4BE97 /* SubscriptionService.swift */; };
+		CF2BE2EC2EE96DB100FF0F3D /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF2BE2EB2EE96DAD00FF0F3D /* LoginView.swift */; };
+		CF2E8B882EBA700300C93EB0 /* SeedStage.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF2E8B872EBA6FF400C93EB0 /* SeedStage.swift */; };
+		CF2E8B8A2EBA710600C93EB0 /* SeedStage+Materialize.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF2E8B892EBA70F800C93EB0 /* SeedStage+Materialize.swift */; };
+		CF3226272EBABAFA00401DFB /* FoundationPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF3226262EBABAF700401DFB /* FoundationPickerView.swift */; };
+		CF3226292EBABEFD00401DFB /* PickerTile.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF3226282EBABEF200401DFB /* PickerTile.swift */; };
+		CF32262B2EBABF3000401DFB /* WallsPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF32262A2EBABF2E00401DFB /* WallsPickerView.swift */; };
+		CF32262D2EBABF5D00401DFB /* SlabPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF32262C2EBABF5B00401DFB /* SlabPickerView.swift */; };
+		CF32262F2EBABF8200401DFB /* RoofShapePickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF32262E2EBABF7F00401DFB /* RoofShapePickerView.swift */; };
+		CF3226312EBABFA900401DFB /* RoofCoverPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF3226302EBABFA700401DFB /* RoofCoverPickerView.swift */; };
+		CF3A10EA2EE6FCB000DA3F90 /* TaskNotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF3A10E92EE6FCAB00DA3F90 /* TaskNotificationService.swift */; };
+		CF4358EC2F37B9AF00A6C03D /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CF4358EB2F37B9AF00A6C03D /* StoreKit.framework */; };
+		CF44864F2EBBF162007DA0BB /* stages.json in Resources */ = {isa = PBXBuildFile; fileRef = CF44864E2EBBF15E007DA0BB /* stages.json */; };
+		CF4487972EBC59E3007DA0BB /* SeedsPacks in Resources */ = {isa = PBXBuildFile; fileRef = CF4487962EBC59E3007DA0BB /* SeedsPacks */; };
+		CF449E1D2EBA887D00EDF921 /* SeedItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF449E1C2EBA887A00EDF921 /* SeedItem.swift */; };
+		CF476FF02EDC4B61000281E5 /* CoverCropView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF476FEF2EDC4B5B000281E5 /* CoverCropView.swift */; };
+		CF5955502EB9E0BB006BF803 /* BuildChecklistsApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF59554F2EB9E055006BF803 /* BuildChecklistsApp.swift */; };
+		CF5955542EB9E397006BF803 /* AppStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF5955512EB9E222006BF803 /* AppStore.swift */; };
+		CF5955552EB9E3AA006BF803 /* WelcomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF5955522EB9E270006BF803 /* WelcomeView.swift */; };
+		CF5955562EB9E3BC006BF803 /* ProjectsListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF5955532EB9E2CA006BF803 /* ProjectsListView.swift */; };
+		CF5955582EB9E863006BF803 /* Enums.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF5955572EB9E835006BF803 /* Enums.swift */; };
+		CF59555A2EB9E87D006BF803 /* Project.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF5955592EB9E87A006BF803 /* Project.swift */; };
+		CF59555C2EB9E8BF006BF803 /* Stage.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF59555B2EB9E8BB006BF803 /* Stage.swift */; };
+		CF59555E2EB9E8E4006BF803 /* StageItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF59555D2EB9E8E1006BF803 /* StageItem.swift */; };
+		CF5955602EB9E92C006BF803 /* StorageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF59555F2EB9E90D006BF803 /* StorageService.swift */; };
+		CF5955622EB9E945006BF803 /* AuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF5955612EB9E943006BF803 /* AuthService.swift */; };
+		CF5955642EB9E966006BF803 /* MarkdownLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF5955632EB9E963006BF803 /* MarkdownLoader.swift */; };
+		CF5955682EB9EA33006BF803 /* RegisterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF5955672EB9EA25006BF803 /* RegisterView.swift */; };
+		CF59556A2EB9EB41006BF803 /* ProjectFormView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF5955692EB9EB3E006BF803 /* ProjectFormView.swift */; };
+		CF59556C2EB9EB69006BF803 /* ProjectDashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF59556B2EB9EB66006BF803 /* ProjectDashboardView.swift */; };
+		CF59556E2EB9EB99006BF803 /* StageDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF59556D2EB9EB8D006BF803 /* StageDetailView.swift */; };
+		CF5955702EB9EF18006BF803 /* MediaService.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF59556F2EB9EF15006BF803 /* MediaService.swift */; };
+		CF5955742EB9EFFB006BF803 /* ItemCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF5955732EB9EF97006BF803 /* ItemCardView.swift */; };
+		CF5955752EB9F004006BF803 /* FullScreenImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF5955722EB9EF6E006BF803 /* FullScreenImageView.swift */; };
+		CF5955782EB9F2EA006BF803 /* InfoTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF5955772EB9F2E7006BF803 /* InfoTextView.swift */; };
+		CF5955B12EB9E999006BF803 /* WhatsNewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF5955B02EB9E999006BF803 /* WhatsNewView.swift */; };
+		CF5955C12EB9E999006BF804 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF5955C02EB9E999006BF804 /* OnboardingView.swift */; };
+		CF7346842EC453850061E531 /* arbolit in Resources */ = {isa = PBXBuildFile; fileRef = CF7346832EC453840061E531 /* arbolit */; };
+		CF7F15762EC6511E008A1732 /* monolithic in Resources */ = {isa = PBXBuildFile; fileRef = CF7F15752EC6511E008A1732 /* monolithic */; };
+		CF8B2D7C2EDA080E00307209 /* GlobalStageCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF8B2D7B2EDA080600307209 /* GlobalStageCategory.swift */; };
+		CFA3FD2B2EDE031900CD8DCE /* StageDelayReasonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFA3FD2A2EDE031400CD8DCE /* StageDelayReasonView.swift */; };
+		CFA3FD2D2EDE076D00CD8DCE /* StageScheduleEditView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFA3FD2C2EDE076700CD8DCE /* StageScheduleEditView.swift */; };
+		CFA3FD2F2EDE079300CD8DCE /* StageCompleteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFA3FD2E2EDE078D00CD8DCE /* StageCompleteView.swift */; };
+		CFAB680C2ECFA6A400F813F7 /* RoofCoverProgressStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFAB680B2ECFA69E00F813F7 /* RoofCoverProgressStore.swift */; };
+		CFAB680E2ECFA74000F813F7 /* RoofCoverStagesScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFAB680D2ECFA73A00F813F7 /* RoofCoverStagesScreen.swift */; };
+		CFAB68102ECFA8DA00F813F7 /* RoofCoverStagesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFAB680F2ECFA8D300F813F7 /* RoofCoverStagesProvider.swift */; };
+		CFACE67B2ED1DCA4006D00B4 /* EditProjectView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFACE67A2ED1DC9E006D00B4 /* EditProjectView.swift */; };
+		CFBE53802EF150FB003D1B96 /* ButtonStyles.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFBE537F2EF150F6003D1B96 /* ButtonStyles.swift */; };
+		CFBE5CD52EDC6F900036D136 /* ProjectPlanView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFBE5CD42EDC6F8A0036D136 /* ProjectPlanView.swift */; };
+		CFC3A3892ED480BB001D9A2C /* Expenses.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFC3A3882ED480B6001D9A2C /* Expenses.swift */; };
+		CFC3A38F2ED4942C001D9A2C /* PDFReportService.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFC3A38E2ED49427001D9A2C /* PDFReportService.swift */; };
+		CFC3A3912ED49459001D9A2C /* ShareSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFC3A3902ED49454001D9A2C /* ShareSheet.swift */; };
+		CFE287792ED3364A00D80679 /* DoorsStagesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFE287782ED3364300D80679 /* DoorsStagesProvider.swift */; };
+		CFE2877B2ED3368500D80679 /* DoorsProgressStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFE2877A2ED3367F00D80679 /* DoorsProgressStore.swift */; };
+		CFE2877D2ED336B200D80679 /* DoorsStagesScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFE2877C2ED336AC00D80679 /* DoorsStagesScreen.swift */; };
+		CFE7AF802EBC7C8000723E05 /* FoundationPackModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFE7AF7F2EBC7C7C00723E05 /* FoundationPackModels.swift */; };
+		CFE7AF822EBC7CC800723E05 /* FoundationStagesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFE7AF812EBC7CC500723E05 /* FoundationStagesProvider.swift */; };
+		CFE7AF842EBC7EF400723E05 /* FoundationStagesScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFE7AF832EBC7EF100723E05 /* FoundationStagesScreen.swift */; };
+		CFE7AF862EBC838C00723E05 /* StageDetailView2.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFE7AF852EBC838900723E05 /* StageDetailView2.swift */; };
+		CFE7AF942EBD976400723E05 /* ChecklistItemRow2.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFE7AF932EBD976100723E05 /* ChecklistItemRow2.swift */; };
+		CFE7AF962EBD9F8800723E05 /* FoundationProgressStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFE7AF952EBD9F8500723E05 /* FoundationProgressStore.swift */; };
+		CFE7AFAB2EBDA3E200723E05 /* WallsPackModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFE7AFAA2EBDA3DF00723E05 /* WallsPackModels.swift */; };
+		CFE7AFAD2EBDA43100723E05 /* WallsStagesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFE7AFAC2EBDA42E00723E05 /* WallsStagesProvider.swift */; };
+		CFE7AFAF2EBDA46D00723E05 /* WallsProgressStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFE7AFAE2EBDA46A00723E05 /* WallsProgressStore.swift */; };
+		CFE7AFB12EBDA4C200723E05 /* WallsStagesScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFE7AFB02EBDA4C000723E05 /* WallsStagesScreen.swift */; };
+		CFE7AFC32EBDA9C600723E05 /* SlabPackModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFE7AFC22EBDA9C300723E05 /* SlabPackModels.swift */; };
+		CFE7AFC52EBDA9EF00723E05 /* SlabStagesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFE7AFC42EBDA9EC00723E05 /* SlabStagesProvider.swift */; };
+		CFE7AFC72EBDAA1900723E05 /* SlabProgressStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFE7AFC62EBDAA1700723E05 /* SlabProgressStore.swift */; };
+		CFE7AFC92EBDAA3E00723E05 /* SlabStagesScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFE7AFC82EBDAA3C00723E05 /* SlabStagesScreen.swift */; };
+		CFE7AFD82EBDB03400723E05 /* RoofPackModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFE7AFD72EBDB03100723E05 /* RoofPackModels.swift */; };
+		CFE7AFDA2EBDB05600723E05 /* RoofStagesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFE7AFD92EBDB05300723E05 /* RoofStagesProvider.swift */; };
+		CFE7AFDC2EBDB07B00723E05 /* RoofProgressStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFE7AFDB2EBDB07900723E05 /* RoofProgressStore.swift */; };
+		CFE7AFDE2EBDB09D00723E05 /* RoofStagesScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFE7AFDD2EBDB09A00723E05 /* RoofStagesScreen.swift */; };
+		CFE7AFE42EBDB60400723E05 /* GeologyPackModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFE7AFE32EBDB60100723E05 /* GeologyPackModels.swift */; };
+		CFE7AFE62EBDB62500723E05 /* GeologyStagesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFE7AFE52EBDB62300723E05 /* GeologyStagesProvider.swift */; };
+		CFE7AFE82EBDB64900723E05 /* GeologyProgressStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFE7AFE72EBDB64700723E05 /* GeologyProgressStore.swift */; };
+		CFE7AFEA2EBDB66F00723E05 /* GeologyStagesScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFE7AFE92EBDB66D00723E05 /* GeologyStagesScreen.swift */; };
+		CFE7AFEC2EBDBF7300723E05 /* EngineeringStagesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFE7AFEB2EBDBF7100723E05 /* EngineeringStagesProvider.swift */; };
+		CFE7AFEE2EBDBFAB00723E05 /* EngineeringProgressStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFE7AFED2EBDBFA800723E05 /* EngineeringProgressStore.swift */; };
+		CFE7AFF02EBDBFD200723E05 /* EngineeringStagesScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFE7AFEF2EBDBFCF00723E05 /* EngineeringStagesScreen.swift */; };
+		CFE7AFFB2EBDC41F00723E05 /* WindowsStagesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFE7AFFA2EBDC41D00723E05 /* WindowsStagesProvider.swift */; };
+		CFE7B0012EBDC4A500723E05 /* FinishingStagesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFE7B0002EBDC4A200723E05 /* FinishingStagesProvider.swift */; };
+		CFE7B0072EBDC6C300723E05 /* LandscapingStagesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFE7B0062EBDC6C000723E05 /* LandscapingStagesProvider.swift */; };
+		CFE7B00A2EBDC80A00723E05 /* WindowsStagesScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFE7B0092EBDC80800723E05 /* WindowsStagesScreen.swift */; };
+		CFE7B00C2EBDC82800723E05 /* FinishingStagesScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFE7B00B2EBDC82500723E05 /* FinishingStagesScreen.swift */; };
+		CFE7B00E2EBDC84600723E05 /* LandscapingStagesScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFE7B00D2EBDC84400723E05 /* LandscapingStagesScreen.swift */; };
+		CFE7B0102EBDC88200723E05 /* WindowsProgressStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFE7B00F2EBDC88000723E05 /* WindowsProgressStore.swift */; };
+		CFE7B0122EBDC89B00723E05 /* FinishingProgressStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFE7B0112EBDC89800723E05 /* FinishingProgressStore.swift */; };
+		CFE7B0142EBDC8B400723E05 /* LandscapingProgressStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFE7B0132EBDC8B100723E05 /* LandscapingProgressStore.swift */; };
+		CFF04A902EC3013300300F50 /* gasblock in Resources */ = {isa = PBXBuildFile; fileRef = CFF04A8E2EC3013300300F50 /* gasblock */; };
+		CFF04A932EC301B200300F50 /* keramblock in Resources */ = {isa = PBXBuildFile; fileRef = CFF04A922EC301B200300F50 /* keramblock */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
+		CF0524782EBBCFA0008A66AD /* SeedPackLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeedPackLoader.swift; sourceTree = "<group>"; };
+		CF0AFFAF2ED6F70400BB7DF8 /* ProjectContact.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectContact.swift; sourceTree = "<group>"; };
+		CF0AFFB12ED6FE8600BB7DF8 /* ProjectContactsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectContactsView.swift; sourceTree = "<group>"; };
+		CF0AFFB32ED6FEA700BB7DF8 /* EditProjectContactView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditProjectContactView.swift; sourceTree = "<group>"; };
+		CF0AFFB52ED7043000BB7DF8 /* ProjectFilesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectFilesView.swift; sourceTree = "<group>"; };
+		CF0D49E42EBFEF6F00FF29AE /* StageListCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StageListCard.swift; sourceTree = "<group>"; };
+		CF0D4A182EC020A100FF29AE /* InfoTextManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfoTextManager.swift; sourceTree = "<group>"; };
+		CF0D4A1A2EC020CD00FF29AE /* InfoSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfoSheetView.swift; sourceTree = "<group>"; };
+		CF0D4AEF2EC1275C00FF29AE /* InfoTexts */ = {isa = PBXFileReference; lastKnownFileType = folder; name = InfoTexts; path = Resources/InfoTexts; sourceTree = "<group>"; };
+		CF0D4AF72EC1363400FF29AE /* ItemTemplate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemTemplate.swift; sourceTree = "<group>"; };
+		CF1510D22EEEE12600C4BE97 /* SubscriptionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionService.swift; sourceTree = "<group>"; };
+		CF2BE2EB2EE96DAD00FF0F3D /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
+		CF2E8B872EBA6FF400C93EB0 /* SeedStage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeedStage.swift; sourceTree = "<group>"; };
+		CF2E8B892EBA70F800C93EB0 /* SeedStage+Materialize.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SeedStage+Materialize.swift"; sourceTree = "<group>"; };
+		CF3226262EBABAF700401DFB /* FoundationPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoundationPickerView.swift; sourceTree = "<group>"; };
+		CF3226282EBABEF200401DFB /* PickerTile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PickerTile.swift; sourceTree = "<group>"; };
+		CF32262A2EBABF2E00401DFB /* WallsPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WallsPickerView.swift; sourceTree = "<group>"; };
+		CF32262C2EBABF5B00401DFB /* SlabPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SlabPickerView.swift; sourceTree = "<group>"; };
+		CF32262E2EBABF7F00401DFB /* RoofShapePickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoofShapePickerView.swift; sourceTree = "<group>"; };
+		CF3226302EBABFA700401DFB /* RoofCoverPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoofCoverPickerView.swift; sourceTree = "<group>"; };
+		CF3A10E92EE6FCAB00DA3F90 /* TaskNotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskNotificationService.swift; sourceTree = "<group>"; };
+		CF4358EB2F37B9AF00A6C03D /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
+		CF44864E2EBBF15E007DA0BB /* stages.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = stages.json; sourceTree = "<group>"; };
+		CF4487962EBC59E3007DA0BB /* SeedsPacks */ = {isa = PBXFileReference; lastKnownFileType = folder; path = SeedsPacks; sourceTree = "<group>"; };
+		CF449E1C2EBA887A00EDF921 /* SeedItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeedItem.swift; sourceTree = "<group>"; };
+		CF476FEF2EDC4B5B000281E5 /* CoverCropView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoverCropView.swift; sourceTree = "<group>"; };
 		CF5955322EB9D8A9006BF803 /* BuildChecklists.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BuildChecklists.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		CF59554F2EB9E055006BF803 /* BuildChecklistsApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BuildChecklistsApp.swift; sourceTree = "<group>"; };
+		CF5955512EB9E222006BF803 /* AppStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppStore.swift; sourceTree = "<group>"; };
+		CF5955522EB9E270006BF803 /* WelcomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeView.swift; sourceTree = "<group>"; };
+		CF5955532EB9E2CA006BF803 /* ProjectsListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectsListView.swift; sourceTree = "<group>"; };
+		CF5955572EB9E835006BF803 /* Enums.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Enums.swift; sourceTree = "<group>"; };
+		CF5955592EB9E87A006BF803 /* Project.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Project.swift; sourceTree = "<group>"; };
+		CF59555B2EB9E8BB006BF803 /* Stage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Stage.swift; sourceTree = "<group>"; };
+		CF59555D2EB9E8E1006BF803 /* StageItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StageItem.swift; sourceTree = "<group>"; };
+		CF59555F2EB9E90D006BF803 /* StorageService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageService.swift; sourceTree = "<group>"; };
+		CF5955612EB9E943006BF803 /* AuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthService.swift; sourceTree = "<group>"; };
+		CF5955632EB9E963006BF803 /* MarkdownLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownLoader.swift; sourceTree = "<group>"; };
+		CF5955672EB9EA25006BF803 /* RegisterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegisterView.swift; sourceTree = "<group>"; };
+		CF5955692EB9EB3E006BF803 /* ProjectFormView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectFormView.swift; sourceTree = "<group>"; };
+		CF59556B2EB9EB66006BF803 /* ProjectDashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectDashboardView.swift; sourceTree = "<group>"; };
+		CF59556D2EB9EB8D006BF803 /* StageDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StageDetailView.swift; sourceTree = "<group>"; };
+		CF59556F2EB9EF15006BF803 /* MediaService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaService.swift; sourceTree = "<group>"; };
+		CF5955722EB9EF6E006BF803 /* FullScreenImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FullScreenImageView.swift; sourceTree = "<group>"; };
+		CF5955732EB9EF97006BF803 /* ItemCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemCardView.swift; sourceTree = "<group>"; };
+		CF5955772EB9F2E7006BF803 /* InfoTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfoTextView.swift; sourceTree = "<group>"; };
+		CF5955B02EB9E999006BF803 /* WhatsNewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WhatsNewView.swift; sourceTree = "<group>"; };
+		CF5955C02EB9E999006BF804 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
+		CF7346832EC453840061E531 /* arbolit */ = {isa = PBXFileReference; lastKnownFileType = folder; name = arbolit; path = Resources/InfoTexts/walls/arbolit; sourceTree = "<group>"; };
+		CF7F15752EC6511E008A1732 /* monolithic */ = {isa = PBXFileReference; lastKnownFileType = folder; name = monolithic; path = Resources/InfoTexts/walls/monolithic; sourceTree = "<group>"; };
+		CF8B2D7B2EDA080600307209 /* GlobalStageCategory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobalStageCategory.swift; sourceTree = "<group>"; };
+		CFA3FD2A2EDE031400CD8DCE /* StageDelayReasonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StageDelayReasonView.swift; sourceTree = "<group>"; };
+		CFA3FD2C2EDE076700CD8DCE /* StageScheduleEditView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StageScheduleEditView.swift; sourceTree = "<group>"; };
+		CFA3FD2E2EDE078D00CD8DCE /* StageCompleteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StageCompleteView.swift; sourceTree = "<group>"; };
+		CFAB680B2ECFA69E00F813F7 /* RoofCoverProgressStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoofCoverProgressStore.swift; sourceTree = "<group>"; };
+		CFAB680D2ECFA73A00F813F7 /* RoofCoverStagesScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoofCoverStagesScreen.swift; sourceTree = "<group>"; };
+		CFAB680F2ECFA8D300F813F7 /* RoofCoverStagesProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoofCoverStagesProvider.swift; sourceTree = "<group>"; };
+		CFACE67A2ED1DC9E006D00B4 /* EditProjectView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditProjectView.swift; sourceTree = "<group>"; };
+		CFBE537F2EF150F6003D1B96 /* ButtonStyles.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtonStyles.swift; sourceTree = "<group>"; };
+		CFBE5CD42EDC6F8A0036D136 /* ProjectPlanView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectPlanView.swift; sourceTree = "<group>"; };
+		CFC3A3882ED480B6001D9A2C /* Expenses.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Expenses.swift; sourceTree = "<group>"; };
+		CFC3A38E2ED49427001D9A2C /* PDFReportService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFReportService.swift; sourceTree = "<group>"; };
+		CFC3A3902ED49454001D9A2C /* ShareSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareSheet.swift; sourceTree = "<group>"; };
+		CFE287782ED3364300D80679 /* DoorsStagesProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DoorsStagesProvider.swift; sourceTree = "<group>"; };
+		CFE2877A2ED3367F00D80679 /* DoorsProgressStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DoorsProgressStore.swift; sourceTree = "<group>"; };
+		CFE2877C2ED336AC00D80679 /* DoorsStagesScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DoorsStagesScreen.swift; sourceTree = "<group>"; };
+		CFE7AF7F2EBC7C7C00723E05 /* FoundationPackModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoundationPackModels.swift; sourceTree = "<group>"; };
+		CFE7AF812EBC7CC500723E05 /* FoundationStagesProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoundationStagesProvider.swift; sourceTree = "<group>"; };
+		CFE7AF832EBC7EF100723E05 /* FoundationStagesScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoundationStagesScreen.swift; sourceTree = "<group>"; };
+		CFE7AF852EBC838900723E05 /* StageDetailView2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StageDetailView2.swift; sourceTree = "<group>"; };
+		CFE7AF932EBD976100723E05 /* ChecklistItemRow2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChecklistItemRow2.swift; sourceTree = "<group>"; };
+		CFE7AF952EBD9F8500723E05 /* FoundationProgressStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoundationProgressStore.swift; sourceTree = "<group>"; };
+		CFE7AFAA2EBDA3DF00723E05 /* WallsPackModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WallsPackModels.swift; sourceTree = "<group>"; };
+		CFE7AFAC2EBDA42E00723E05 /* WallsStagesProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WallsStagesProvider.swift; sourceTree = "<group>"; };
+		CFE7AFAE2EBDA46A00723E05 /* WallsProgressStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WallsProgressStore.swift; sourceTree = "<group>"; };
+		CFE7AFB02EBDA4C000723E05 /* WallsStagesScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WallsStagesScreen.swift; sourceTree = "<group>"; };
+		CFE7AFC22EBDA9C300723E05 /* SlabPackModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SlabPackModels.swift; sourceTree = "<group>"; };
+		CFE7AFC42EBDA9EC00723E05 /* SlabStagesProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SlabStagesProvider.swift; sourceTree = "<group>"; };
+		CFE7AFC62EBDAA1700723E05 /* SlabProgressStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SlabProgressStore.swift; sourceTree = "<group>"; };
+		CFE7AFC82EBDAA3C00723E05 /* SlabStagesScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SlabStagesScreen.swift; sourceTree = "<group>"; };
+		CFE7AFD72EBDB03100723E05 /* RoofPackModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoofPackModels.swift; sourceTree = "<group>"; };
+		CFE7AFD92EBDB05300723E05 /* RoofStagesProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoofStagesProvider.swift; sourceTree = "<group>"; };
+		CFE7AFDB2EBDB07900723E05 /* RoofProgressStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoofProgressStore.swift; sourceTree = "<group>"; };
+		CFE7AFDD2EBDB09A00723E05 /* RoofStagesScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoofStagesScreen.swift; sourceTree = "<group>"; };
+		CFE7AFE32EBDB60100723E05 /* GeologyPackModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeologyPackModels.swift; sourceTree = "<group>"; };
+		CFE7AFE52EBDB62300723E05 /* GeologyStagesProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeologyStagesProvider.swift; sourceTree = "<group>"; };
+		CFE7AFE72EBDB64700723E05 /* GeologyProgressStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeologyProgressStore.swift; sourceTree = "<group>"; };
+		CFE7AFE92EBDB66D00723E05 /* GeologyStagesScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeologyStagesScreen.swift; sourceTree = "<group>"; };
+		CFE7AFEB2EBDBF7100723E05 /* EngineeringStagesProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EngineeringStagesProvider.swift; sourceTree = "<group>"; };
+		CFE7AFED2EBDBFA800723E05 /* EngineeringProgressStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EngineeringProgressStore.swift; sourceTree = "<group>"; };
+		CFE7AFEF2EBDBFCF00723E05 /* EngineeringStagesScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EngineeringStagesScreen.swift; sourceTree = "<group>"; };
+		CFE7AFFA2EBDC41D00723E05 /* WindowsStagesProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindowsStagesProvider.swift; sourceTree = "<group>"; };
+		CFE7B0002EBDC4A200723E05 /* FinishingStagesProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FinishingStagesProvider.swift; sourceTree = "<group>"; };
+		CFE7B0062EBDC6C000723E05 /* LandscapingStagesProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LandscapingStagesProvider.swift; sourceTree = "<group>"; };
+		CFE7B0092EBDC80800723E05 /* WindowsStagesScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindowsStagesScreen.swift; sourceTree = "<group>"; };
+		CFE7B00B2EBDC82500723E05 /* FinishingStagesScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FinishingStagesScreen.swift; sourceTree = "<group>"; };
+		CFE7B00D2EBDC84400723E05 /* LandscapingStagesScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LandscapingStagesScreen.swift; sourceTree = "<group>"; };
+		CFE7B00F2EBDC88000723E05 /* WindowsProgressStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindowsProgressStore.swift; sourceTree = "<group>"; };
+		CFE7B0112EBDC89800723E05 /* FinishingProgressStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FinishingProgressStore.swift; sourceTree = "<group>"; };
+		CFE7B0132EBDC8B100723E05 /* LandscapingProgressStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LandscapingProgressStore.swift; sourceTree = "<group>"; };
+		CFF04A8E2EC3013300300F50 /* gasblock */ = {isa = PBXFileReference; lastKnownFileType = folder; name = gasblock; path = Resources/InfoTexts/walls/gasblock; sourceTree = "<group>"; };
+		CFF04A8F2EC3013300300F50 /* keramblock */ = {isa = PBXFileReference; lastKnownFileType = folder; name = keramblock; path = Resources/InfoTexts/walls/keramblock; sourceTree = "<group>"; };
+		CFF04A922EC301B200300F50 /* keramblock */ = {isa = PBXFileReference; lastKnownFileType = folder; name = keramblock; path = Resources/InfoTexts/walls/keramblock; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		CF0D4AEE2EC126B300FF29AE /* Exceptions for "InfoTexts" folder in "BuildChecklists" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				doors/adjustment.md,
+				doors/final_inspection.md,
+				doors/fixings_prep.md,
+				doors/frame_extensions.md,
+				doors/frame_foam.md,
+				doors/frame_mount.md,
+				doors/frame_position.md,
+				doors/hardware.md,
+				doors/leaf_install.md,
+				doors/leaf_selection.md,
+				doors/locks.md,
+				doors/measurement.md,
+				doors/opening_clean.md,
+				doors/opening_level.md,
+				doors/operation_manual.md,
+				doors/passport.md,
+				doors/reinforcement.md,
+				doors/sealing.md,
+				doors/security.md,
+				doors/specification.md,
+				doors/threshold_finish.md,
+				doors/threshold_prep.md,
+				doors/type_selection.md,
+				engineering/commission_docs.md,
+				engineering/electric_panel.md,
+				engineering/electric_project.md,
+				engineering/electric_safety.md,
+				engineering/electric_wiring.md,
+				engineering/heating_balance.md,
+				engineering/heating_boiler.md,
+				engineering/heating_project.md,
+				engineering/heating_radiators.md,
+				engineering/lowvoltage_cctv.md,
+				engineering/lowvoltage_network.md,
+				engineering/lowvoltage_panel.md,
+				engineering/lowvoltage_security.md,
+				engineering/sewer_layout.md,
+				engineering/sewer_revision.md,
+				engineering/sewer_tank.md,
+				engineering/sewer_traps.md,
+				engineering/vent_balance.md,
+				engineering/vent_ducts.md,
+				engineering/vent_project.md,
+				engineering/vent_unit.md,
+				engineering/water_entry.md,
+				engineering/water_filter.md,
+				engineering/water_safety.md,
+				engineering/water_source.md,
+				"finishing/01-podgotovka-korobki-pod-otdelku/defekty-sten-treshchiny-rakoviny-skoly.md",
+				"finishing/01-podgotovka-korobki-pod-otdelku/geometriya-sten-i-uglov.md",
+				"finishing/01-podgotovka-korobki-pod-otdelku/germetichnost-okon-i-dvernyh-proemov.md",
+				"finishing/01-podgotovka-korobki-pod-otdelku/gorizontal-perekrytiy.md",
+				"finishing/01-podgotovka-korobki-pod-otdelku/rovnost-pola.md",
+				"finishing/01-podgotovka-korobki-pod-otdelku/slaboderzhashchiesya-uchastki.md",
+				"finishing/01-podgotovka-korobki-pod-otdelku/soglasovanie-nish-i-pereplanirovok.md",
+				"finishing/01-podgotovka-korobki-pod-otdelku/uborka-pomescheniya-ot-pyli-i-musora.md",
+				"finishing/01-podgotovka-korobki-pod-otdelku/zashchita-okon-i-dverey.md",
+				"finishing/02-chernovaya-inzheneriya-steny-potolok/foto-skrityh-kommunikatsiy.md",
+				"finishing/02-chernovaya-inzheneriya-steny-potolok/glubina-i-shirina-shtrob.md",
+				"finishing/02-chernovaya-inzheneriya-steny-potolok/razmetka-tochki-rozetok-vyklyuchateley-svetilnikov.md",
+				"finishing/02-chernovaya-inzheneriya-steny-potolok/razvodka-elektricheskih-kabeley.md",
+				"finishing/02-chernovaya-inzheneriya-steny-potolok/shema-razvodki-elektriki-po-komnatam.md",
+				"finishing/02-chernovaya-inzheneriya-steny-potolok/shtroblenie-sten-i-potolka.md",
+				"finishing/02-chernovaya-inzheneriya-steny-potolok/trassy-slabotochnyh-sistem.md",
+				"finishing/02-chernovaya-inzheneriya-steny-potolok/truby-otopleniya-i-konditsionirovaniya.md",
+				"finishing/02-chernovaya-inzheneriya-steny-potolok/ustanovka-podrozetnikov.md",
+				"finishing/03-inzheneriya-v-polu-teplyy-pol/fiksatsiya-trub-i-kabeley-ot-vsplytiya.md",
+				"finishing/03-inzheneriya-v-polu-teplyy-pol/foto-konturov-do-zalivki-styazhki.md",
+				"finishing/03-inzheneriya-v-polu-teplyy-pol/kollektornyy-uzel-i-podklyuchenie-konturov.md",
+				"finishing/03-inzheneriya-v-polu-teplyy-pol/opressovka-sistemy-teplogo-pola.md",
+				"finishing/03-inzheneriya-v-polu-teplyy-pol/proverka-osnovaniya-pola-na-prochnost.md",
+				"finishing/03-inzheneriya-v-polu-teplyy-pol/truby-teplogo-pola-ili-kabeli.md",
+				"finishing/03-inzheneriya-v-polu-teplyy-pol/urovni-chistovyh-polov-i-tolshchina-styazhki.md",
+				"finishing/03-inzheneriya-v-polu-teplyy-pol/uteplitel-i-podlozhka-po-proektu.md",
+				"finishing/03-inzheneriya-v-polu-teplyy-pol/zony-teplogo-pola-i-shag-ukladki.md",
+				"finishing/04-gidroizolyatsiya-podgotovka-pod-styazhku/dempfernaya-lenta-proverka.md",
+				"finishing/04-gidroizolyatsiya-podgotovka-pod-styazhku/gidroizolyatsiya-mokrye-zony.md",
+				"finishing/04-gidroizolyatsiya-podgotovka-pod-styazhku/gruntovka-osnovaniya-pered-styazhkoy.md",
+				"finishing/04-gidroizolyatsiya-podgotovka-pod-styazhku/ochistka-osnovaniya-pola.md",
+				"finishing/04-gidroizolyatsiya-podgotovka-pod-styazhku/proverka-primykaniy-gidroizolyatsii.md",
+				"finishing/04-gidroizolyatsiya-podgotovka-pod-styazhku/soglasovanie-otmetki-chistovogo-pola.md",
+				"finishing/04-gidroizolyatsiya-podgotovka-pod-styazhku/ustanovka-mayakov-po-lazeru.md",
+				"finishing/04-gidroizolyatsiya-podgotovka-pod-styazhku/vysootnye-otmetki-mayakov.md",
+				"finishing/04-gidroizolyatsiya-podgotovka-pod-styazhku/zashchita-gidroizolyatsii-do-styazhki.md",
+				"finishing/05-styazhka-pola/fakticheskie-otmetki-styazhki.md",
+				"finishing/05-styazhka-pola/konsistentsiya-rastvora-dlya-styazhki.md",
+				"finishing/05-styazhka-pola/kontrol-tolshchiny-styazhki.md",
+				"finishing/05-styazhka-pola/perepady-na-dline-2-metrov.md",
+				"finishing/05-styazhka-pola/proverka-pustot-i-otsloeniy-posle-vysyh.md",
+				"finishing/05-styazhka-pola/proverka-treshchin-v-teplom-polu.md",
+				"finishing/05-styazhka-pola/razravnivanie-po-pravilu.md",
+				"finishing/05-styazhka-pola/vyderzhka-styazhki-do-prochnosti.md",
+				"finishing/05-styazhka-pola/vyvedenie-ploskosti-po-urovnyu.md",
+				"finishing/06-shtukaturka-sten-chernovaya/armirovanie-uglov-i-otkosov.md",
+				"finishing/06-shtukaturka-sten-chernovaya/foto-shtukaturki-pered-potolkami.md",
+				"finishing/06-shtukaturka-sten-chernovaya/geometriya-sten-po-shtukaturke.md",
+				"finishing/06-shtukaturka-sten-chernovaya/gruntovka-sten-pered-shtukaturkoy.md",
+				"finishing/06-shtukaturka-sten-chernovaya/ploskost-i-vertikal-mayakov.md",
+				"finishing/06-shtukaturka-sten-chernovaya/proverka-osnovaniya-sten-pered-shtukaturkoy.md",
+				"finishing/06-shtukaturka-sten-chernovaya/shtukaturka-po-mayakam.md",
+				"finishing/06-shtukaturka-sten-chernovaya/tolshchina-shtukaturki-kontrol.md",
+				"finishing/06-shtukaturka-sten-chernovaya/ugly-90-gradusov-kontrol.md",
+				"finishing/06-shtukaturka-sten-chernovaya/ustanovka-mayakov-dlya-shtukaturki.md",
+				"finishing/06-shtukaturka-sten-chernovaya/zaterka-shtukaturki.md",
+				"finishing/07-chernovye-potolki-gkl-zakladnye-nishi/foto-potolka-pered-shpaklevkoy.md",
+				"finishing/07-chernovye-potolki-gkl-zakladnye-nishi/kommunikatsii-vnutri-potolka.md",
+				"finishing/07-chernovye-potolki-gkl-zakladnye-nishi/nishi-pod-shtory-i-karnizy.md",
+				"finishing/07-chernovye-potolki-gkl-zakladnye-nishi/podvesy-i-napravlyayushchie-profili.md",
+				"finishing/07-chernovye-potolki-gkl-zakladnye-nishi/proverka-shvov-i-krepleniya-gkl.md",
+				"finishing/07-chernovye-potolki-gkl-zakladnye-nishi/razmetka-potolka-pod-karkas-i-svet.md",
+				"finishing/07-chernovye-potolki-gkl-zakladnye-nishi/uroven-bazovogo-perekrytiya.md",
+				"finishing/07-chernovye-potolki-gkl-zakladnye-nishi/zakladnye-pod-svet-i-tyazhelye-elementy.md",
+				"finishing/07-chernovye-potolki-gkl-zakladnye-nishi/zashivka-karkasa-gkl.md",
+				"finishing/07-chernovye-potolki-gkl-zakladnye-nishi/zhestkost-i-ravnomernost-karkasa.md",
+				"finishing/08-malyarika-start/armirovanie-vnutrennih-uglov.md",
+				"finishing/08-malyarika-start/baza-shpaklevki-po-vsey-poverhnosti.md",
+				"finishing/08-malyarika-start/gruntovka-pod-shpaklevku.md",
+				"finishing/08-malyarika-start/kontrol-defektov-pervogo-sloya.md",
+				"finishing/08-malyarika-start/otkosy-shpaklevka-geometriya.md",
+				"finishing/08-malyarika-start/perforirovannye-ugolki-ustanovka.md",
+				"finishing/08-malyarika-start/podgotovka-pod-vtoroy-sloy.md",
+				"finishing/08-malyarika-start/proverka-osnovaniya-pered-shpaklevkoy.md",
+				"finishing/08-malyarika-start/shpaklevka-shvov-gkl-s-lentoy.md",
+				"finishing/08-malyarika-start/vyvedenie-ploskosti-shpaklevki.md",
+				"finishing/09-plitka/gruntovka-pod-plitku.md",
+				"finishing/09-plitka/kontrol-pod-svetom-plitka.md",
+				"finishing/09-plitka/kontrol-shvov-i-geometrii-plitki.md",
+				"finishing/09-plitka/podrezka-plitki-kontrol.md",
+				"finishing/09-plitka/prigotovlenie-plitki-kleya.md",
+				"finishing/09-plitka/proverka-osnovaniya-pered-plitkoy.md",
+				"finishing/09-plitka/proverka-urovney-i-ploskostey-pered-startom.md",
+				"finishing/09-plitka/razmetka-osi-i-raskladka.md",
+				"finishing/09-plitka/start-ukladki-ot-klyuchevyh-tochek.md",
+				"finishing/09-plitka/svp-sistema-vyravnivaniya.md",
+				"finishing/09-plitka/zaterka-shvov-i-germetik.md",
+				"finishing/10-malyarika-finish/finishnyy-sloy-shpaklevki.md",
+				"finishing/10-malyarika-finish/gotovnost-pod-finishnuyu-otdelku.md",
+				"finishing/10-malyarika-finish/gruntovka-pered-pokraskoy.md",
+				"finishing/10-malyarika-finish/kontrol-bokovym-svetom.md",
+				"finishing/10-malyarika-finish/kontrol-stykov-i-primykaniy.md",
+				"finishing/10-malyarika-finish/kontrol-vykrasa-ukryvistost.md",
+				"finishing/10-malyarika-finish/shlifovka-pod-pokrasku.md",
+				"finishing/10-malyarika-finish/testovyy-vykrac-sten.md",
+				"finishing/10-malyarika-finish/udalit-pyl-posle-shlifovki.md",
+				"finishing/10-malyarika-finish/ugly-i-otkosy-kontrol-finish.md",
+				"finishing/11-chistovye-potolki/dekorativnye-elementy-potolka.md",
+				"finishing/11-chistovye-potolki/foto-chistovogo-potolka.md",
+				"finishing/11-chistovye-potolki/geometriya-i-vysotnye-otmetki-potolka.md",
+				"finishing/11-chistovye-potolki/kontrol-potolka-bokovoy-svet.md",
+				"finishing/11-chistovye-potolki/kontrol-stykov-i-liniy-potolka.md",
+				"finishing/11-chistovye-potolki/montazh-chistovogo-potolka.md",
+				"finishing/11-chistovye-potolki/podgotovka-poverhnosti-pod-potolok.md",
+				"finishing/11-chistovye-potolki/proverka-osnovaniya-chistovogo-potolka.md",
+				"finishing/11-chistovye-potolki/uborka-potolka-posle-montazha.md",
+				"finishing/11-chistovye-potolki/ustanovka-svetilnikov-i-zakladnyh.md",
+				"finishing/12-poly-chistovye/finnaya-ochistka-chistovogo-pola.md",
+				"finishing/12-poly-chistovye/foto-chistovogo-pola.md",
+				"finishing/12-poly-chistovye/geometriya-liniy-i-stykov-pola.md",
+				"finishing/12-poly-chistovye/gruntovka-pod-chistovye-poly.md",
+				"finishing/12-poly-chistovye/podlozhka-i-gidroizolyatsiya-pod-pol.md",
+				"finishing/12-poly-chistovye/podrezka-chistovogo-pola.md",
+				"finishing/12-poly-chistovye/proverka-osnovaniya-pered-chistovym-polom.md",
+				"finishing/12-poly-chistovye/start-ukladki-chistovogo-pola.md",
+				"finishing/12-poly-chistovye/vlazhnost-styazhki-kontrol.md",
+				"finishing/12-poly-chistovye/vyrovnivanie-osnovaniya-pod-poly.md",
+				"finishing/12-poly-chistovye/zazory-i-kompensacionnye-shvy.md",
+				"finishing/13-dveri-plintusa-dobory/foto-i-ochistka-posle-montazha-dverey-i-plintusov.md",
+				"finishing/13-dveri-plintusa-dobory/geometriya-dvernogo-proyoma.md",
+				"finishing/13-dveri-plintusa-dobory/kontrol-uglov-i-primykaniy-plintusa.md",
+				"finishing/13-dveri-plintusa-dobory/kreplenie-dvernoy-korobki.md",
+				"finishing/13-dveri-plintusa-dobory/proverka-proyomov-pered-ustanovkoy-dverey.md",
+				"finishing/13-dveri-plintusa-dobory/regulirovka-dveri-i-primykaniy.md",
+				"finishing/13-dveri-plintusa-dobory/ustanovka-doborov.md",
+				"finishing/13-dveri-plintusa-dobory/ustanovka-dvernogo-polotna.md",
+				"finishing/13-dveri-plintusa-dobory/ustanovka-dvernoy-korobki.md",
+				"finishing/13-dveri-plintusa-dobory/ustanovka-nalichnikov.md",
+				"finishing/13-dveri-plintusa-dobory/ustanovka-plintusov.md",
+				"finishing/13-dveri-plintusa-dobory/zapolnenie-montazhnyh-zazorov-penoy.md",
+				"finishing/14-osveschenie-elektrika-priemka/finalnaya-priemka-elektriki.md",
+				"finishing/14-osveschenie-elektrika-priemka/osveschenie-bokovoy-svet-kontrol.md",
+				"finishing/14-osveschenie-elektrika-priemka/proverka-bezopasnosti-elektriki.md",
+				"finishing/14-osveschenie-elektrika-priemka/proverka-dekorativnogo-osvescheniya.md",
+				"finishing/14-osveschenie-elektrika-priemka/proverka-elektrofurnitury.md",
+				"finishing/14-osveschenie-elektrika-priemka/proverka-elektroshchita-i-markirovki.md",
+				"finishing/14-osveschenie-elektrika-priemka/proverka-grupp-osvescheniya.md",
+				"finishing/14-osveschenie-elektrika-priemka/proverka-napryazheniya-i-moshchnosti.md",
+				"finishing/14-osveschenie-elektrika-priemka/proverka-rozetok-i-liniy.md",
+				"finishing/14-osveschenie-elektrika-priemka/proverka-slabotochnyh-sistem.md",
+				"finishing/14-osveschenie-elektrika-priemka/proverka-vyklyuchateley.md",
+				"finishing/14-osveschenie-elektrika-priemka/uborka-posle-elektromontazha.md",
+				floors/pb/acceptance.md,
+				floors/pb/alignment.md,
+				floors/pb/anchors.md,
+				floors/pb/bearings.md,
+				floors/pb/belt.md,
+				floors/pb/delivery.md,
+				floors/pb/inspection.md,
+				floors/pb/joints.md,
+				floors/pb/layout.md,
+				floors/pb/lifting.md,
+				floors/pb/mounting.md,
+				floors/pb/storage.md,
+				floors/pb/winter_general.md,
+				floors/pb/winter_heat.md,
+				floors/pb/winter_pmd.md,
+				floors/pb/winter_temp.md,
+				floors/pc/acceptance.md,
+				floors/pc/alignment.md,
+				floors/pc/anchors.md,
+				floors/pc/bearings.md,
+				floors/pc/belt.md,
+				floors/pc/delivery.md,
+				floors/pc/inspection.md,
+				floors/pc/joints.md,
+				floors/pc/layout.md,
+				floors/pc/lifting.md,
+				floors/pc/mounting.md,
+				floors/pc/storage.md,
+				floors/pc/welding.md,
+				floors/pc/winter_general.md,
+				floors/pc/winter_heat.md,
+				floors/pc/winter_pmd.md,
+				floors/pc/winter_temp.md,
+				floors/slab/acceptance.md,
+				floors/slab/concrete_class.md,
+				floors/slab/concrete_pour.md,
+				floors/slab/cover.md,
+				floors/slab/cure.md,
+				floors/slab/docs.md,
+				floors/slab/formwork.md,
+				floors/slab/openings.md,
+				floors/slab/rebar_openings.md,
+				floors/slab/rebar.md,
+				floors/slab/stripping.md,
+				floors/slab/supports.md,
+				floors/slab/winter_general.md,
+				floors/slab/winter_heat.md,
+				floors/slab/winter_pmd.md,
+				floors/slab/winter_temp.md,
+				floors/steel/acceptance.md,
+				floors/steel/beams_protection.md,
+				floors/steel/beams_section.md,
+				floors/steel/concrete.md,
+				floors/steel/decking_fix.md,
+				floors/steel/decking.md,
+				floors/steel/docs.md,
+				floors/steel/rebar.md,
+				floors/steel/winter_general.md,
+				floors/steel/winter_heat.md,
+				floors/steel/winter_pmd.md,
+				floors/steel/winter_temp.md,
+				floors/wood/acceptance.md,
+				floors/wood/beams_protection.md,
+				floors/wood/beams.md,
+				floors/wood/decking_fix.md,
+				floors/wood/decking.md,
+				floors/wood/docs.md,
+				floors/wood/insulation.md,
+				floors/wood/membranes.md,
+				floors/wood/winter_general.md,
+				floors/wood/winter_protection.md,
+				floors/wood/winter_storage.md,
+				foundation/combo/acceptance_docs.md,
+				foundation/combo/acceptance_geom.md,
+				foundation/combo/backfill.md,
+				foundation/combo/design.md,
+				foundation/combo/formwork.md,
+				foundation/combo/joints.md,
+				foundation/combo/levels.md,
+				foundation/combo/rebar.md,
+				foundation/combo/releases.md,
+				foundation/combo/slab_care.md,
+				foundation/combo/verticality.md,
+				foundation/combo/waterproof.md,
+				foundation/combo/winter_general.md,
+				foundation/combo/winter_heat.md,
+				foundation/combo/winter_pmd.md,
+				foundation/combo/winter_temp.md,
+				foundation/piles/acceptance_docs.md,
+				foundation/piles/concrete.md,
+				foundation/piles/cure.md,
+				foundation/piles/formwork.md,
+				foundation/piles/heads_level.md,
+				foundation/piles/inserts.md,
+				foundation/piles/layout.md,
+				foundation/piles/rebar_cages.md,
+				foundation/piles/rebar_rostverk_connection.md,
+				foundation/piles/rebar_rostverk_layout.md,
+				foundation/piles/verticality.md,
+				foundation/piles/waterproof.md,
+				foundation/piles/winter_heat.md,
+				foundation/piles/winter_pmd.md,
+				foundation/piles/winter_temp.md,
+				foundation/slab/acceptance_docs.md,
+				foundation/slab/acceptance_geom.md,
+				foundation/slab/acceptance.md,
+				foundation/slab/base.md,
+				foundation/slab/concrete.md,
+				foundation/slab/cure.md,
+				foundation/slab/formwork.md,
+				foundation/slab/insulation.md,
+				foundation/slab/lean.md,
+				foundation/slab/prep.md,
+				foundation/slab/rebar_layout.md,
+				foundation/slab/rebar_supports.md,
+				foundation/slab/rebar.md,
+				foundation/slab/utilities.md,
+				foundation/slab/winter_heat.md,
+				foundation/slab/winter_pmd.md,
+				foundation/slab/winter_temp.md,
+				foundation/slab/winter.md,
+				foundation/strip/acceptance.md,
+				foundation/strip/backfill.md,
+				foundation/strip/base.md,
+				foundation/strip/concrete.md,
+				foundation/strip/cure.md,
+				foundation/strip/formwork.md,
+				foundation/strip/inserts.md,
+				foundation/strip/layout.md,
+				foundation/strip/rebar.md,
+				foundation/strip/siteprep.md,
+				foundation/strip/slab_part,
+				foundation/strip/trench.md,
+				foundation/strip/waterproof.md,
+				foundation/tise/acceptance.md,
+				foundation/tise/concrete.md,
+				foundation/tise/cure.md,
+				foundation/tise/drilling.md,
+				foundation/tise/footing.md,
+				foundation/tise/rebar.md,
+				foundation/tise/rostverk.md,
+				foundation/tise/waterproof.md,
+				foundation/tise/winter_heat.md,
+				foundation/tise/winter_pmd.md,
+				foundation/tise/winter_temp.md,
+				foundation/tise/winter.md,
+				"landscape/land-accept-function-check.md",
+				"landscape/land-accept-passport-transfer.md",
+				"landscape/land-accept-photo-before-after.md",
+				"landscape/land-accept-sign-off.md",
+				"landscape/land-fence-foundation-posts.md",
+				"landscape/land-fence-gate-automation.md",
+				"landscape/land-fence-metal-protection.md",
+				"landscape/land-fence-panels-install.md",
+				"landscape/land-green-lawn-plants.md",
+				"landscape/land-green-lighting-sockets.md",
+				"landscape/land-green-plan-check.md",
+				"landscape/land-green-small-forms.md",
+				"landscape/land-paths-base-preparation.md",
+				"landscape/land-paths-photo-report.md",
+				"landscape/land-paths-slope-curbs.md",
+				"landscape/land-paths-surface-leveling.md",
+				"landscape/land-plan-drainage-slopes.md",
+				"landscape/land-plan-layout-marking.md",
+				"landscape/land-plan-utilities-routing.md",
+				"landscape/land-plan-zoning.md",
+				roof/ceramic/abutments.md,
+				roof/ceramic/base.md,
+				roof/ceramic/fixings.md,
+				roof/ceramic/maintenance.md,
+				roof/ceramic/membranes.md,
+				roof/ceramic/ridge_fix.md,
+				roof/ceramic/ridge.md,
+				roof/ceramic/rows.md,
+				roof/ceramic/safety.md,
+				roof/ceramic/snow.md,
+				roof/ceramic/valley.md,
+				roof/ceramic/vent.md,
+				roof/composite/abutments.md,
+				roof/composite/base.md,
+				roof/composite/fixings.md,
+				roof/composite/layout.md,
+				roof/composite/maintenance.md,
+				roof/composite/membranes.md,
+				roof/composite/ridge_fix.md,
+				roof/composite/ridge.md,
+				roof/composite/safety.md,
+				roof/composite/snow.md,
+				roof/composite/valley.md,
+				roof/composite/vent.md,
+				roof/flat/acceptance.md,
+				roof/flat/base_slope.md,
+				roof/flat/docs.md,
+				roof/flat/drainage.md,
+				roof/flat/insulation_fit.md,
+				roof/flat/insulation.md,
+				roof/flat/maintenance.md,
+				roof/flat/safety_nodes.md,
+				roof/flat/vapor_barrier.md,
+				roof/flat/vent.md,
+				roof/flat/waterproofing.md,
+				roof/flat/winter.md,
+				roof/gable/acceptance.md,
+				roof/gable/batten.md,
+				roof/gable/covering.md,
+				roof/gable/docs.md,
+				roof/gable/maintenance.md,
+				roof/gable/nodes.md,
+				roof/gable/rafters_supports.md,
+				roof/gable/rafters.md,
+				roof/gable/safety.md,
+				roof/gable/vapor_barrier.md,
+				roof/gable/vent_gap.md,
+				roof/gable/winter.md,
+				roof/halfhip/acceptance.md,
+				roof/halfhip/batten.md,
+				roof/halfhip/covering.md,
+				roof/halfhip/docs.md,
+				roof/halfhip/geometry.md,
+				roof/halfhip/insulation_fit.md,
+				roof/halfhip/insulation.md,
+				roof/halfhip/maintenance.md,
+				roof/halfhip/nodes.md,
+				roof/halfhip/rafters.md,
+				roof/halfhip/safety.md,
+				roof/halfhip/vapor_barrier.md,
+				roof/halfhip/vent_gap.md,
+				roof/halfhip/winter.md,
+				roof/hip/acceptance.md,
+				roof/hip/batten.md,
+				roof/hip/covering.md,
+				roof/hip/docs.md,
+				roof/hip/maintenance.md,
+				roof/hip/nodes.md,
+				roof/hip/rafters_supports.md,
+				roof/hip/rafters.md,
+				roof/hip/safety.md,
+				roof/hip/vapor_barrier.md,
+				roof/hip/vent_gap.md,
+				roof/hip/winter.md,
+				roof/mansard/acceptance.md,
+				roof/mansard/batten.md,
+				roof/mansard/covering.md,
+				roof/mansard/docs.md,
+				roof/mansard/geometry.md,
+				roof/mansard/insulation_fit.md,
+				roof/mansard/insulation.md,
+				roof/mansard/maintenance.md,
+				roof/mansard/nodes.md,
+				roof/mansard/rafters.md,
+				roof/mansard/safety.md,
+				roof/mansard/vapor_barrier.md,
+				roof/mansard/vent_gap.md,
+				roof/mansard/winter.md,
+				roof/membrane/abutments.md,
+				roof/membrane/acceptance.md,
+				roof/membrane/base.md,
+				roof/membrane/drains.md,
+				roof/membrane/joints.md,
+				roof/membrane/layout.md,
+				roof/membrane/maintenance.md,
+				roof/membrane/primer.md,
+				roof/membrane/snow.md,
+				roof/membrane/winter.md,
+				roof/metal/base.md,
+				roof/metal/fixings.md,
+				roof/metal/flashings.md,
+				roof/metal/layout.md,
+				roof/metal/maintenance.md,
+				roof/metal/membranes.md,
+				roof/metal/safety.md,
+				roof/metal/snow.md,
+				roof/multi/acceptance.md,
+				roof/multi/batten.md,
+				roof/multi/covering.md,
+				roof/multi/docs.md,
+				roof/multi/geometry.md,
+				roof/multi/insulation_fit.md,
+				roof/multi/insulation.md,
+				roof/multi/maintenance.md,
+				roof/multi/nodes.md,
+				roof/multi/rafters.md,
+				roof/multi/safety.md,
+				roof/multi/vapor_barrier.md,
+				roof/multi/vent_gap.md,
+				roof/multi/winter.md,
+				roof/prof/base.md,
+				roof/prof/fixings.md,
+				roof/prof/flashings.md,
+				roof/prof/layout.md,
+				roof/prof/maintenance.md,
+				roof/prof/membranes.md,
+				roof/prof/safety.md,
+				roof/prof/snow.md,
+				roof/seam/base.md,
+				roof/seam/fixings.md,
+				roof/seam/flashings.md,
+				roof/seam/layout.md,
+				roof/seam/maintenance.md,
+				roof/seam/membranes.md,
+				roof/seam/safety.md,
+				roof/seam/snow.md,
+				roof/shed/acceptance.md,
+				roof/shed/batten.md,
+				roof/shed/covering.md,
+				roof/shed/docs.md,
+				roof/shed/geometry.md,
+				roof/shed/insulation_fit.md,
+				roof/shed/insulation.md,
+				roof/shed/maintenance.md,
+				roof/shed/nodes.md,
+				roof/shed/rafters.md,
+				roof/shed/safety.md,
+				roof/shed/vapor_barrier.md,
+				roof/shed/vent_gap.md,
+				roof/shed/winter.md,
+				roof/shingle/abutments.md,
+				roof/shingle/base_valley.md,
+				roof/shingle/base.md,
+				roof/shingle/cleaning.md,
+				roof/shingle/flanges.md,
+				roof/shingle/maintenance.md,
+				roof/shingle/nailing.md,
+				roof/shingle/ridge.md,
+				roof/shingle/shingles.md,
+				roof/shingle/snow.md,
+				roof/shingle/starter_edge.md,
+				roof/shingle/starter_strip.md,
+				roof/shingle/starter.md,
+				roof/shingle/underlay_full.md,
+				roof/shingle/underlay.md,
+				roof/shingle/valley_mastic.md,
+				roof/shingle/valley.md,
+				roof/shingle/valleys.md,
+				roof/shingle/vent_ridge.md,
+				roof/shingle/vents.md,
+				roof/shingle/winter.md,
+				roof/tent/acceptance.md,
+				roof/tent/batten.md,
+				roof/tent/covering.md,
+				roof/tent/docs.md,
+				roof/tent/geometry.md,
+				roof/tent/insulation_fit.md,
+				roof/tent/insulation.md,
+				roof/tent/maintenance.md,
+				roof/tent/nodes.md,
+				roof/tent/rafters.md,
+				roof/tent/safety.md,
+				roof/tent/vapor_barrier.md,
+				roof/tent/vent_gap.md,
+				roof/tent/winter.md,
+				site/geology_bearing_frost_gw.md,
+				site/geology_capacity.md,
+				site/geology_drilling.md,
+				site/geology_lab_protocols.md,
+				site/geology_lab_tests.md,
+				site/geology_layout.md,
+				site/geology_measures.md,
+				site/geology_report.md,
+				site/geology_sampling.md,
+				site/geology.md,
+				site/topo_binding.md,
+				site/topo_marks.md,
+				site/topo_survey.md,
+				site/topo.md,
+				walls/arbolit/acceptance.md,
+				walls/arbolit/base.md,
+				walls/arbolit/bonding.md,
+				walls/arbolit/firstrow.md,
+				walls/arbolit/flatness.md,
+				walls/arbolit/inserts.md,
+				walls/arbolit/insulation.md,
+				walls/arbolit/joints.md,
+				walls/arbolit/lintels.md,
+				walls/arbolit/masonry.md,
+				walls/arbolit/openings.md,
+				walls/arbolit/protection.md,
+				walls/arbolit/rebar.md,
+				walls/arbolit/ringbeam.md,
+				walls/arbolit/winter.md,
+				walls/brick/acceptance.md,
+				walls/brick/base.md,
+				walls/brick/bonding.md,
+				walls/brick/firstrow.md,
+				walls/brick/flatness.md,
+				walls/brick/insulation.md,
+				walls/brick/joints.md,
+				walls/brick/lintels.md,
+				walls/brick/masonry.md,
+				walls/brick/mortar.md,
+				walls/brick/openings.md,
+				walls/brick/protection.md,
+				walls/brick/rebar.md,
+				walls/brick/ringbeam.md,
+				walls/brick/winter.md,
+				walls/combo/acceptance.md,
+				walls/combo/compat.md,
+				walls/combo/design.md,
+				walls/combo/facade.md,
+				walls/combo/inserts.md,
+				walls/combo/insulation.md,
+				walls/combo/joints.md,
+				walls/combo/masonry.md,
+				walls/gasblock/acceptance.md,
+				walls/gasblock/base.md,
+				walls/gasblock/bonding.md,
+				walls/gasblock/firstrow.md,
+				walls/gasblock/flatness.md,
+				walls/gasblock/inserts.md,
+				walls/gasblock/insulation.md,
+				walls/gasblock/joints.md,
+				walls/gasblock/layout.md,
+				walls/gasblock/lintels.md,
+				walls/gasblock/masonry.md,
+				walls/gasblock/openings.md,
+				walls/gasblock/protection.md,
+				walls/gasblock/rebar.md,
+				walls/gasblock/ringbeam.md,
+				walls/gasblock/waterproof.md,
+				walls/gasblock/winter.md,
+				walls/keramblock/acceptance.md,
+				walls/keramblock/base.md,
+				walls/keramblock/bonding.md,
+				walls/keramblock/firstrow.md,
+				walls/keramblock/flatness.md,
+				walls/keramblock/insulation.md,
+				walls/keramblock/joints.md,
+				walls/keramblock/layout.md,
+				walls/keramblock/lintels.md,
+				walls/keramblock/masonry.md,
+				walls/keramblock/openings.md,
+				walls/keramblock/protection.md,
+				walls/keramblock/rebar.md,
+				walls/keramblock/ringbeam.md,
+				walls/keramblock/waterproof.md,
+				walls/keramblock/winter.md,
+				walls/keramzit/acceptance.md,
+				walls/keramzit/base.md,
+				walls/keramzit/bonding.md,
+				walls/keramzit/firstrow.md,
+				walls/keramzit/flatness.md,
+				walls/keramzit/insulation.md,
+				walls/keramzit/joints.md,
+				walls/keramzit/lintels.md,
+				walls/keramzit/masonry.md,
+				walls/keramzit/openings.md,
+				walls/keramzit/protection.md,
+				walls/keramzit/rebar.md,
+				walls/keramzit/ringbeam.md,
+				walls/keramzit/winter.md,
+				walls/monolithic/acceptance.md,
+				walls/monolithic/base.md,
+				walls/monolithic/cure.md,
+				walls/monolithic/design.md,
+				walls/monolithic/flatness.md,
+				walls/monolithic/formwork.md,
+				walls/monolithic/inserts.md,
+				walls/monolithic/insulation.md,
+				walls/monolithic/joints.md,
+				walls/monolithic/pouring.md,
+				walls/monolithic/rebar.md,
+				walls/monolithic/stripping.md,
+				walls/monolithic/waterproof.md,
+				walls/monolithic/winter.md,
+				windows/adjustment.md,
+				windows/drip_edge.md,
+				windows/final_inspection.md,
+				windows/fittings.md,
+				windows/foam.md,
+				windows/frame_mount.md,
+				windows/glass_selection.md,
+				windows/install_gaps.md,
+				windows/measurement.md,
+				windows/opening_clean.md,
+				windows/opening_level.md,
+				windows/passport.md,
+				windows/primary_adjust.md,
+				windows/profile_selection.md,
+				windows/sashes.md,
+				windows/sealing_joints.md,
+				windows/sill_install.md,
+				windows/slopes_preparation.md,
+				windows/specification.md,
+				windows/support_profile.md,
+				windows/tapes.md,
+			);
+			target = CF5955312EB9D8A9006BF803 /* BuildChecklists */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		CF0248ED2F38C9C100EB5E64 /* UI */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = UI;
+			sourceTree = "<group>";
+		};
+		CF07550B2ED32256006DD3D7 /* WindowsPacks */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = WindowsPacks;
+			sourceTree = "<group>";
+		};
+		CF0755102ED32892006DD3D7 /* DoorsPacks */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = DoorsPacks;
+			sourceTree = "<group>";
+		};
+		CF0D4AD42EC125CA00FF29AE /* InfoTexts */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				CF0D4AEE2EC126B300FF29AE /* Exceptions for "InfoTexts" folder in "BuildChecklists" target */,
+			);
+			path = InfoTexts;
+			sourceTree = "<group>";
+		};
+		CF2BE2ED2EE98A6A00FF0F3D /* Paywall */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Paywall;
+			sourceTree = "<group>";
+		};
+		CF2DB11F2EF3FD4D004FD3AD /* Calculator */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Calculator;
+			sourceTree = "<group>";
+		};
 		CF5955342EB9D8A9006BF803 /* BuildChecklists */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = BuildChecklists;
+			sourceTree = "<group>";
+		};
+		CF6EB3132EE1FB5E00A727C7 /* Tasks */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Tasks;
+			sourceTree = "<group>";
+		};
+		CF7D813C2EE1F5AD0034E149 /* Tasks */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Tasks;
+			sourceTree = "<group>";
+		};
+		CF98DA6E2EED6B2200862DE1 /* Common */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Common;
+			sourceTree = "<group>";
+		};
+		CFAB68072ECFA64500F813F7 /* RoofCoverPacks */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = RoofCoverPacks;
+			sourceTree = "<group>";
+		};
+		CFBDCE092EDA1A6300A94EA4 /* Budget */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Budget;
+			sourceTree = "<group>";
+		};
+		CFC3A3842ED466CA001D9A2C /* Main */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Main;
+			sourceTree = "<group>";
+		};
+		CFC3A38A2ED488F2001D9A2C /* Expenses */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Expenses;
+			sourceTree = "<group>";
+		};
+		CFE7AF6F2EBC7B2100723E05 /* FoundationPacks */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = FoundationPacks;
+			sourceTree = "<group>";
+		};
+		CFE7AF972EBDA2E200723E05 /* WallsPacks */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = WallsPacks;
+			sourceTree = "<group>";
+		};
+		CFE7AFB22EBDA8FE00723E05 /* SlabPacks */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = SlabPacks;
+			sourceTree = "<group>";
+		};
+		CFE7AFCA2EBDAF9000723E05 /* RoofPacks */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = RoofPacks;
+			sourceTree = "<group>";
+		};
+		CFE7AFDF2EBDB5A100723E05 /* GeologyPacks */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = GeologyPacks;
+			sourceTree = "<group>";
+		};
+		CFE7AFF12EBDC2B400723E05 /* EngineeringPacks */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = EngineeringPacks;
+			sourceTree = "<group>";
+		};
+		CFE7AFFC2EBDC45C00723E05 /* FinishingPacks */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = FinishingPacks;
+			sourceTree = "<group>";
+		};
+		CFE7B0022EBDC51200723E05 /* LandscapingPacks */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = LandscapingPacks;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -23,16 +1021,73 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CF4358EC2F37B9AF00A6C03D /* StoreKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		CF4358EA2F37B9AF00A6C03D /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				CF4358EB2F37B9AF00A6C03D /* StoreKit.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		CF44864D2EBBEFEB007DA0BB /* Seeds */ = {
+			isa = PBXGroup;
+			children = (
+				CFE2877A2ED3367F00D80679 /* DoorsProgressStore.swift */,
+				CFE287782ED3364300D80679 /* DoorsStagesProvider.swift */,
+				CF0755102ED32892006DD3D7 /* DoorsPacks */,
+				CF07550B2ED32256006DD3D7 /* WindowsPacks */,
+				CFAB680F2ECFA8D300F813F7 /* RoofCoverStagesProvider.swift */,
+				CFAB680B2ECFA69E00F813F7 /* RoofCoverProgressStore.swift */,
+				CFAB68072ECFA64500F813F7 /* RoofCoverPacks */,
+				CFE7B0062EBDC6C000723E05 /* LandscapingStagesProvider.swift */,
+				CFE7B0022EBDC51200723E05 /* LandscapingPacks */,
+				CFE7B0002EBDC4A200723E05 /* FinishingStagesProvider.swift */,
+				CFE7AFFC2EBDC45C00723E05 /* FinishingPacks */,
+				CFE7AFFA2EBDC41D00723E05 /* WindowsStagesProvider.swift */,
+				CFE7AFF12EBDC2B400723E05 /* EngineeringPacks */,
+				CFE7AFEB2EBDBF7100723E05 /* EngineeringStagesProvider.swift */,
+				CFE7AFE52EBDB62300723E05 /* GeologyStagesProvider.swift */,
+				CFE7AFDF2EBDB5A100723E05 /* GeologyPacks */,
+				CFE7AFD92EBDB05300723E05 /* RoofStagesProvider.swift */,
+				CFE7AFCA2EBDAF9000723E05 /* RoofPacks */,
+				CFE7AFC42EBDA9EC00723E05 /* SlabStagesProvider.swift */,
+				CFE7AFB22EBDA8FE00723E05 /* SlabPacks */,
+				CFE7AFAC2EBDA42E00723E05 /* WallsStagesProvider.swift */,
+				CFE7AF972EBDA2E200723E05 /* WallsPacks */,
+				CFE7AF6F2EBC7B2100723E05 /* FoundationPacks */,
+				CFE7AF812EBC7CC500723E05 /* FoundationStagesProvider.swift */,
+				CF4487962EBC59E3007DA0BB /* SeedsPacks */,
+				CF44864E2EBBF15E007DA0BB /* stages.json */,
+			);
+			path = Seeds;
+			sourceTree = "<group>";
+		};
 		CF5955292EB9D8A9006BF803 = {
 			isa = PBXGroup;
 			children = (
+				CF0248ED2F38C9C100EB5E64 /* UI */,
+				CF7F15752EC6511E008A1732 /* monolithic */,
+				CF7346832EC453840061E531 /* arbolit */,
+				CFF04A922EC301B200300F50 /* keramblock */,
+				CFF04A8E2EC3013300300F50 /* gasblock */,
+				CFF04A8F2EC3013300300F50 /* keramblock */,
+				CF0D4AEF2EC1275C00FF29AE /* InfoTexts */,
+				CF59554C2EB9DC87006BF803 /* Resources */,
+				CF59554B2EB9DC79006BF803 /* Components */,
+				CF5955442EB9DB06006BF803 /* Views */,
+				CF5955432EB9DAF4006BF803 /* Services */,
+				CF5955422EB9DAE8006BF803 /* Models */,
+				CF5955412EB9DABF006BF803 /* Store */,
+				CF5955402EB9DAA7006BF803 /* App */,
 				CF5955342EB9D8A9006BF803 /* BuildChecklists */,
+				CF4358EA2F37B9AF00A6C03D /* Frameworks */,
 				CF5955332EB9D8A9006BF803 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -43,6 +1098,193 @@
 				CF5955322EB9D8A9006BF803 /* BuildChecklists.app */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		CF5955402EB9DAA7006BF803 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				CF59554F2EB9E055006BF803 /* BuildChecklistsApp.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		CF5955412EB9DABF006BF803 /* Store */ = {
+			isa = PBXGroup;
+			children = (
+				CF1510D22EEEE12600C4BE97 /* SubscriptionService.swift */,
+				CF5955512EB9E222006BF803 /* AppStore.swift */,
+			);
+			path = Store;
+			sourceTree = "<group>";
+		};
+		CF5955422EB9DAE8006BF803 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				CF6EB3132EE1FB5E00A727C7 /* Tasks */,
+				CF8B2D7B2EDA080600307209 /* GlobalStageCategory.swift */,
+				CF0AFFAF2ED6F70400BB7DF8 /* ProjectContact.swift */,
+				CFC3A3882ED480B6001D9A2C /* Expenses.swift */,
+				CF0D4AF72EC1363400FF29AE /* ItemTemplate.swift */,
+				CFE7AFE32EBDB60100723E05 /* GeologyPackModels.swift */,
+				CFE7AFD72EBDB03100723E05 /* RoofPackModels.swift */,
+				CFE7AFC22EBDA9C300723E05 /* SlabPackModels.swift */,
+				CFE7AFAA2EBDA3DF00723E05 /* WallsPackModels.swift */,
+				CFE7AF7F2EBC7C7C00723E05 /* FoundationPackModels.swift */,
+				CF449E1C2EBA887A00EDF921 /* SeedItem.swift */,
+				CF2E8B892EBA70F800C93EB0 /* SeedStage+Materialize.swift */,
+				CF2E8B872EBA6FF400C93EB0 /* SeedStage.swift */,
+				CF59555D2EB9E8E1006BF803 /* StageItem.swift */,
+				CF59555B2EB9E8BB006BF803 /* Stage.swift */,
+				CF5955592EB9E87A006BF803 /* Project.swift */,
+				CF5955572EB9E835006BF803 /* Enums.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		CF5955432EB9DAF4006BF803 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				CF3A10E92EE6FCAB00DA3F90 /* TaskNotificationService.swift */,
+				CFC3A38E2ED49427001D9A2C /* PDFReportService.swift */,
+				CF0D4A182EC020A100FF29AE /* InfoTextManager.swift */,
+				CFE7B0132EBDC8B100723E05 /* LandscapingProgressStore.swift */,
+				CFE7B0112EBDC89800723E05 /* FinishingProgressStore.swift */,
+				CFE7B00F2EBDC88000723E05 /* WindowsProgressStore.swift */,
+				CFE7AFED2EBDBFA800723E05 /* EngineeringProgressStore.swift */,
+				CFE7AFE72EBDB64700723E05 /* GeologyProgressStore.swift */,
+				CFE7AFDB2EBDB07900723E05 /* RoofProgressStore.swift */,
+				CFE7AFC62EBDAA1700723E05 /* SlabProgressStore.swift */,
+				CFE7AFAE2EBDA46A00723E05 /* WallsProgressStore.swift */,
+				CFE7AF952EBD9F8500723E05 /* FoundationProgressStore.swift */,
+				CF0524782EBBCFA0008A66AD /* SeedPackLoader.swift */,
+				CF59556F2EB9EF15006BF803 /* MediaService.swift */,
+				CF5955632EB9E963006BF803 /* MarkdownLoader.swift */,
+				CF5955612EB9E943006BF803 /* AuthService.swift */,
+				CF59555F2EB9E90D006BF803 /* StorageService.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		CF5955442EB9DB06006BF803 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				CF2DB11F2EF3FD4D004FD3AD /* Calculator */,
+				CF98DA6E2EED6B2200862DE1 /* Common */,
+				CF2BE2ED2EE98A6A00FF0F3D /* Paywall */,
+				CF7D813C2EE1F5AD0034E149 /* Tasks */,
+				CFBDCE092EDA1A6300A94EA4 /* Budget */,
+				CFC3A38A2ED488F2001D9A2C /* Expenses */,
+				CFC3A3842ED466CA001D9A2C /* Main */,
+				CF5955C32EB9E999006BF804 /* Onboarding */,
+				CF59554A2EB9DC63006BF803 /* Stages */,
+				CF5955492EB9DC53006BF803 /* Projects */,
+				CF5955482EB9DC45006BF803 /* Auth */,
+				CF5955472EB9DC33006BF803 /* Welcome */,
+				CF5955B22EB9E999006BF803 /* WhatsNew */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		CF5955472EB9DC33006BF803 /* Welcome */ = {
+			isa = PBXGroup;
+			children = (
+				CF5955522EB9E270006BF803 /* WelcomeView.swift */,
+			);
+			path = Welcome;
+			sourceTree = "<group>";
+		};
+		CF5955482EB9DC45006BF803 /* Auth */ = {
+			isa = PBXGroup;
+			children = (
+				CF2BE2EB2EE96DAD00FF0F3D /* LoginView.swift */,
+				CF5955672EB9EA25006BF803 /* RegisterView.swift */,
+			);
+			path = Auth;
+			sourceTree = "<group>";
+		};
+		CF5955492EB9DC53006BF803 /* Projects */ = {
+			isa = PBXGroup;
+			children = (
+				CFA3FD2E2EDE078D00CD8DCE /* StageCompleteView.swift */,
+				CFA3FD2C2EDE076700CD8DCE /* StageScheduleEditView.swift */,
+				CFA3FD2A2EDE031400CD8DCE /* StageDelayReasonView.swift */,
+				CFBE5CD42EDC6F8A0036D136 /* ProjectPlanView.swift */,
+				CF476FEF2EDC4B5B000281E5 /* CoverCropView.swift */,
+				CF0AFFB52ED7043000BB7DF8 /* ProjectFilesView.swift */,
+				CF0AFFB32ED6FEA700BB7DF8 /* EditProjectContactView.swift */,
+				CF0AFFB12ED6FE8600BB7DF8 /* ProjectContactsView.swift */,
+				CFACE67A2ED1DC9E006D00B4 /* EditProjectView.swift */,
+				CF3226302EBABFA700401DFB /* RoofCoverPickerView.swift */,
+				CF32262E2EBABF7F00401DFB /* RoofShapePickerView.swift */,
+				CF32262C2EBABF5B00401DFB /* SlabPickerView.swift */,
+				CF32262A2EBABF2E00401DFB /* WallsPickerView.swift */,
+				CF3226282EBABEF200401DFB /* PickerTile.swift */,
+				CF3226262EBABAF700401DFB /* FoundationPickerView.swift */,
+				CF59556B2EB9EB66006BF803 /* ProjectDashboardView.swift */,
+				CF5955692EB9EB3E006BF803 /* ProjectFormView.swift */,
+				CF5955532EB9E2CA006BF803 /* ProjectsListView.swift */,
+			);
+			path = Projects;
+			sourceTree = "<group>";
+		};
+		CF59554A2EB9DC63006BF803 /* Stages */ = {
+			isa = PBXGroup;
+			children = (
+				CFE7AFE92EBDB66D00723E05 /* GeologyStagesScreen.swift */,
+				CFE7AF832EBC7EF100723E05 /* FoundationStagesScreen.swift */,
+				CFE7AFB02EBDA4C000723E05 /* WallsStagesScreen.swift */,
+				CFE7AFC82EBDAA3C00723E05 /* SlabStagesScreen.swift */,
+				CFE7AFDD2EBDB09A00723E05 /* RoofStagesScreen.swift */,
+				CFAB680D2ECFA73A00F813F7 /* RoofCoverStagesScreen.swift */,
+				CFE7AFEF2EBDBFCF00723E05 /* EngineeringStagesScreen.swift */,
+				CFE7B0092EBDC80800723E05 /* WindowsStagesScreen.swift */,
+				CFE2877C2ED336AC00D80679 /* DoorsStagesScreen.swift */,
+				CFE7B00B2EBDC82500723E05 /* FinishingStagesScreen.swift */,
+				CFE7B00D2EBDC84400723E05 /* LandscapingStagesScreen.swift */,
+				CFE7AF852EBC838900723E05 /* StageDetailView2.swift */,
+				CF5955772EB9F2E7006BF803 /* InfoTextView.swift */,
+				CF59556D2EB9EB8D006BF803 /* StageDetailView.swift */,
+			);
+			path = Stages;
+			sourceTree = "<group>";
+		};
+		CF59554B2EB9DC79006BF803 /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				CFBE537F2EF150F6003D1B96 /* ButtonStyles.swift */,
+				CFC3A3902ED49454001D9A2C /* ShareSheet.swift */,
+				CF0D4A1A2EC020CD00FF29AE /* InfoSheetView.swift */,
+				CF0D49E42EBFEF6F00FF29AE /* StageListCard.swift */,
+				CFE7AF932EBD976100723E05 /* ChecklistItemRow2.swift */,
+				CF5955732EB9EF97006BF803 /* ItemCardView.swift */,
+				CF5955722EB9EF6E006BF803 /* FullScreenImageView.swift */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+		CF59554C2EB9DC87006BF803 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				CF0D4AD42EC125CA00FF29AE /* InfoTexts */,
+				CF44864D2EBBEFEB007DA0BB /* Seeds */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		CF5955B22EB9E999006BF803 /* WhatsNew */ = {
+			isa = PBXGroup;
+			children = (
+				CF5955B02EB9E999006BF803 /* WhatsNewView.swift */,
+			);
+			path = WhatsNew;
+			sourceTree = "<group>";
+		};
+		CF5955C32EB9E999006BF804 /* Onboarding */ = {
+			isa = PBXGroup;
+			children = (
+				CF5955C02EB9E999006BF804 /* OnboardingView.swift */,
+			);
+			path = Onboarding;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -61,7 +1303,28 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
+				CF0248ED2F38C9C100EB5E64 /* UI */,
+				CF07550B2ED32256006DD3D7 /* WindowsPacks */,
+				CF0755102ED32892006DD3D7 /* DoorsPacks */,
+				CF0D4AD42EC125CA00FF29AE /* InfoTexts */,
+				CF2BE2ED2EE98A6A00FF0F3D /* Paywall */,
+				CF2DB11F2EF3FD4D004FD3AD /* Calculator */,
 				CF5955342EB9D8A9006BF803 /* BuildChecklists */,
+				CF6EB3132EE1FB5E00A727C7 /* Tasks */,
+				CF7D813C2EE1F5AD0034E149 /* Tasks */,
+				CF98DA6E2EED6B2200862DE1 /* Common */,
+				CFAB68072ECFA64500F813F7 /* RoofCoverPacks */,
+				CFBDCE092EDA1A6300A94EA4 /* Budget */,
+				CFC3A3842ED466CA001D9A2C /* Main */,
+				CFC3A38A2ED488F2001D9A2C /* Expenses */,
+				CFE7AF6F2EBC7B2100723E05 /* FoundationPacks */,
+				CFE7AF972EBDA2E200723E05 /* WallsPacks */,
+				CFE7AFB22EBDA8FE00723E05 /* SlabPacks */,
+				CFE7AFCA2EBDAF9000723E05 /* RoofPacks */,
+				CFE7AFDF2EBDB5A100723E05 /* GeologyPacks */,
+				CFE7AFF12EBDC2B400723E05 /* EngineeringPacks */,
+				CFE7AFFC2EBDC45C00723E05 /* FinishingPacks */,
+				CFE7B0022EBDC51200723E05 /* LandscapingPacks */,
 			);
 			name = BuildChecklists;
 			packageProductDependencies = (
@@ -109,6 +1372,13 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CF7F15762EC6511E008A1732 /* monolithic in Resources */,
+				CF7346842EC453850061E531 /* arbolit in Resources */,
+				CFF04A932EC301B200300F50 /* keramblock in Resources */,
+				CFF04A902EC3013300300F50 /* gasblock in Resources */,
+				CF0D4AF02EC1275C00FF29AE /* InfoTexts in Resources */,
+				CF4487972EBC59E3007DA0BB /* SeedsPacks in Resources */,
+				CF44864F2EBBF162007DA0BB /* stages.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -119,6 +1389,99 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CFE7AF942EBD976400723E05 /* ChecklistItemRow2.swift in Sources */,
+				CF5955642EB9E966006BF803 /* MarkdownLoader.swift in Sources */,
+				CF0D4A1B2EC020CF00FF29AE /* InfoSheetView.swift in Sources */,
+				CF476FF02EDC4B61000281E5 /* CoverCropView.swift in Sources */,
+				CF5955502EB9E0BB006BF803 /* BuildChecklistsApp.swift in Sources */,
+				CFE7AF822EBC7CC800723E05 /* FoundationStagesProvider.swift in Sources */,
+				CF8B2D7C2EDA080E00307209 /* GlobalStageCategory.swift in Sources */,
+				CF5955552EB9E3AA006BF803 /* WelcomeView.swift in Sources */,
+				CF5955C12EB9E999006BF804 /* OnboardingView.swift in Sources */,
+				CF5955B12EB9E999006BF803 /* WhatsNewView.swift in Sources */,
+				CFE7AF962EBD9F8800723E05 /* FoundationProgressStore.swift in Sources */,
+				CF2E8B882EBA700300C93EB0 /* SeedStage.swift in Sources */,
+				CFBE5CD52EDC6F900036D136 /* ProjectPlanView.swift in Sources */,
+				CFE7B0122EBDC89B00723E05 /* FinishingProgressStore.swift in Sources */,
+				CF0AFFB22ED6FE8B00BB7DF8 /* ProjectContactsView.swift in Sources */,
+				CFE7AF802EBC7C8000723E05 /* FoundationPackModels.swift in Sources */,
+				CF59556E2EB9EB99006BF803 /* StageDetailView.swift in Sources */,
+				CF32262D2EBABF5D00401DFB /* SlabPickerView.swift in Sources */,
+				CFA3FD2B2EDE031900CD8DCE /* StageDelayReasonView.swift in Sources */,
+				CF5955782EB9F2EA006BF803 /* InfoTextView.swift in Sources */,
+				CF5955582EB9E863006BF803 /* Enums.swift in Sources */,
+				CFE2877D2ED336B200D80679 /* DoorsStagesScreen.swift in Sources */,
+				CFAB680C2ECFA6A400F813F7 /* RoofCoverProgressStore.swift in Sources */,
+				CFE7AFEA2EBDB66F00723E05 /* GeologyStagesScreen.swift in Sources */,
+				CFE7AFAB2EBDA3E200723E05 /* WallsPackModels.swift in Sources */,
+				CFC3A38F2ED4942C001D9A2C /* PDFReportService.swift in Sources */,
+				CFE7B00E2EBDC84600723E05 /* LandscapingStagesScreen.swift in Sources */,
+				CF59555C2EB9E8BF006BF803 /* Stage.swift in Sources */,
+				CFBE53802EF150FB003D1B96 /* ButtonStyles.swift in Sources */,
+				CF449E1D2EBA887D00EDF921 /* SeedItem.swift in Sources */,
+				CF5955562EB9E3BC006BF803 /* ProjectsListView.swift in Sources */,
+				CFE7AFE82EBDB64900723E05 /* GeologyProgressStore.swift in Sources */,
+				CFA3FD2F2EDE079300CD8DCE /* StageCompleteView.swift in Sources */,
+				CF0D4AF82EC1364300FF29AE /* ItemTemplate.swift in Sources */,
+				CFE7AFC52EBDA9EF00723E05 /* SlabStagesProvider.swift in Sources */,
+				CF59555E2EB9E8E4006BF803 /* StageItem.swift in Sources */,
+				CFE7AFDC2EBDB07B00723E05 /* RoofProgressStore.swift in Sources */,
+				CF1510D32EEEE12C00C4BE97 /* SubscriptionService.swift in Sources */,
+				CF0AFFB42ED6FEAE00BB7DF8 /* EditProjectContactView.swift in Sources */,
+				CF59556A2EB9EB41006BF803 /* ProjectFormView.swift in Sources */,
+				CFE7AFAD2EBDA43100723E05 /* WallsStagesProvider.swift in Sources */,
+				CFE7AFEE2EBDBFAB00723E05 /* EngineeringProgressStore.swift in Sources */,
+				CFE7AFE62EBDB62500723E05 /* GeologyStagesProvider.swift in Sources */,
+				CF3A10EA2EE6FCB000DA3F90 /* TaskNotificationService.swift in Sources */,
+				CFE7AFB12EBDA4C200723E05 /* WallsStagesScreen.swift in Sources */,
+				CFE7AFC92EBDAA3E00723E05 /* SlabStagesScreen.swift in Sources */,
+				CF5955752EB9F004006BF803 /* FullScreenImageView.swift in Sources */,
+				CF0AFFB62ED7043500BB7DF8 /* ProjectFilesView.swift in Sources */,
+				CFACE67B2ED1DCA4006D00B4 /* EditProjectView.swift in Sources */,
+				CFE7AFEC2EBDBF7300723E05 /* EngineeringStagesProvider.swift in Sources */,
+				CF3226292EBABEFD00401DFB /* PickerTile.swift in Sources */,
+				CFE2877B2ED3368500D80679 /* DoorsProgressStore.swift in Sources */,
+				CFE7B0102EBDC88200723E05 /* WindowsProgressStore.swift in Sources */,
+				CF5955542EB9E397006BF803 /* AppStore.swift in Sources */,
+				CFC3A3892ED480BB001D9A2C /* Expenses.swift in Sources */,
+				CF5955622EB9E945006BF803 /* AuthService.swift in Sources */,
+				CFE7AFC32EBDA9C600723E05 /* SlabPackModels.swift in Sources */,
+				CFAB68102ECFA8DA00F813F7 /* RoofCoverStagesProvider.swift in Sources */,
+				CF32262F2EBABF8200401DFB /* RoofShapePickerView.swift in Sources */,
+				CFE7AFC72EBDAA1900723E05 /* SlabProgressStore.swift in Sources */,
+				CF5955682EB9EA33006BF803 /* RegisterView.swift in Sources */,
+				CFE7B0012EBDC4A500723E05 /* FinishingStagesProvider.swift in Sources */,
+				CFE7AFDA2EBDB05600723E05 /* RoofStagesProvider.swift in Sources */,
+				CF5955742EB9EFFB006BF803 /* ItemCardView.swift in Sources */,
+				CFE7B00A2EBDC80A00723E05 /* WindowsStagesScreen.swift in Sources */,
+				CF59556C2EB9EB69006BF803 /* ProjectDashboardView.swift in Sources */,
+				CFE7AFF02EBDBFD200723E05 /* EngineeringStagesScreen.swift in Sources */,
+				CF5955602EB9E92C006BF803 /* StorageService.swift in Sources */,
+				CF2BE2EC2EE96DB100FF0F3D /* LoginView.swift in Sources */,
+				CFE7B00C2EBDC82800723E05 /* FinishingStagesScreen.swift in Sources */,
+				CF0AFFB02ED6F70B00BB7DF8 /* ProjectContact.swift in Sources */,
+				CF3226272EBABAFA00401DFB /* FoundationPickerView.swift in Sources */,
+				CF5955702EB9EF18006BF803 /* MediaService.swift in Sources */,
+				CF3226312EBABFA900401DFB /* RoofCoverPickerView.swift in Sources */,
+				CF0524792EBBCFA4008A66AD /* SeedPackLoader.swift in Sources */,
+				CFE7AFAF2EBDA46D00723E05 /* WallsProgressStore.swift in Sources */,
+				CF59555A2EB9E87D006BF803 /* Project.swift in Sources */,
+				CFAB680E2ECFA74000F813F7 /* RoofCoverStagesScreen.swift in Sources */,
+				CF2E8B8A2EBA710600C93EB0 /* SeedStage+Materialize.swift in Sources */,
+				CFE7B0072EBDC6C300723E05 /* LandscapingStagesProvider.swift in Sources */,
+				CFE7AF862EBC838C00723E05 /* StageDetailView2.swift in Sources */,
+				CFA3FD2D2EDE076D00CD8DCE /* StageScheduleEditView.swift in Sources */,
+				CFE7AFE42EBDB60400723E05 /* GeologyPackModels.swift in Sources */,
+				CFE7AFFB2EBDC41F00723E05 /* WindowsStagesProvider.swift in Sources */,
+				CFE7AFD82EBDB03400723E05 /* RoofPackModels.swift in Sources */,
+				CF0D4A192EC020A300FF29AE /* InfoTextManager.swift in Sources */,
+				CFE7AF842EBC7EF400723E05 /* FoundationStagesScreen.swift in Sources */,
+				CFE7AFDE2EBDB09D00723E05 /* RoofStagesScreen.swift in Sources */,
+				CF0D49E52EBFEF7100FF29AE /* StageListCard.swift in Sources */,
+				CFE287792ED3364A00D80679 /* DoorsStagesProvider.swift in Sources */,
+				CFC3A3912ED49459001D9A2C /* ShareSheet.swift in Sources */,
+				CF32262B2EBABF3000401DFB /* WallsPickerView.swift in Sources */,
+				CFE7B0142EBDC8B400723E05 /* LandscapingProgressStore.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -251,9 +1614,10 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = ZRHZ9WHZDD;
+				CURRENT_PROJECT_VERSION = 9;
+				DEVELOPMENT_TEAM = Z7PX9G8K4B;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -261,13 +1625,15 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "-.BuildChecklists";
+				MARKETING_VERSION = 1.0.3;
+				PRODUCT_BUNDLE_IDENTIFIER = com.mikhail.buildchecklists.arm;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
@@ -283,9 +1649,10 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = ZRHZ9WHZDD;
+				CURRENT_PROJECT_VERSION = 9;
+				DEVELOPMENT_TEAM = Z7PX9G8K4B;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -293,13 +1660,15 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "-.BuildChecklists";
+				MARKETING_VERSION = 1.0.3;
+				PRODUCT_BUNDLE_IDENTIFIER = com.mikhail.buildchecklists.arm;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;

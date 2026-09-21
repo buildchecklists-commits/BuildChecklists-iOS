@@ -1,0 +1,54 @@
+{
+  "title": "Стены — кирпич",
+  "stages": [
+    {
+      "title": "Этап 1. Подготовка",
+      "items": [
+        { "text": "Проект: формат/схема перевязки, раствор, узлы.", "infoSlug": "walls/brick/masonry" },
+        { "text": "Ровность основания, гидроизоляция первого ряда.", "infoSlug": "walls/brick/base" }
+      ]
+    },
+    {
+      "title": "Этап 2. Кладка",
+      "items": [
+        { "text": "Раствор 10–12 мм, заполнение вертикальных швов.", "infoSlug": "walls/brick/mortar" },
+        { "text": "Перевязка, смещение вертикальных швов.", "infoSlug": "walls/brick/bonding" },
+        { "text": "Контроль вертикали/плоскости правилом/лазером.", "infoSlug": "walls/brick/flatness" }
+      ]
+    },
+    {
+      "title": "Этап 3. Узлы/проёмы/арматура",
+      "items": [
+        { "text": "Примыкания внутренних стен, анкера/гибкие связи.", "infoSlug": "walls/brick/joints" },
+        { "text": "Армирование пояса/зон (сеткой/стержнями) по проекту.", "infoSlug": "walls/brick/rebar" },
+        { "text": "Проёмы и закладные под крепёж.", "infoSlug": "walls/brick/openings" }
+      ]
+    },
+    {
+      "title": "Этап 4. Перемычки/армопояса",
+      "items": [
+        { "text": "Перемычки: тип/опирание/утепление.", "infoSlug": "walls/brick/lintels" },
+        { "text": "Армопояс под перекрытия/кровлю.", "infoSlug": "walls/brick/ringbeam" }
+      ]
+    },
+    {
+      "title": "Этап 5. Теплозащита/вентзазор",
+      "items": [
+        { "text": "Узел утепления/пароизоляции, вентзазор облицовки.", "infoSlug": "walls/brick/insulation" },
+        { "text": "Защита кладки и раствора от осадков.", "infoSlug": "walls/brick/protection" }
+      ]
+    },
+    {
+      "title": "Этап 6. Зима (если актуально)",
+      "items": [
+        { "text": "Раствор с ПМД, прогрев, укрытие.", "infoSlug": "walls/brick/winter" }
+      ]
+    },
+    {
+      "title": "Этап 7. Приёмка",
+      "items": [
+        { "text": "Вертикаль/плоскость/швы, документы и фото скрытых работ.", "infoSlug": "walls/brick/acceptance" }
+      ]
+    }
+  ]
+}

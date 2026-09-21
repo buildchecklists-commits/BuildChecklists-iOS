@@ -1,0 +1,55 @@
+{
+  "title": "Фундамент — монолитная плита",
+  "stages": [
+    {
+      "title": "Этап 1. Подготовка основания",
+      "items": [
+        { "text": "Снятие растительного слоя, планировка, геотекстиль.", "infoSlug": "foundation/slab/prep" },
+        { "text": "Песчано-щебёночная подушка: толщина, послойное трамбование.", "infoSlug": "foundation/slab/base" },
+        { "text": "Подбетонка/подсыпка по проекту (если предусмотрено).", "infoSlug": "foundation/slab/lean" }
+      ]
+    },
+    {
+      "title": "Этап 2. Коммуникации и утепление",
+      "items": [
+        { "text": "Гильзы/трубы под воду/канализацию/электрику — в местах и отметках проекта.", "infoSlug": "foundation/slab/utilities" },
+        { "text": "Утепление/капиллярный разрыв: толщина, стыки без щелей.", "infoSlug": "foundation/slab/insulation" }
+      ]
+    },
+    {
+      "title": "Этап 3. Опалубка/ребра (если есть)",
+      "items": [
+        { "text": "Опалубка по периметру/ребрам, высота и отметки выдержаны.", "infoSlug": "foundation/slab/formwork" }
+      ]
+    },
+    {
+      "title": "Этап 4. Армирование",
+      "items": [
+        { "text": "Диаметр/шаг сеток, верх/низ, усиления у опор, защитный слой.", "infoSlug": "foundation/slab/rebar_layout" },
+        { "text": "Нахлёсты/стыки, фиксаторы высоты, подставки под «стульчики» не теряют слой.", "infoSlug": "foundation/slab/rebar_supports" }
+      ]
+    },
+    {
+      "title": "Этап 5. Бетонирование и уход",
+      "items": [
+        { "text": "Непрерывная заливка, вибрация, не ходим по сетке без настилов.", "infoSlug": "foundation/slab/concrete" },
+        { "text": "Уход/термо-режим: укрытие/увлажнение, зимой — прогрев/ПМД.", "infoSlug": "foundation/slab/cure" }
+      ]
+    },
+    {
+      "title": "Этап 6. Приёмка",
+      "items": [
+        { "text": "Плоскость, отклонения по уровню, ребра/выпуски в местах.", "infoSlug": "foundation/slab/acceptance_geom" },
+        { "text": "Акты скрытых работ, паспорта материалов.", "infoSlug": "foundation/slab/acceptance_docs" }
+      ]
+    },
+    {
+      "title": "Этап 7. Зимний период",
+      "items": [
+        { "text": "Температура бетона и основания — контроль до/после заливки.", "infoSlug": "foundation/slab/winter_temp" },
+        { "text": "Прогрев: кабели/маты, накрытие, исключение продувания.", "infoSlug": "foundation/slab/winter_heat" },
+        { "text": "ПМД: дозировка, совместимость, правила применения.", "infoSlug": "foundation/slab/winter_pmd" }
+      ]
+    }
+  ]
+}

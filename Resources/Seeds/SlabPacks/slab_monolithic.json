@@ -1,0 +1,94 @@
+{
+  "title": "Перекрытие — монолит",
+  "stages": [
+    {
+      "title": "Этап 1. Подготовка основания и опалубка",
+      "items": [
+        {
+          "text": "Опалубка чистая, ровная, герметичная, стойки выставлены.",
+          "infoSlug": "floors/slab/formwork"
+        },
+        {
+          "text": "Защита от прогибов: шаг стоек согласно проекту.",
+          "infoSlug": "floors/slab/supports"
+        },
+        {
+          "text": "Проёмы и шахты выводов — подготовка и закладные.",
+          "infoSlug": "floors/slab/openings"
+        }
+      ]
+    },
+    {
+      "title": "Этап 2. Армирование",
+      "items": [
+        {
+          "text": "Сетки верх/низ, шаг и диаметр по проекту.",
+          "infoSlug": "floors/slab/rebar"
+        },
+        {
+          "text": "Защитный слой 25–40 мм, фиксаторы установлены.",
+          "infoSlug": "floors/slab/cover"
+        },
+        {
+          "text": "Армирование вокруг проёмов и опираний усилено.",
+          "infoSlug": "floors/slab/rebar_openings"
+        }
+      ]
+    },
+    {
+      "title": "Этап 3. Бетонирование",
+      "items": [
+        {
+          "text": "Класс бетона по проекту (обычно В25+).",
+          "infoSlug": "floors/slab/concrete_class"
+        },
+        {
+          "text": "Заливка без холодных швов, вибрирование.",
+          "infoSlug": "floors/slab/concrete_pour"
+        },
+        {
+          "text": "Вывод поверхностей под отметки, уход за бетоном.",
+          "infoSlug": "floors/slab/cure"
+        }
+      ]
+    },
+    {
+      "title": "Этап 4. Зимний период",
+      "items": [
+        {
+          "text": "Температура основания и смеси: входной контроль, термопары.",
+          "infoSlug": "floors/slab/winter_temp"
+        },
+        {
+          "text": "Укрытие, тепляк, маты/кабели — прогрев без перегрева.",
+          "infoSlug": "floors/slab/winter_heat"
+        },
+        {
+          "text": "ПМД: выбор, дозировка, совместимость с бетоном.",
+          "infoSlug": "floors/slab/winter_pmd"
+        },
+        {
+          "text": "Общий режим зимнего бетонирования монолитного перекрытия.",
+          "infoSlug": "floors/slab/winter_general"
+        }
+      ]
+    },
+    {
+      "title": "Этап 5. Распалубка и приёмка",
+      "items": [
+        {
+          "text": "Распалубка после достижения ≥70% прочности.",
+          "infoSlug": "floors/slab/stripping"
+        },
+        {
+          "text": "Осмотр на трещины, раковины, геометрию.",
+          "infoSlug": "floors/slab/acceptance"
+        },
+        {
+          "text": "Акты скрытых работ и паспорт бетона.",
+          "infoSlug": "floors/slab/docs"
+        }
+      ]
+    }
+  ]
+}

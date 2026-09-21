@@ -1,0 +1,653 @@
+{
+  "title": "Подготовка коробки под отделку",
+  "items": [
+    {
+      "text": "Проверить геометрию стен и углов лазерным уровнем",
+      "infoSlug": "geometriya-sten-i-uglov"
+    },
+    {
+      "text": "Проверить ровность и перепады пола по всей площади",
+      "infoSlug": "rovnost-pola"
+    },
+    {
+      "text": "Проверить горизонт перекрытий и балок",
+      "infoSlug": "gorizontal-perekrytiy"
+    },
+    {
+      "text": "Осмотреть стены на наличие трещин, раковин, сколов",
+      "infoSlug": "defekty-sten-treshchiny-rakoviny-skoly"
+    },
+    {
+      "text": "Закрепить слабо держащиеся участки штукатурки или бетона",
+      "infoSlug": "slaboderzhashchiesya-uchastki"
+    },
+    {
+      "text": "Продувка и очистка помещения от строительной пыли и мусора",
+      "infoSlug": "uborka-pomescheniya-ot-pyli-i-musora"
+    },
+    {
+      "text": "Проверить герметичность оконных и дверных проемов",
+      "infoSlug": "germetichnost-okon-i-dvernyh-proemov"
+    },
+    {
+      "text": "Закрыть и защитить окна, двери и чистовые элементы от повреждений",
+      "infoSlug": "zashchita-okon-i-dverey"
+    },
+    {
+      "text": "Согласовать с заказчиком все ниши, перепланировки и дополнительные стены",
+      "infoSlug": "soglasovanie-nish-i-pereplanirovok"
+    }
+  ]
+}
+
+,
+{
+  "title": "Черновая инженерия (стены и потолок)",
+  "items": [
+    {
+      "text": "Составить схему разводки электрики по комнатам с указанием групп",
+      "infoSlug": "shema-razvodki-elektriki-po-komnatam"
+    },
+    {
+      "text": "Разметить на стенах и потолке все точки розеток, выключателей и светильников",
+      "infoSlug": "razmetka-tochki-rozetok-vyklyuchateley-svetilnikov"
+    },
+    {
+      "text": "Выполнить штробление стен и потолка по согласованной схеме",
+      "infoSlug": "shtroblenie-sten-i-potolka"
+    },
+    {
+      "text": "Проверить глубину и ширину штроб под кабель и защиту",
+      "infoSlug": "glubina-i-shirina-shtrob"
+    },
+    {
+      "text": "Развести электрические кабели с соблюдением нагрузок и сечений",
+      "infoSlug": "razvodka-elektricheskih-kabeley"
+    },
+    {
+      "text": "Разместить и зафиксировать подрозетники по уровню и по высоте",
+      "infoSlug": "ustanovka-podrozetnikov"
+    },
+    {
+      "text": "Проверить трассы слаботочных систем (интернет, ТВ, сигнализация)",
+      "infoSlug": "trassy-slabotochnyh-sistem"
+    },
+    {
+      "text": "Выполнить прокладку труб отопления и кондиционирования по стенам/потолку",
+      "infoSlug": "truby-otopleniya-i-konditsionirovaniya"
+    },
+    {
+      "text": "Сделать фотофиксацию всей скрытой инженерии до зашивки",
+      "infoSlug": "foto-skrityh-kommunikatsiy"
+    }
+  ]
+}
+,
+{
+  "title": "Инженерия в полу / тёплый пол",
+  "items": [
+    {
+      "text": "Определить зоны тёплого пола и шаг укладки контура",
+      "infoSlug": "zony-teplogo-pola-i-shag-ukladki"
+    },
+    {
+      "text": "Разметить уровни чистовых полов и толщину стяжки",
+      "infoSlug": "urovni-chistovyh-polov-i-tolshchina-styazhki"
+    },
+    {
+      "text": "Проверить основание пола на прочность и отсутствие пустот",
+      "infoSlug": "proverka-osnovaniya-pola-na-prochnost"
+    },
+    {
+      "text": "Уложить утеплитель или подложку по проекту",
+      "infoSlug": "uteplitel-i-podlozhka-po-proektu"
+    },
+    {
+      "text": "Развести трубы водяного тёплого пола или кабели электрического",
+      "infoSlug": "truby-teplogo-pola-ili-kabeli"
+    },
+    {
+      "text": "Смонтировать коллекторный узел и подключить контуры",
+      "infoSlug": "kollektornyy-uzel-i-podklyuchenie-konturov"
+    },
+    {
+      "text": "Провести опрессовку системы тёплого пола перед заливкой",
+      "infoSlug": "opressovka-sistemy-teplogo-pola"
+    },
+    {
+      "text": "Зафиксировать все трубы и кабели во избежание всплытия",
+      "infoSlug": "fiksatsiya-trub-i-kabeley-ot-vsplytiya"
+    },
+    {
+      "text": "Сделать фотофиксацию контуров до заливки стяжки",
+      "infoSlug": "foto-konturov-do-zalivki-styazhki"
+    }
+  ]
+}
+,
+{
+  "title": "Гидроизоляция и подготовка под стяжку",
+  "items": [
+    {
+      "text": "Очистить основание пола от пыли, мусора и отслаивающихся участков",
+      "infoSlug": "ochistka-osnovaniya-pola"
+    },
+    {
+      "text": "Загрунтовать основание рекомендованным составом",
+      "infoSlug": "gruntovka-osnovaniya-pered-styazhkoy"
+    },
+    {
+      "text": "Проверить наличие и правильность укладки демпферной ленты",
+      "infoSlug": "dempfernaya-lenta-proverka"
+    },
+    {
+      "text": "Выполнить гидроизоляцию в санузлах, мокрых зонах и кухне",
+      "infoSlug": "gidroizolyatsiya-mokrye-zony"
+    },
+    {
+      "text": "Проверить примыкания к стенам и вводам труб на отсутствие разрывов",
+      "infoSlug": "proverka-primykaniy-gidroizolyatsii"
+    },
+    {
+      "text": "Установить маяки по лазерному уровню",
+      "infoSlug": "ustanovka-mayakov-po-lazeru"
+    },
+    {
+      "text": "Проверить высотные отметки маяков",
+      "infoSlug": "vysootnye-otmetki-mayakov"
+    },
+    {
+      "text": "Согласовать с заказчиком отметку чистового пола",
+      "infoSlug": "soglasovanie-otmetki-chistovogo-pola"
+    },
+    {
+      "text": "Защитить гидроизоляцию от повреждений до заливки стяжки",
+      "infoSlug": "zashchita-gidroizolyatsii-do-styazhki"
+    }
+  ]
+}
+,
+{
+  "title": "Стяжка пола",
+  "items": [
+    {
+      "text": "Проверить консистенцию раствора или сухой стяжки по инструкции",
+      "infoSlug": "konsistentsiya-rastvora-dlya-styazhki"
+    },
+    {
+      "text": "Контролировать толщину стяжки по маякам",
+      "infoSlug": "kontrol-tolshchiny-styazhki"
+    },
+    {
+      "text": "Вывести плоскость пола по уровню без ям и бугров",
+      "infoSlug": "vyvedenie-ploskosti-po-urovnyu"
+    },
+    {
+      "text": "Разровнять поверхность правилом и затереть при необходимости",
+      "infoSlug": "razravnivanie-po-pravilu"
+    },
+    {
+      "text": "Проверить отсутствие пустот и отслоений после набора прочности",
+      "infoSlug": "proverka-pustot-i-otsloeniy-posle-vysyh"
+    },
+    {
+      "text": "Выдержать стяжку до полного набора прочности",
+      "infoSlug": "vyderzhka-styazhki-do-prochnosti"
+    },
+    {
+      "text": "Проверить перепады уровня пола на длине 2 метров",
+      "infoSlug": "perepady-na-dline-2-metrov"
+    },
+    {
+      "text": "Зафиксировать фактические отметки стяжки в ключевых помещениях",
+      "infoSlug": "fakticheskie-otmetki-styazhki"
+    },
+    {
+      "text": "Проверить, что в зонах тёплого пола нет видимых трещин и раковин",
+      "infoSlug": "proverka-treshchin-v-teplom-polu"
+    }
+  ]
+}
+,
+{
+  "title": "Штукатурка стен (черновая)",
+  "items": [
+    {
+      "text": "Проверить основание стен перед штукатуркой",
+      "infoSlug": "proverka-osnovaniya-sten-pered-shtukaturkoy"
+    },
+    {
+      "text": "Загрунтовать стены подходящим составом",
+      "infoSlug": "gruntovka-sten-pered-shtukaturkoy"
+    },
+    {
+      "text": "Установить маяки по уровню",
+      "infoSlug": "ustanovka-mayakov-dlya-shtukaturki"
+    },
+    {
+      "text": "Проверить плоскость и вертикаль маяков",
+      "infoSlug": "ploskost-i-vertikal-mayakov"
+    },
+    {
+      "text": "Подготовить углы и откосы (армирование)",
+      "infoSlug": "armirovanie-uglov-i-otkosov"
+    },
+    {
+      "text": "Оштукатурить стены по маякам",
+      "infoSlug": "shtukaturka-po-mayakam"
+    },
+    {
+      "text": "Проверить толщину слоя штукатурки",
+      "infoSlug": "tolshchina-shtukaturki-kontrol"
+    },
+    {
+      "text": "Затереть поверхность после первичного схватывания",
+      "infoSlug": "zaterka-shtukaturki"
+    },
+    {
+      "text": "Проверить геометрию стен после штукатурки",
+      "infoSlug": "geometriya-sten-po-shtukaturke"
+    },
+    {
+      "text": "Проверить углы на 90 градусов",
+      "infoSlug": "ugly-90-gradusov-kontrol"
+    },
+    {
+      "text": "Сделать фотофиксацию результата перед потолками",
+      "infoSlug": "foto-shtukaturki-pered-potolkami"
+    }
+  ]
+}
+,
+{
+  "title": "Черновые потолки: ГКЛ, закладные, ниши",
+  "items": [
+    {
+      "text": "Проверить уровень базового перекрытия перед монтажом каркаса",
+      "infoSlug": "uroven-bazovogo-perekrytiya"
+    },
+    {
+      "text": "Разметить потолок под каркас и светильники",
+      "infoSlug": "razmetka-potolka-pod-karkas-i-svet"
+    },
+    {
+      "text": "Смонтировать подвесы и направляющие профили",
+      "infoSlug": "podvesy-i-napravlyayushchie-profili"
+    },
+    {
+      "text": "Проверить жёсткость и равномерность каркаса",
+      "infoSlug": "zhestkost-i-ravnomernost-karkasa"
+    },
+    {
+      "text": "Установить закладные под светильники, карнизы и тяжёлые элементы",
+      "infoSlug": "zakladnye-pod-svet-i-tyazhelye-elementy"
+    },
+    {
+      "text": "Смонтировать ниши под шторы и карнизы",
+      "infoSlug": "nishi-pod-shtory-i-karnizy"
+    },
+    {
+      "text": "Проложить инженерные коммуникации внутри потолка",
+      "infoSlug": "kommunikatsii-vnutri-potolka"
+    },
+    {
+      "text": "Зашить каркас ГКЛ с соблюдением технологии",
+      "infoSlug": "zashivka-karkasa-gkl"
+    },
+    {
+      "text": "Проверить швы, стыки и крепления листов",
+      "infoSlug": "proverka-shvov-i-krepleniya-gkl"
+    },
+    {
+      "text": "Сделать фотофиксацию потолка перед шпаклевкой",
+      "infoSlug": "foto-potolka-pered-shpaklevkoy"
+    }
+  ]
+}
+,
+{
+  "title": "Малярика — старт",
+  "items": [
+    {
+      "text": "Проверить основание стен и потолков перед шпаклёвкой",
+      "infoSlug": "proverka-osnovaniya-pered-shpaklevkoy"
+    },
+    {
+      "text": "Прогрунтовать поверхности под шпаклевку",
+      "infoSlug": "gruntovka-pod-shpaklevku"
+    },
+    {
+      "text": "Зашпаклевать швы ГКЛ с армированной лентой",
+      "infoSlug": "shpaklevka-shvov-gkl-s-lentoy"
+    },
+    {
+      "text": "Установить перфорированные уголки на внешние углы",
+      "infoSlug": "perforirovannye-ugolki-ustanovka"
+    },
+    {
+      "text": "Армировать внутренние углы и стыки сеткой или бумажной лентой",
+      "infoSlug": "armirovanie-vnutrennih-uglov"
+    },
+    {
+      "text": "Нанести базовый слой шпаклевки по всей поверхности",
+      "infoSlug": "baza-shpaklevki-po-vsey-poverhnosti"
+    },
+    {
+      "text": "Вывести плоскость по правилу и уровню",
+      "infoSlug": "vyvedenie-ploskosti-shpaklevki"
+    },
+    {
+      "text": "Проверить отсутствие раковин, пор и борозд",
+      "infoSlug": "kontrol-defektov-pervogo-sloya"
+    },
+    {
+      "text": "Зашпаклевать откосы и проверить геометрию",
+      "infoSlug": "otkosy-shpaklevka-geometriya"
+    },
+    {
+      "text": "Подготовить поверхности под второй слой шпаклевки",
+      "infoSlug": "podgotovka-pod-vtoroy-sloy"
+    }
+  ]
+}
+,
+{
+  "title": "Плиточные работы",
+  "items": [
+    {
+      "text": "Проверить основание пола и стен перед укладкой плитки",
+      "infoSlug": "proverka-osnovaniya-pered-plitkoy"
+    },
+    {
+      "text": "Прогрунтовать поверхности под плиточный клей",
+      "infoSlug": "gruntovka-pod-plitku"
+    },
+    {
+      "text": "Разметить оси укладки и схему раскладки",
+      "infoSlug": "razmetka-osi-i-raskladka"
+    },
+    {
+      "text": "Проверить уровни и плоскости перед началом укладки",
+      "infoSlug": "proverka-urovney-i-ploskostey-pered-startom"
+    },
+    {
+      "text": "Приготовить плиточный клей по инструкции",
+      "infoSlug": "prigotovlenie-plitki-kleya"
+    },
+    {
+      "text": "Начать укладку от ключевых точек: ниши, видимые стены, оси",
+      "infoSlug": "start-ukladki-ot-klyuchevyh-tochek"
+    },
+    {
+      "text": "Использовать СВП при необходимости",
+      "infoSlug": "svp-sistema-vyravnivaniya"
+    },
+    {
+      "text": "Проверить швы и геометрию плитки на каждой линии",
+      "infoSlug": "kontrol-shvov-i-geometrii-plitki"
+    },
+    {
+      "text": "Выполнить подрезку плитки по технологии",
+      "infoSlug": "podrezka-plitki-kontrol"
+    },
+    {
+      "text": "Затереть швы и обработать углы герметиком",
+      "infoSlug": "zaterka-shvov-i-germetik"
+    },
+    {
+      "text": "Проверить готовую поверхность под светом",
+      "infoSlug": "kontrol-pod-svetom-plitka"
+    }
+  ]
+}
+,
+{
+  "title": "Малярика — финиш",
+  "items": [
+    {
+      "text": "Нанести финишный слой шпаклевки",
+      "infoSlug": "finishnyy-sloy-shpaklevki"
+    },
+    {
+      "text": "Проверить плоскость под боковым светом",
+      "infoSlug": "kontrol-bokovym-svetom"
+    },
+    {
+      "text": "Зашлифовать поверхность под покраску",
+      "infoSlug": "shlifovka-pod-pokrasku"
+    },
+    {
+      "text": "Проверить углы и откосы на идеальность",
+      "infoSlug": "ugly-i-otkosy-kontrol-finish"
+    },
+    {
+      "text": "Удалить пыль после шлифовки",
+      "infoSlug": "udalit-pyl-posle-shlifovki"
+    },
+    {
+      "text": "Проверить стыки, примыкания и сложные зоны",
+      "infoSlug": "kontrol-stykov-i-primykaniy"
+    },
+    {
+      "text": "Подготовить поверхность под грунт перед покраской",
+      "infoSlug": "gruntovka-pered-pokraskoy"
+    },
+    {
+      "text": "Нанести тестовый выкраc при необходимости",
+      "infoSlug": "testovyy-vykrac-sten"
+    },
+    {
+      "text": "Проверить цвет и укрывистость после выкрасов",
+      "infoSlug": "kontrol-vykrasa-ukryvistost"
+    },
+    {
+      "text": "Подготовить поверхность под финишную покраску или обои",
+      "infoSlug": "gotovnost-pod-finishnuyu-otdelku"
+    }
+  ]
+}
+,
+{
+  "title": "Чистовые потолки",
+  "items": [
+    {
+      "text": "Проверить основание потолка перед чистовыми работами",
+      "infoSlug": "proverka-osnovaniya-chistovogo-potolka"
+    },
+    {
+      "text": "Подготовить поверхность под покраску или натяжной потолок",
+      "infoSlug": "podgotovka-poverhnosti-pod-potolok"
+    },
+    {
+      "text": "Проверить геометрию и высотные отметки потолка",
+      "infoSlug": "geometriya-i-vysotnye-otmetki-potolka"
+    },
+    {
+      "text": "Установить светильники, закладные и выводы",
+      "infoSlug": "ustanovka-svetilnikov-i-zakladnyh"
+    },
+    {
+      "text": "Выполнить монтаж чистового покрытия потолка",
+      "infoSlug": "montazh-chistovogo-potolka"
+    },
+    {
+      "text": "Проверить стыки, примыкания и линии",
+      "infoSlug": "kontrol-stykov-i-liniy-potolka"
+    },
+    {
+      "text": "Проверить поверхность потолка под боковым светом",
+      "infoSlug": "kontrol-potolka-bokovoy-svet"
+    },
+    {
+      "text": "Установить декоративные элементы потолка",
+      "infoSlug": "dekorativnye-elementy-potolka"
+    },
+    {
+      "text": "Убрать пыль и следы монтажа",
+      "infoSlug": "uborka-potolka-posle-montazha"
+    },
+    {
+      "text": "Сделать итоговую фотофиксацию чистового потолка",
+      "infoSlug": "foto-chistovogo-potolka"
+    }
+  ]
+}
+,
+{
+  "title": "Полы — чистовые покрытия",
+  "items": [
+    {
+      "text": "Проверить основание пола перед укладкой покрытия",
+      "infoSlug": "proverka-osnovaniya-pered-chistovym-polom"
+    },
+    {
+      "text": "Проверить влажность стяжки и основания",
+      "infoSlug": "vlazhnost-styazhki-kontrol"
+    },
+    {
+      "text": "Выполнить выравнивающую подготовку при необходимости",
+      "infoSlug": "vyrovnivanie-osnovaniya-pod-poly"
+    },
+    {
+      "text": "Прогрунтовать основание под чистовое покрытие",
+      "infoSlug": "gruntovka-pod-chistovye-poly"
+    },
+    {
+      "text": "Установить подложку или гидроизоляционный слой",
+      "infoSlug": "podlozhka-i-gidroizolyatsiya-pod-pol"
+    },
+    {
+      "text": "Начать укладку покрытия по разметке и направлению света",
+      "infoSlug": "start-ukladki-chistovogo-pola"
+    },
+    {
+      "text": "Проверить зазоры, примыкания и компенсационные швы",
+      "infoSlug": "zazory-i-kompensacionnye-shvy"
+    },
+    {
+      "text": "Выполнить подрезку покрытия по технологии",
+      "infoSlug": "podrezka-chistovogo-pola"
+    },
+    {
+      "text": "Проверить геометрию линий и ровность стыков",
+      "infoSlug": "geometriya-liniy-i-stykov-pola"
+    },
+    {
+      "text": "Выполнить финишную очистку покрытия",
+      "infoSlug": "finnaya-ochistka-chistovogo-pola"
+    },
+    {
+      "text": "Сделать фотофиксацию чистового пола",
+      "infoSlug": "foto-chistovogo-pola"
+    }
+  ]
+}
+,
+{
+  "title": "Двери, плинтуса, доборы",
+  "items": [
+    {
+      "text": "Проверить проёмы перед установкой дверей",
+      "infoSlug": "proverka-proyomov-pered-ustanovkoy-dverey"
+    },
+    {
+      "text": "Проверить геометрию дверного проёма",
+      "infoSlug": "geometriya-dvernogo-proyoma"
+    },
+    {
+      "text": "Установить дверную коробку по уровню",
+      "infoSlug": "ustanovka-dvernoy-korobki"
+    },
+    {
+      "text": "Закрепить коробку и исключить смещения",
+      "infoSlug": "kreplenie-dvernoy-korobki"
+    },
+    {
+      "text": "Заполнить монтажные зазоры пеной правильно",
+      "infoSlug": "zapolnenie-montazhnyh-zazorov-penoy"
+    },
+    {
+      "text": "Установить дверное полотно и проверить работу петель",
+      "infoSlug": "ustanovka-dvernogo-polotna"
+    },
+    {
+      "text": "Отрегулировать закрывание и примыкания",
+      "infoSlug": "regulirovka-dveri-i-primykaniy"
+    },
+    {
+      "text": "Установить доборы при необходимости",
+      "infoSlug": "ustanovka-doborov"
+    },
+    {
+      "text": "Установить наличники или скрытые планки",
+      "infoSlug": "ustanovka-nalichnikov"
+    },
+    {
+      "text": "Установить плинтуса по всему периметру",
+      "infoSlug": "ustanovka-plintusov"
+    },
+    {
+      "text": "Проверить примыкания плинтусов, углы и стыки",
+      "infoSlug": "kontrol-uglov-i-primykaniy-plintusa"
+    },
+    {
+      "text": "Финальная очистка и фотофиксация",
+      "infoSlug": "foto-i-ochistka-posle-montazha-dverey-i-plintusov"
+    }
+  ]
+}
+,
+{
+  "title": "Освещение / электрика / финальная приёмка",
+  "items": [
+    {
+      "text": "Проверить работу всех групп света",
+      "infoSlug": "proverka-grupp-osvescheniya"
+    },
+    {
+      "text": "Проверить работу всех розеток и линий питания",
+      "infoSlug": "proverka-rozetok-i-liniy"
+    },
+    {
+      "text": "Проверить работу выключателей, проходных и перекрестных",
+      "infoSlug": "proverka-vyklyuchateley"
+    },
+    {
+      "text": "Проверить работу слаботочных систем",
+      "infoSlug": "proverka-slabotochnyh-sistem"
+    },
+    {
+      "text": "Проверить щиток, автоматы, УЗО и маркировку линий",
+      "infoSlug": "proverka-elektroshchita-i-markirovki"
+    },
+    {
+      "text": "Проверить напряжение, мощность и отсутствие просадок",
+      "infoSlug": "proverka-napryazheniya-i-moshchnosti"
+    },
+    {
+      "text": "Проверить освещение под боковым светом",
+      "infoSlug": "osveschenie-bokovoy-svet-kontrol"
+    },
+    {
+      "text": "Проверить декоративное освещение",
+      "infoSlug": "proverka-dekorativnogo-osvescheniya"
+    },
+    {
+      "text": "Проверить установку электрофурнитуры",
+      "infoSlug": "proverka-elektrofurnitury"
+    },
+    {
+      "text": "Проверить безопасность и отсутствие нагрева кабелей",
+      "infoSlug": "proverka-bezopasnosti-elektriki"
+    },
+    {
+      "text": "Убрать следы монтажа",
+      "infoSlug": "uborka-posle-elektromontazha"
+    },
+    {
+      "text": "Финальная приёмка электрики и фотофиксация",
+      "infoSlug": "finalnaya-priemka-elektriki"
+    }
+  ]
+}
+

@@ -1,0 +1,74 @@
+{
+  "title": "Перекрытие — деревянное",
+  "stages": [
+    {
+      "title": "Этап 1. Балки и лаги",
+      "items": [
+        {
+          "text": "Сечение, сорт древесины, шаг балок по проекту.",
+          "infoSlug": "floors/wood/beams"
+        },
+        {
+          "text": "Защита от влаги, биопоражения и огня, анкеровка к стенам.",
+          "infoSlug": "floors/wood/beams_protection"
+        }
+      ]
+    },
+    {
+      "title": "Этап 2. Настил / черновой пол",
+      "items": [
+        {
+          "text": "Настил из доски или ОСП: толщина, сорт, укладка.",
+          "infoSlug": "floors/wood/decking"
+        },
+        {
+          "text": "Крепёж настила, компенсационные зазоры.",
+          "infoSlug": "floors/wood/decking_fix"
+        }
+      ]
+    },
+    {
+      "title": "Этап 3. Заполнение и шумоизоляция",
+      "items": [
+        {
+          "text": "Утеплитель или шумоизоляция между балками.",
+          "infoSlug": "floors/wood/insulation"
+        },
+        {
+          "text": "Паро- и ветрозащита по ТУ.",
+          "infoSlug": "floors/wood/membranes"
+        }
+      ]
+    },
+    {
+      "title": "Этап 4. Зимний период",
+      "items": [
+        {
+          "text": "Хранение древесины в тёплом и сухом месте.",
+          "infoSlug": "floors/wood/winter_storage"
+        },
+        {
+          "text": "Временная защита от осадков и намокания настила.",
+          "infoSlug": "floors/wood/winter_protection"
+        },
+        {
+          "text": "Общий зимний режим деревянных конструкций.",
+          "infoSlug": "floors/wood/winter_general"
+        }
+      ]
+    },
+    {
+      "title": "Этап 5. Приёмка",
+      "items": [
+        {
+          "text": "Ровность, отсутствие скрипов и прогибов.",
+          "infoSlug": "floors/wood/acceptance"
+        },
+        {
+          "text": "Акты скрытых работ.",
+          "infoSlug": "floors/wood/docs"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,204 @@
+{
+  "stages": [
+    {
+      "title": "Геология и подготовка участка",
+      "order": 10,
+      "items": [
+        {
+          "code": "geo.report",
+          "title": "Отчёт геологии (скв. ≥3, глубина ≥6 м)",
+          "infoSlug": "geo_report"
+        },
+        {
+          "code": "survey.topo",
+          "title": "Топосъёмка и привязка дома",
+          "infoSlug": "toposurvey"
+        },
+        {
+          "code": "site.prep",
+          "title": "Подготовка площадки (ПРС/подъезд/ограждение)",
+          "infoSlug": "site_prep"
+        }
+      ]
+    },
+    {
+      "title": "Фундамент",
+      "order": 20,
+      "items": [
+        {
+          "code": "foundation.rebar",
+          "title": "Армирование (шаг, защитный слой, выпуски)",
+          "infoSlug": "foundation_rebar"
+        },
+        {
+          "code": "foundation.pouring",
+          "title": "Бетонирование (класс, подача, вибрация)",
+          "infoSlug": "foundation_pouring"
+        },
+        {
+          "code": "foundation.waterproof",
+          "title": "Гидроизоляция и утепление цоколя",
+          "infoSlug": "foundation_waterproof"
+        }
+      ]
+    },
+
+    {
+      "title": "Стены",
+      "order": 30,
+      "items": [
+        {
+          "code": "walls.masonry",
+          "title": "Кладка несущих стен (геометрия, швы)",
+          "infoSlug": "walls_masonry"
+        },
+        {
+          "code": "walls.beams",
+          "title": "Перемычки и армопояса",
+          "infoSlug": "walls_beams"
+        }
+      ]
+    },
+    {
+      "title": "Перекрытия",
+      "order": 31,
+      "items": [
+        {
+          "code": "slab.interfloor",
+          "title": "Межэтажное перекрытие",
+          "infoSlug": "slab_interfloor"
+        }
+      ]
+    },
+
+    {
+      "title": "Крыша",
+      "order": 40,
+      "items": [
+        {
+          "code": "roof.frame",
+          "title": "Стропильная система",
+          "infoSlug": "roof_frame"
+        },
+        {
+          "code": "roof.pie",
+          "title": "Пирог кровли (паро/гидроизоляция, утепление)",
+          "infoSlug": "roof_pie"
+        },
+        {
+          "code": "roof.cover",
+          "title": "Покрытие и доборные элементы (общий контроль)",
+          "infoSlug": "roof_cover"
+        }
+      ]
+    },
+    {
+      "title": "Покрытие крыши",
+      "order": 45,
+      "items": [
+        {
+          "code": "roof.cover.metal",
+          "title": "Металлочерепица/профнастил — монтаж и узлы",
+          "infoSlug": "roof_cover_metal"
+        },
+        {
+          "code": "roof.cover.soft",
+          "title": "Мягкая/битумная черепица — основание, ковёр, монтаж",
+          "infoSlug": "roof_cover_soft"
+        },
+        {
+          "code": "roof.cover.seam",
+          "title": "Фальцевая/металлическая — картины, кляммеры, примыкания",
+          "infoSlug": "roof_cover_seam"
+        }
+      ]
+    },
+    {
+      "title": "Инженерия",
+      "order": 50,
+      "items": [
+        {
+          "code": "engineer.electric",
+          "title": "Электрика (ввод, трассы, щит)",
+          "infoSlug": "engineer_electric"
+        },
+        {
+          "code": "engineer.water",
+          "title": "Водоснабжение и канализация",
+          "infoSlug": "engineer_water"
+        },
+        {
+          "code": "engineer.heating",
+          "title": "Отопление и котельная",
+          "infoSlug": "engineer_heating"
+        }
+      ]
+    },
+
+    {
+      "title": "Окна",
+      "order": 60,
+      "items": [
+        {
+          "code": "windows.install",
+          "title": "Монтаж окон",
+          "infoSlug": "windows_install"
+        }
+      ]
+    },
+    {
+      "title": "Двери",
+      "order": 61,
+      "items": [
+        {
+          "code": "doors.install",
+          "title": "Монтаж дверей",
+          "infoSlug": "doors_install"
+        }
+      ]
+    },
+
+    {
+      "title": "Отделка",
+      "order": 70,
+      "items": [
+        {
+          "code": "finish.walls",
+          "title": "Черновая и чистовая отделка",
+          "infoSlug": "finish_walls"
+        },
+        {
+          "code": "finish.floor",
+          "title": "Полы и напольные покрытия",
+          "infoSlug": "finish_floor"
+        },
+        {
+          "code": "finish.ceiling",
+          "title": "Потолки и освещение",
+          "infoSlug": "finish_ceiling"
+        }
+      ]
+    },
+    {
+      "title": "Благоустройство",
+      "order": 80,
+      "items": [
+        {
+          "code": "land.fence",
+          "title": "Забор и ворота",
+          "infoSlug": "land_fence"
+        },
+        {
+          "code": "land.driveway",
+          "title": "Подъезд и парковка",
+          "infoSlug": "land_driveway"
+        },
+        {
+          "code": "land.landscape",
+          "title": "Участок и ландшафт",
+          "infoSlug": "land_landscape"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Xcode user
+xcuserdata/
+*.xcuserstate
+*.xccheckout
+*.xcscmblueprint
+
+# Build
+DerivedData/
+build/
+*.ipa
+*.dSYM
+*.dSYM.zip
+
+# SwiftPM
+.build/
+.swiftpm/
+
+# Local Xcode noise
+*.moved-aside
+*.hmap
+timeline.xctimeline
+playground.xcworkspace
