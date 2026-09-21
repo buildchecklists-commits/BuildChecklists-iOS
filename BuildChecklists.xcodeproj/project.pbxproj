@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		CF0524792EBBCFA4008A66AD /* SeedPackLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF0524782EBBCFA0008A66AD /* SeedPackLoader.swift */; };
+		CF9A11002E09212600C0FF01 /* ProjectIssuesCollector.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF9A11001E09212600C0FF01 /* ProjectIssuesCollector.swift */; };
 		CF0AFFB02ED6F70B00BB7DF8 /* ProjectContact.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF0AFFAF2ED6F70400BB7DF8 /* ProjectContact.swift */; };
 		CF0AFFB22ED6FE8B00BB7DF8 /* ProjectContactsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF0AFFB12ED6FE8600BB7DF8 /* ProjectContactsView.swift */; };
 		CF0AFFB42ED6FEAE00BB7DF8 /* EditProjectContactView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF0AFFB32ED6FEA700BB7DF8 /* EditProjectContactView.swift */; };
@@ -112,6 +113,7 @@
 
 /* Begin PBXFileReference section */
 		CF0524782EBBCFA0008A66AD /* SeedPackLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeedPackLoader.swift; sourceTree = "<group>"; };
+		CF9A11001E09212600C0FF01 /* ProjectIssuesCollector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectIssuesCollector.swift; sourceTree = "<group>"; };
 		CF0AFFAF2ED6F70400BB7DF8 /* ProjectContact.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectContact.swift; sourceTree = "<group>"; };
 		CF0AFFB12ED6FE8600BB7DF8 /* ProjectContactsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectContactsView.swift; sourceTree = "<group>"; };
 		CF0AFFB32ED6FEA700BB7DF8 /* EditProjectContactView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditProjectContactView.swift; sourceTree = "<group>"; };
@@ -1157,6 +1159,7 @@
 				CFE7AFAE2EBDA46A00723E05 /* WallsProgressStore.swift */,
 				CFE7AF952EBD9F8500723E05 /* FoundationProgressStore.swift */,
 				CF0524782EBBCFA0008A66AD /* SeedPackLoader.swift */,
+				CF9A11001E09212600C0FF01 /* ProjectIssuesCollector.swift */,
 				CF59556F2EB9EF15006BF803 /* MediaService.swift */,
 				CF5955632EB9E963006BF803 /* MarkdownLoader.swift */,
 				CF5955612EB9E943006BF803 /* AuthService.swift */,
@@ -1464,6 +1467,7 @@
 				CF5955702EB9EF18006BF803 /* MediaService.swift in Sources */,
 				CF3226312EBABFA900401DFB /* RoofCoverPickerView.swift in Sources */,
 				CF0524792EBBCFA4008A66AD /* SeedPackLoader.swift in Sources */,
+				CF9A11002E09212600C0FF01 /* ProjectIssuesCollector.swift in Sources */,
 				CFE7AFAF2EBDA46D00723E05 /* WallsProgressStore.swift in Sources */,
 				CF59555A2EB9E87D006BF803 /* Project.swift in Sources */,
 				CFAB680E2ECFA74000F813F7 /* RoofCoverStagesScreen.swift in Sources */,
