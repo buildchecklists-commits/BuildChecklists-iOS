@@ -1,5 +1,6 @@
 import SwiftUI
 import PhotosUI
+import UIKit
 
 /// Строка чек-пункта: галочка ✅ + фото 📷 + заметка 📝 + инфо ℹ️.
 /// Фото сохраняются через MediaService → Documents/BC_Media/Images,
@@ -59,6 +60,13 @@ struct ChecklistItemRow2: View {
             }
         }
         .padding(.vertical, 6)
+        .contentShape(Rectangle())
+        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+            issueSwipeActions()
+        }
+        .contextMenu {
+            issueContextMenu()
+        }
 
         // Пикер фото
         .photosPicker(
@@ -116,10 +124,23 @@ struct ChecklistItemRow2: View {
         }
     }
 
+    private var resolvedStatus: ItemStatus {
+        item.status ?? .na
+    }
+
+    private var isIssue: Bool {
+        resolvedStatus == .issue
+    }
+
     private func doneButton() -> some View {
         Button {
+            guard !isLocked else { return }
+            if isIssue {
+                UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                return
+            }
             withAnimation(.spring(response: 0.25, dampingFraction: 0.6)) {
-                item.status = (item.status == .ok) ? .na : .ok
+                item.status = (resolvedStatus == .ok) ? .na : .ok
                 checkBounce.toggle()
             }
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
@@ -128,9 +149,8 @@ struct ChecklistItemRow2: View {
                 }
             }
         } label: {
-            let checked = (item.status == .ok)
-            Image(systemName: checked ? "checkmark.circle.fill" : "circle")
-                .foregroundColor(checked ? .green : .gray)
+            Image(systemName: statusIconName)
+                .foregroundColor(statusIconColor)
                 .font(.system(size: 22))
                 .frame(width: 32, height: 32)
                 .scaleEffect(checkBounce ? 1.15 : 1.0)
@@ -139,6 +159,99 @@ struct ChecklistItemRow2: View {
         .buttonStyle(.plain)
         .disabled(isLocked)
         .opacity(isLocked ? 0.35 : 1)
+        .accessibilityLabel(statusAccessibilityLabel)
+        .accessibilityHint(isIssue ? "Закройте замечание из меню или свайпом." : "Двойное нажатие отмечает пункт выполненным или снимает отметку.")
+        .accessibilityIdentifier("checklist.item.status")
+    }
+
+    private var statusIconName: String {
+        switch resolvedStatus {
+        case .ok: return "checkmark.circle.fill"
+        case .issue: return "exclamationmark.circle.fill"
+        case .na: return "circle"
+        }
+    }
+
+    private var statusIconColor: Color {
+        switch resolvedStatus {
+        case .ok: return .green
+        case .issue: return .orange
+        case .na: return .gray
+        }
+    }
+
+    private var statusAccessibilityLabel: String {
+        let prefix: String
+        switch resolvedStatus {
+        case .ok: prefix = "Выполнено"
+        case .issue: prefix = "Проблема"
+        case .na: prefix = "Не выполнено"
+        }
+        return "\(prefix), \(item.title)"
+    }
+
+    @ViewBuilder
+    private func issueSwipeActions() -> some View {
+        if !isLocked {
+            if isIssue {
+                Button {
+                    setStatus(.ok)
+                } label: {
+                    Label("Проблема устранена", systemImage: "checkmark.circle")
+                }
+                .tint(.green)
+                .accessibilityLabel("Проблема устранена")
+                .accessibilityIdentifier("checklist.item.resolveIssue")
+            } else {
+                Button {
+                    setStatus(.issue)
+                } label: {
+                    Label("Отметить как проблему", systemImage: "exclamationmark.circle")
+                }
+                .tint(.orange)
+                .accessibilityLabel("Отметить как проблему")
+                .accessibilityIdentifier("checklist.item.markIssue")
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func issueContextMenu() -> some View {
+        if !isLocked {
+            if isIssue {
+                Button {
+                    setStatus(.ok)
+                } label: {
+                    Label("Проблема устранена", systemImage: "checkmark.circle")
+                }
+                .accessibilityLabel("Проблема устранена")
+                .accessibilityIdentifier("checklist.item.resolveIssue")
+
+                Button {
+                    setStatus(.na)
+                } label: {
+                    Label("Снять отметку проблемы", systemImage: "circle")
+                }
+                .accessibilityLabel("Снять отметку проблемы")
+                .accessibilityIdentifier("checklist.item.clearIssue")
+            } else {
+                Button {
+                    setStatus(.issue)
+                } label: {
+                    Label("Отметить как проблему", systemImage: "exclamationmark.circle")
+                }
+                .accessibilityLabel("Отметить как проблему")
+                .accessibilityIdentifier("checklist.item.markIssue")
+            }
+        }
+    }
+
+    private func setStatus(_ status: ItemStatus) {
+        guard !isLocked else { return }
+        guard item.status != status else { return }
+        withAnimation(.easeInOut(duration: 0.2)) {
+            item.status = status
+        }
     }
 
     private func photosButton() -> some View {

@@ -17,6 +17,9 @@ struct StageDetailView2: View {
     @State private var showDeletePhotosConfirm = false
     @State private var showMarkAllDoneConfirm = false
     @State private var showResetProgressConfirm = false
+    @State private var showResetWithIssuesConfirm = false
+    @State private var showMarkAllResult = false
+    @State private var markAllResultMessage = ""
 
     // Paywall
     @State private var showPaywall: Bool = false
@@ -96,7 +99,11 @@ struct StageDetailView2: View {
                     .disabled(isLocked)
 
                     Button {
-                        showResetProgressConfirm = true
+                        if ChecklistStageBulkActions.issueCount(in: stage.items) > 0 {
+                            showResetWithIssuesConfirm = true
+                        } else {
+                            showResetProgressConfirm = true
+                        }
                     } label: {
                         Label("Сбросить прогресс этапа", systemImage: "arrow.counterclockwise")
                     }
@@ -137,9 +144,19 @@ struct StageDetailView2: View {
         // Алерты
         .alert("Отметить все как выполненные?", isPresented: $showMarkAllDoneConfirm) {
             Button("Отмена", role: .cancel) { }
-            Button("Отметить", role: .destructive) {
-                markAllItemsDone()
+            Button("Отметить") {
+                applyMarkAllDone()
             }
+        } message: {
+            if ChecklistStageBulkActions.issueCount(in: stage.items) > 0 {
+                Text("Пункты без замечаний будут отмечены как выполненные. Замечания не изменятся.")
+            }
+        }
+
+        .alert("Готово", isPresented: $showMarkAllResult) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text(markAllResultMessage)
         }
 
         .alert("Сбросить прогресс этапа?", isPresented: $showResetProgressConfirm) {
@@ -147,6 +164,15 @@ struct StageDetailView2: View {
             Button("Сбросить", role: .destructive) {
                 resetStageProgress()
             }
+        }
+
+        .alert("Сбросить прогресс этапа?", isPresented: $showResetWithIssuesConfirm) {
+            Button("Отмена", role: .cancel) { }
+            Button("Сбросить всё", role: .destructive) {
+                resetStageProgress()
+            }
+        } message: {
+            Text(resetWithIssuesMessage)
         }
 
         .alert("Удалить все фото?", isPresented: $showDeletePhotosConfirm) {
@@ -197,18 +223,24 @@ struct StageDetailView2: View {
 
     // MARK: - Actions
 
-    private func markAllItemsDone() {
+    private var resetWithIssuesMessage: String {
+        let count = ChecklistStageBulkActions.issueCount(in: stage.items)
+        let phrase = ChecklistStageBulkActions.russianRemarksPhrase(count)
+        return "Будут сняты все отметки этого блока, включая \(phrase). Отметки «Проблема» будут сняты. Это нельзя отменить."
+    }
+
+    private func applyMarkAllDone() {
         guard !isLocked else { return }
-        for idx in stage.items.indices {
-            stage.items[idx].status = .ok
+        let result = ChecklistStageBulkActions.markAllDone(items: &stage.items)
+        markAllResultMessage = result.userMessage
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
+            showMarkAllResult = true
         }
     }
 
     private func resetStageProgress() {
         guard !isLocked else { return }
-        for idx in stage.items.indices {
-            stage.items[idx].status = .na
-        }
+        ChecklistStageBulkActions.resetAllToNA(items: &stage.items)
     }
 
     private func deleteAllStagePhotos() {
@@ -220,5 +252,78 @@ struct StageDetailView2: View {
             }
             stage.items[idx].photoPaths.removeAll()
         }
+    }
+}
+
+// MARK: - Bulk actions (ProgressStore items only)
+
+enum ChecklistStageBulkActions {
+    struct MarkAllResult: Equatable {
+        let newlyMarked: Int
+        let preservedIssues: Int
+        let total: Int
+
+        var userMessage: String {
+            if total == 0 {
+                return "Нет пунктов в этом блоке."
+            }
+            if newlyMarked > 0 {
+                return "Отмечено выполненными: \(newlyMarked). Замечания сохранены: \(preservedIssues)."
+            }
+            if preservedIssues == total {
+                return "Нет пунктов для отметки. Замечания сохранены: \(preservedIssues)."
+            }
+            if preservedIssues > 0 {
+                return "Все пункты без замечаний уже выполнены. Замечания сохранены: \(preservedIssues)."
+            }
+            return "Все пункты уже отмечены выполненными."
+        }
+    }
+
+    static func issueCount(in items: [StageItem]) -> Int {
+        items.filter { $0.status == .issue }.count
+    }
+
+    @discardableResult
+    static func markAllDone(items: inout [StageItem]) -> MarkAllResult {
+        var newlyMarked = 0
+        var preservedIssues = 0
+        for idx in items.indices {
+            if items[idx].status == .issue {
+                preservedIssues += 1
+                continue
+            }
+            if items[idx].status != .ok {
+                newlyMarked += 1
+            }
+            items[idx].status = .ok
+        }
+        return MarkAllResult(
+            newlyMarked: newlyMarked,
+            preservedIssues: preservedIssues,
+            total: items.count
+        )
+    }
+
+    static func resetAllToNA(items: inout [StageItem]) {
+        for idx in items.indices {
+            items[idx].status = .na
+        }
+    }
+
+    static func russianRemarksPhrase(_ count: Int) -> String {
+        let mod100 = count % 100
+        let mod10 = count % 10
+        let word: String
+        if (11...14).contains(mod100) {
+            word = "замечаний"
+        } else if mod10 == 1 {
+            word = "замечание"
+        } else if (2...4).contains(mod10) {
+            word = "замечания"
+        } else {
+            word = "замечаний"
+        }
+        return "\(count) \(word)"
     }
 }
