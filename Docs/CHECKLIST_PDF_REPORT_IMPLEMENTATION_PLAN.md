@@ -263,7 +263,9 @@ PDF должен показать ту же цифру, посчитанную �
 
 ## 10. Генерация и временные файлы
 
-Каталог: `FileManager.default.temporaryDirectory`, не Documents и не `BC_Media/PDF`.
+Этап 2: `ChecklistReportPDFRenderer` принимает готовый snapshot и URL назначения. Каталог и имя выбирает вызывающий код, не renderer. Сначала запись идёт во временный файл рядом с destination, затем он заменяет итоговый файл. При ошибке временный файл удаляется, уже существующий destination не затирается повреждённым PDF. В `projectPDFPath` и `pdfPaths` renderer ничего не пишет.
+
+Каталог будущего UI: `FileManager.default.temporaryDirectory`, не Documents и не `BC_Media/PDF`.
 
 Имя: `ChecklistReport-<безопасное имя>-<unix>.pdf`.
 
