@@ -1039,16 +1039,15 @@ struct ProjectContactsListView: View {
     @State private var showingEditor = false
     @State private var contactToEdit: ProjectContact?
     @State private var errorText: String?
+    @State private var query = ""
 
     private var project: Project? {
         store.projects.first(where: { $0.id == projectID })
     }
 
-    private var contacts: [ProjectContact] {
+    private var sortedContacts: [ProjectContact] {
         guard let project else { return [] }
         return project.contacts.sorted { lhs, rhs in
-
-            // сначала избранные, потом по имени
             if lhs.isFavorite != rhs.isFavorite {
                 return lhs.isFavorite && !rhs.isFavorite
             }
@@ -1056,21 +1055,46 @@ struct ProjectContactsListView: View {
         }
     }
 
+    private var visibleContacts: [ProjectContact] {
+        let sorted = sortedContacts
+        guard !ProjectContactSearch.normalizedQuery(query).isEmpty else { return sorted }
+        return sorted.filter { ProjectContactSearch.matches($0, query: query) }
+    }
+
     var body: some View {
 
         List {
 
-            if contacts.isEmpty {
+            if project?.contacts.isEmpty != false {
 
-                Text("Контактов пока нет. Нажмите «+», чтобы добавить первый контакт.")
+                Text("Контакты не добавлены")
                     .foregroundStyle(.secondary)
-                    .font(.footnote)
+                    .font(.body)
                     .multilineTextAlignment(.center)
+                    .fixedSize(horizontal: false, vertical: true)
                     .padding(.vertical, 8)
+                    .accessibilityIdentifier("project.contacts.empty")
+
+            } else if visibleContacts.isEmpty {
+
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("Ничего не найдено")
+                        .font(.body.weight(.semibold))
+                        .fixedSize(horizontal: false, vertical: true)
+                    Text("Попробуйте изменить запрос.")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.vertical, 8)
+                .accessibilityElement(children: .combine)
+                .accessibilityLabel("Ничего не найдено. Попробуйте изменить запрос.")
+                .accessibilityIdentifier("project.contacts.emptyResults")
 
             } else {
 
-                ForEach(contacts) { contact in
+                ForEach(visibleContacts) { contact in
 
                     HStack(alignment: .top, spacing: 12) {
 
@@ -1121,6 +1145,8 @@ struct ProjectContactsListView: View {
             }
         }
         .navigationTitle("Контакты проекта")
+        .searchable(text: $query, prompt: "Поиск контактов")
+        .accessibilityIdentifier("project.contacts.list")
         .toolbar {
 
             ToolbarItem(placement: .cancellationAction) {
@@ -1154,13 +1180,13 @@ struct ProjectContactsListView: View {
     // Delete contacts
 
     private func deleteContacts(at offsets: IndexSet) {
+        let ids = offsets.compactMap { index -> UUID? in
+            guard visibleContacts.indices.contains(index) else { return nil }
+            return visibleContacts[index].id
+        }
 
-        let list = contacts
-
-        for index in offsets {
-
-            let contact = list[index]
-
+        for id in ids {
+            guard let contact = project?.contacts.first(where: { $0.id == id }) else { continue }
             do {
                 try store.deleteContact(contact, from: projectID)
             } catch {
@@ -1173,6 +1199,70 @@ struct ProjectContactsListView: View {
         let cleaned = num.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !cleaned.isEmpty, let url = URL(string: "tel://\(cleaned)") else { return }
         UIApplication.shared.open(url)
+    }
+}
+
+/// In-memory contact search. Does not write contacts or change stored phone strings.
+enum ProjectContactSearch {
+    static func normalizedQuery(_ query: String) -> String {
+        normalizeText(query)
+    }
+
+    static func matches(_ contact: ProjectContact, query: String) -> Bool {
+        let textQuery = normalizeText(query)
+        guard !textQuery.isEmpty else { return true }
+
+        if textMatches(contact.name, textQuery) { return true }
+        if textMatches(contact.role, textQuery) { return true }
+        if let note = contact.note, textMatches(note, textQuery) { return true }
+
+        let queryDigits = digits(query)
+        guard queryDigits.count >= 3 else { return false }
+        if textMatches(contact.phone, textQuery) { return true }
+        return phoneMatches(stored: contact.phone, queryDigits: queryDigits)
+    }
+
+    private static func textMatches(_ field: String, _ query: String) -> Bool {
+        normalizeText(field).localizedStandardContains(query)
+    }
+
+    private static func normalizeText(_ value: String) -> String {
+        value
+            .split(whereSeparator: \.isWhitespace)
+            .joined(separator: " ")
+    }
+
+    private static func digits(_ value: String) -> String {
+        value.unicodeScalars
+            .filter { CharacterSet.decimalDigits.contains($0) }
+            .map(String.init)
+            .joined()
+    }
+
+    /// Comparison keys only. An 11-digit number starting with 8 is also matched as 7.
+    private static func phoneKeys(_ digitString: String) -> [String] {
+        var keys = [digitString]
+        if digitString.count == 11, digitString.hasPrefix("8") {
+            let asSeven = "7" + digitString.dropFirst()
+            keys.append(asSeven)
+            keys.append(String(asSeven.dropFirst()))
+        } else if digitString.count == 11, digitString.hasPrefix("7") {
+            keys.append(String(digitString.dropFirst()))
+        }
+        return keys
+    }
+
+    private static func phoneMatches(stored: String, queryDigits: String) -> Bool {
+        let storedDigits = digits(stored)
+        guard storedDigits.count >= 3 else { return false }
+        let storedKeys = phoneKeys(storedDigits)
+        let queryKeys = phoneKeys(queryDigits)
+        for storedKey in storedKeys {
+            for queryKey in queryKeys where storedKey.contains(queryKey) {
+                return true
+            }
+        }
+        return false
     }
 }
 
