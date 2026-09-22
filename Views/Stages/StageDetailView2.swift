@@ -7,6 +7,7 @@ struct StageDetailView2: View {
 
     @Binding var stage: Stage
     let project: Project
+    var highlightItemID: UUID? = nil
     var onStageChanged: () -> Void = {}
 
     // InfoSheet
@@ -23,6 +24,10 @@ struct StageDetailView2: View {
 
     // Paywall
     @State private var showPaywall: Bool = false
+    @State private var isHighlightVisible = true
+    @State private var didAttemptScroll = false
+    @State private var gesturesHintCollapsed = ChecklistWorkingGesturesHint.isCollapsed
+    @State private var showGesturesHelp = false
 
     // MediaService
     private let media = MediaService()
@@ -37,6 +42,40 @@ struct StageDetailView2: View {
         return Double(done) / Double(total)
     }
 
+    private var highlightTitle: String? {
+        guard let highlightItemID else { return nil }
+        return stage.items.first(where: { $0.id == highlightItemID })?.title
+    }
+
+    private func rowHighlight(for index: Int) -> Color? {
+        guard isHighlightVisible,
+              let highlightItemID,
+              stage.items.indices.contains(index),
+              stage.items[index].id == highlightItemID else {
+            return nil
+        }
+        return Color.orange.opacity(0.14)
+    }
+
+    private func attemptScroll(using proxy: ScrollViewProxy) {
+        guard !didAttemptScroll,
+              let highlightItemID,
+              let index = stage.items.firstIndex(where: { $0.id == highlightItemID }) else {
+            return
+        }
+        didAttemptScroll = true
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
+            withAnimation(.easeInOut(duration: 0.25)) {
+                proxy.scrollTo(index, anchor: .center)
+            }
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.4) {
+            withAnimation(.easeOut(duration: 0.35)) {
+                isHighlightVisible = false
+            }
+        }
+    }
+
     var body: some View {
         VStack(spacing: 0) {
 
@@ -47,6 +86,28 @@ struct StageDetailView2: View {
                     .padding(.bottom, 6)
             }
 
+            gesturesHint
+                .padding(.horizontal, 16)
+                .padding(.top, isLocked ? 0 : 10)
+                .padding(.bottom, 6)
+
+            if let highlightTitle {
+                HStack(alignment: .top, spacing: 8) {
+                    Image(systemName: "exclamationmark.circle.fill")
+                        .foregroundStyle(.orange)
+                        .accessibilityHidden(true)
+                    Text("Пункт: \(highlightTitle)")
+                        .font(.subheadline.weight(.medium))
+                        .foregroundStyle(.primary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                .padding(.horizontal, 16)
+                .padding(.top, 10)
+                .padding(.bottom, 4)
+                .frame(maxWidth: .infinity, alignment: .leading)
+            }
+
+            ScrollViewReader { proxy in
             List {
                 // Прогресс
                 Section {
@@ -67,6 +128,8 @@ struct StageDetailView2: View {
                             infoSlugToShow = slug
                             showInfo = true
                         }
+                        .id(j)
+                        .listRowBackground(rowHighlight(for: j))
                     }
                 }
             }
@@ -74,6 +137,10 @@ struct StageDetailView2: View {
             .navigationTitle(stage.title)
             .navigationBarTitleDisplayMode(.inline)
             .disabled(isLocked)
+            .onAppear {
+                attemptScroll(using: proxy)
+            }
+            }
         }
         .background(Color("CardBG"))
 
@@ -91,6 +158,15 @@ struct StageDetailView2: View {
         .toolbar {
             ToolbarItemGroup(placement: .navigationBarTrailing) {
                 Menu {
+                    Button {
+                        showGesturesHelp = true
+                    } label: {
+                        Label("Как работать с чек-листом", systemImage: "questionmark.circle")
+                    }
+                    .accessibilityIdentifier("checklist.help.open")
+
+                    Divider()
+
                     Button {
                         showMarkAllDoneConfirm = true
                     } label: {
@@ -120,9 +196,8 @@ struct StageDetailView2: View {
                 } label: {
                     Image(systemName: "ellipsis.circle")
                         .imageScale(.large)
-                        .opacity(isLocked ? 0.35 : 1)
                 }
-                .disabled(isLocked)
+                .accessibilityLabel("Действия этапа")
             }
         }
 
@@ -133,6 +208,10 @@ struct StageDetailView2: View {
             } else {
                 Text("Информация недоступна").padding()
             }
+        }
+
+        .sheet(isPresented: $showGesturesHelp) {
+            ChecklistWorkingGesturesHelpView()
         }
 
         // Paywall
@@ -184,6 +263,102 @@ struct StageDetailView2: View {
     }
 
     // MARK: - Read-only banner
+
+    @ViewBuilder
+    private var gesturesHint: some View {
+        if gesturesHintCollapsed {
+            collapsedGesturesHint
+        } else {
+            expandedGesturesHint
+        }
+    }
+
+    private var expandedGesturesHint: some View {
+        HStack(alignment: .top, spacing: 12) {
+            Image(systemName: "hand.draw")
+                .font(.system(size: 16, weight: .semibold))
+                .foregroundStyle(.secondary)
+                .accessibilityHidden(true)
+                .padding(.top, 2)
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Как работать с пунктом")
+                    .font(.subheadline.weight(.semibold))
+                    .fixedSize(horizontal: false, vertical: true)
+                Text("Смахните пункт влево, чтобы добавить замечание.")
+                    .font(.subheadline)
+                    .fixedSize(horizontal: false, vertical: true)
+                Text("Удерживайте значок статуса, чтобы открыть другие действия.")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+                Text("Фото: нажмите для просмотра, удерживайте для удаления.")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+
+            Button {
+                ChecklistWorkingGesturesHint.setCollapsed(true)
+                withAnimation(.easeOut(duration: 0.2)) {
+                    gesturesHintCollapsed = true
+                }
+            } label: {
+                Image(systemName: "xmark.circle.fill")
+                    .font(.system(size: 22))
+                    .foregroundStyle(.secondary)
+                    .symbolRenderingMode(.hierarchical)
+                    .frame(minWidth: 44, minHeight: 44)
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("Свернуть подсказку")
+            .accessibilityIdentifier("checklist.gesturesHint.collapse")
+        }
+        .padding(12)
+        .background(Color.white)
+        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .overlay {
+            RoundedRectangle(cornerRadius: 16)
+                .stroke(Color("BrandSeparator"), lineWidth: 1)
+        }
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel("Подсказка")
+        .accessibilityValue("Развёрнута")
+        .accessibilityIdentifier("checklist.gesturesHint")
+    }
+
+    private var collapsedGesturesHint: some View {
+        Button {
+            ChecklistWorkingGesturesHint.setCollapsed(false)
+            withAnimation(.easeOut(duration: 0.2)) {
+                gesturesHintCollapsed = false
+            }
+        } label: {
+            HStack(spacing: 8) {
+                Image(systemName: "questionmark.circle")
+                    .font(.body.weight(.semibold))
+                Text("Подсказка")
+                    .font(.subheadline.weight(.semibold))
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .foregroundStyle(.primary)
+            .padding(.horizontal, 12)
+            .frame(minHeight: 44)
+            .background(Color.white)
+            .clipShape(Capsule())
+            .overlay {
+                Capsule()
+                    .stroke(Color("BrandSeparator"), lineWidth: 1)
+            }
+        }
+        .buttonStyle(.plain)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .accessibilityLabel("Подсказка")
+        .accessibilityValue("Свёрнута")
+        .accessibilityHint("Двойное нажатие разворачивает подсказку")
+        .accessibilityIdentifier("checklist.gesturesHint.collapsed")
+    }
 
     private var readOnlyBanner: some View {
         HStack(spacing: 12) {
@@ -325,5 +500,57 @@ enum ChecklistStageBulkActions {
             word = "замечаний"
         }
         return "\(count) \(word)"
+    }
+}
+
+// MARK: - One-time gestures hint (not project data)
+
+enum ChecklistWorkingGesturesHint {
+    /// App-level UI state. Missing key means expanded. Not project data.
+    static let collapsedKey = "bc.checklistWorkingGesturesHint.v2.collapsed"
+
+    static var isCollapsed: Bool {
+        UserDefaults.standard.bool(forKey: collapsedKey)
+    }
+
+    static func setCollapsed(_ collapsed: Bool) {
+        UserDefaults.standard.set(collapsed, forKey: collapsedKey)
+    }
+}
+
+private struct ChecklistWorkingGesturesHelpView: View {
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        NavigationStack {
+            List {
+                Section {
+                    helpRow("Короткое нажатие на кружок отмечает пункт выполненным или снимает отметку.")
+                    helpRow("Смахните пункт влево, чтобы создать замечание.")
+                    helpRow("Удерживайте значок статуса, чтобы изменить замечание или закрыть проблему.")
+                    helpRow("Кнопка фото добавляет фотографии к пункту.")
+                    helpRow("Нажатие на фото открывает просмотр.")
+                    helpRow("Удерживайте фото, чтобы открыть действия и удалить выбранный кадр.")
+                    helpRow("Кнопка заметки открывает текстовую заметку.")
+                    helpRow("Все замечания проекта собраны на дашборде объекта.")
+                }
+            }
+            .listStyle(.insetGrouped)
+            .navigationTitle("Как работать с чек-листом")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Закрыть") { dismiss() }
+                }
+            }
+            .accessibilityIdentifier("checklist.help.sheet")
+        }
+    }
+
+    private func helpRow(_ text: String) -> some View {
+        Text(text)
+            .font(.body)
+            .fixedSize(horizontal: false, vertical: true)
+            .padding(.vertical, 2)
     }
 }

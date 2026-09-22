@@ -9,6 +9,10 @@
 /* Begin PBXBuildFile section */
 		CF0524792EBBCFA4008A66AD /* SeedPackLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF0524782EBBCFA0008A66AD /* SeedPackLoader.swift */; };
 		CF9A11002E09212600C0FF01 /* ProjectIssuesCollector.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF9A11001E09212600C0FF01 /* ProjectIssuesCollector.swift */; };
+		CF9A11004E09212600C0FF01 /* ProjectIssuesListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF9A11003E09212600C0FF01 /* ProjectIssuesListView.swift */; };
+		CF9A11006E09212600C0FF01 /* IssueEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF9A11005E09212600C0FF01 /* IssueEditorView.swift */; };
+		CF9A11008E09212600C0FF01 /* IssueStageDetailHost.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF9A11007E09212600C0FF01 /* IssueStageDetailHost.swift */; };
+		CF9A1100AE09212600C0FF01 /* IssuePhotoThumbnail.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF9A11009E09212600C0FF01 /* IssuePhotoThumbnail.swift */; };
 		CF0AFFB02ED6F70B00BB7DF8 /* ProjectContact.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF0AFFAF2ED6F70400BB7DF8 /* ProjectContact.swift */; };
 		CF0AFFB22ED6FE8B00BB7DF8 /* ProjectContactsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF0AFFB12ED6FE8600BB7DF8 /* ProjectContactsView.swift */; };
 		CF0AFFB42ED6FEAE00BB7DF8 /* EditProjectContactView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF0AFFB32ED6FEA700BB7DF8 /* EditProjectContactView.swift */; };
@@ -114,6 +118,10 @@
 /* Begin PBXFileReference section */
 		CF0524782EBBCFA0008A66AD /* SeedPackLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeedPackLoader.swift; sourceTree = "<group>"; };
 		CF9A11001E09212600C0FF01 /* ProjectIssuesCollector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectIssuesCollector.swift; sourceTree = "<group>"; };
+		CF9A11003E09212600C0FF01 /* ProjectIssuesListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectIssuesListView.swift; sourceTree = "<group>"; };
+		CF9A11005E09212600C0FF01 /* IssueEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IssueEditorView.swift; sourceTree = "<group>"; };
+		CF9A11007E09212600C0FF01 /* IssueStageDetailHost.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IssueStageDetailHost.swift; sourceTree = "<group>"; };
+		CF9A11009E09212600C0FF01 /* IssuePhotoThumbnail.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IssuePhotoThumbnail.swift; sourceTree = "<group>"; };
 		CF0AFFAF2ED6F70400BB7DF8 /* ProjectContact.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectContact.swift; sourceTree = "<group>"; };
 		CF0AFFB12ED6FE8600BB7DF8 /* ProjectContactsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectContactsView.swift; sourceTree = "<group>"; };
 		CF0AFFB32ED6FEA700BB7DF8 /* EditProjectContactView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditProjectContactView.swift; sourceTree = "<group>"; };
@@ -1224,6 +1232,9 @@
 				CF3226282EBABEF200401DFB /* PickerTile.swift */,
 				CF3226262EBABAF700401DFB /* FoundationPickerView.swift */,
 				CF59556B2EB9EB66006BF803 /* ProjectDashboardView.swift */,
+				CF9A11003E09212600C0FF01 /* ProjectIssuesListView.swift */,
+				CF9A11005E09212600C0FF01 /* IssueEditorView.swift */,
+				CF9A11007E09212600C0FF01 /* IssueStageDetailHost.swift */,
 				CF5955692EB9EB3E006BF803 /* ProjectFormView.swift */,
 				CF5955532EB9E2CA006BF803 /* ProjectsListView.swift */,
 			);
@@ -1259,6 +1270,7 @@
 				CF0D4A1A2EC020CD00FF29AE /* InfoSheetView.swift */,
 				CF0D49E42EBFEF6F00FF29AE /* StageListCard.swift */,
 				CFE7AF932EBD976100723E05 /* ChecklistItemRow2.swift */,
+				CF9A11009E09212600C0FF01 /* IssuePhotoThumbnail.swift */,
 				CF5955732EB9EF97006BF803 /* ItemCardView.swift */,
 				CF5955722EB9EF6E006BF803 /* FullScreenImageView.swift */,
 			);
@@ -1458,6 +1470,10 @@
 				CF5955742EB9EFFB006BF803 /* ItemCardView.swift in Sources */,
 				CFE7B00A2EBDC80A00723E05 /* WindowsStagesScreen.swift in Sources */,
 				CF59556C2EB9EB69006BF803 /* ProjectDashboardView.swift in Sources */,
+				CF9A11004E09212600C0FF01 /* ProjectIssuesListView.swift in Sources */,
+				CF9A11006E09212600C0FF01 /* IssueEditorView.swift in Sources */,
+				CF9A11008E09212600C0FF01 /* IssueStageDetailHost.swift in Sources */,
+				CF9A1100AE09212600C0FF01 /* IssuePhotoThumbnail.swift in Sources */,
 				CFE7AFF02EBDBFD200723E05 /* EngineeringStagesScreen.swift in Sources */,
 				CF5955602EB9E92C006BF803 /* StorageService.swift in Sources */,
 				CF2BE2EC2EE96DB100FF0F3D /* LoginView.swift in Sources */,

@@ -1,4 +1,5 @@
 import Foundation
+import ImageIO
 import UIKit
 
 struct MediaService {
@@ -143,4 +144,35 @@ func existingFileURL(_ path: String) -> URL? {
     }
 
     return nil
+}
+
+/// Downsampled JPEG/HEIC thumbnail. Does not write or mutate the source file.
+enum PhotoThumbnailLoader {
+    static func load(path: String, maxPixelSize: CGFloat) async -> UIImage? {
+        await Task.detached(priority: .utility) {
+            makeImage(path: path, maxPixelSize: maxPixelSize)
+        }.value
+    }
+
+    nonisolated static func makeImage(path: String, maxPixelSize: CGFloat) -> UIImage? {
+        guard let url = existingFileURL(path) else { return nil }
+        let pixelSize = Int(max(maxPixelSize, 1).rounded(.up))
+        let options: [CFString: Any] = [
+            kCGImageSourceShouldCache: false,
+            kCGImageSourceShouldCacheImmediately: false
+        ]
+        guard let source = CGImageSourceCreateWithURL(url as CFURL, options as CFDictionary) else {
+            return nil
+        }
+        let thumbOptions: [CFString: Any] = [
+            kCGImageSourceCreateThumbnailFromImageAlways: true,
+            kCGImageSourceThumbnailMaxPixelSize: pixelSize,
+            kCGImageSourceCreateThumbnailWithTransform: true,
+            kCGImageSourceShouldCacheImmediately: true
+        ]
+        guard let cgImage = CGImageSourceCreateThumbnailAtIndex(source, 0, thumbOptions as CFDictionary) else {
+            return nil
+        }
+        return UIImage(cgImage: cgImage)
+    }
 }

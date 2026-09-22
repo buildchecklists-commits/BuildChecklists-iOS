@@ -28,6 +28,11 @@ struct ChecklistItemRow2: View {
     @State private var showFullScreen = false
     @State private var currentIndex = 0
 
+    // Issue editor
+    @State private var showIssueEditor = false
+    @State private var issueEditorIsCreate = true
+    @State private var showIssueActions = false
+
     // Check bounce
     @State private var checkBounce = false
 
@@ -60,12 +65,15 @@ struct ChecklistItemRow2: View {
             }
         }
         .padding(.vertical, 6)
-        .contentShape(Rectangle())
         .swipeActions(edge: .trailing, allowsFullSwipe: false) {
             issueSwipeActions()
         }
-        .contextMenu {
-            issueContextMenu()
+        .confirmationDialog(
+            "Действия с пунктом",
+            isPresented: $showIssueActions,
+            titleVisibility: .visible
+        ) {
+            issueActionButtons
         }
 
         // Пикер фото
@@ -82,6 +90,10 @@ struct ChecklistItemRow2: View {
         // Редактор заметки
         .sheet(isPresented: $showNote) { noteEditor() }
 
+        .sheet(isPresented: $showIssueEditor) {
+            IssueEditorView(item: $item, isCreate: issueEditorIsCreate)
+        }
+
         // Полноэкранная галерея
         .fullScreenCover(isPresented: $showFullScreen) { fullScreenGallery() }
     }
@@ -93,7 +105,6 @@ struct ChecklistItemRow2: View {
         HStack(spacing: 14) {
             doneButton()
 
-            // Многострочный заголовок без обрезки
             Text(item.title)
                 .font(.body)
                 .foregroundStyle(item.status == .ok ? .secondary : .primary)
@@ -114,6 +125,7 @@ struct ChecklistItemRow2: View {
                         .frame(width: 32, height: 32)
                 }
                 .buttonStyle(.plain)
+                .accessibilityLabel("Справка по пункту")
             }
 
             // Фото/заметки — в read-only скрываем полностью
@@ -133,35 +145,53 @@ struct ChecklistItemRow2: View {
     }
 
     private func doneButton() -> some View {
-        Button {
-            guard !isLocked else { return }
-            if isIssue {
-                UIImpactFeedbackGenerator(style: .light).impactOccurred()
-                return
+        Image(systemName: statusIconName)
+            .foregroundColor(statusIconColor)
+            .font(.system(size: 22))
+            .frame(width: 32, height: 32)
+            .scaleEffect(checkBounce ? 1.15 : 1.0)
+            .contentShape(Rectangle())
+            .onTapGesture(perform: toggleDoneStatus)
+            .onLongPressGesture(minimumDuration: 0.45) {
+                guard !isLocked else { return }
+                showIssueActions = true
             }
-            withAnimation(.spring(response: 0.25, dampingFraction: 0.6)) {
-                item.status = (resolvedStatus == .ok) ? .na : .ok
-                checkBounce.toggle()
-            }
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
-                withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
-                    checkBounce = false
-                }
-            }
-        } label: {
-            Image(systemName: statusIconName)
-                .foregroundColor(statusIconColor)
-                .font(.system(size: 22))
-                .frame(width: 32, height: 32)
-                .scaleEffect(checkBounce ? 1.15 : 1.0)
-                .contentShape(Rectangle())
+            .opacity(isLocked ? 0.35 : 1)
+            .accessibilityLabel(statusAccessibilityLabel)
+            .accessibilityHint(isIssue ? "Удерживайте значок статуса, чтобы открыть действия замечания." : "Двойное нажатие отмечает пункт выполненным или снимает отметку. Удерживайте значок статуса, чтобы открыть действия замечания.")
+            .accessibilityIdentifier("checklist.item.status")
+            .accessibilityAddTraits(.isButton)
+    }
+
+    private func toggleDoneStatus() {
+        guard !isLocked else { return }
+        if isIssue {
+            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+            return
         }
-        .buttonStyle(.plain)
-        .disabled(isLocked)
-        .opacity(isLocked ? 0.35 : 1)
-        .accessibilityLabel(statusAccessibilityLabel)
-        .accessibilityHint(isIssue ? "Закройте замечание из меню или свайпом." : "Двойное нажатие отмечает пункт выполненным или снимает отметку.")
-        .accessibilityIdentifier("checklist.item.status")
+        withAnimation(.spring(response: 0.25, dampingFraction: 0.6)) {
+            item.status = (resolvedStatus == .ok) ? .na : .ok
+            checkBounce.toggle()
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
+            withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+                checkBounce = false
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var issueActionButtons: some View {
+        if !isLocked {
+            if isIssue {
+                Button("Проблема устранена") { setStatus(.ok) }
+                Button("Снять отметку проблемы") { setStatus(.na) }
+                Button("Изменить замечание") { openIssueEditor(isCreate: false) }
+            } else {
+                Button("Отметить как проблему") { openIssueEditor(isCreate: true) }
+            }
+        }
+        Button("Отмена", role: .cancel) {}
     }
 
     private var statusIconName: String {
@@ -204,7 +234,7 @@ struct ChecklistItemRow2: View {
                 .accessibilityIdentifier("checklist.item.resolveIssue")
             } else {
                 Button {
-                    setStatus(.issue)
+                    openIssueEditor(isCreate: true)
                 } label: {
                     Label("Отметить как проблему", systemImage: "exclamationmark.circle")
                 }
@@ -215,35 +245,10 @@ struct ChecklistItemRow2: View {
         }
     }
 
-    @ViewBuilder
-    private func issueContextMenu() -> some View {
-        if !isLocked {
-            if isIssue {
-                Button {
-                    setStatus(.ok)
-                } label: {
-                    Label("Проблема устранена", systemImage: "checkmark.circle")
-                }
-                .accessibilityLabel("Проблема устранена")
-                .accessibilityIdentifier("checklist.item.resolveIssue")
-
-                Button {
-                    setStatus(.na)
-                } label: {
-                    Label("Снять отметку проблемы", systemImage: "circle")
-                }
-                .accessibilityLabel("Снять отметку проблемы")
-                .accessibilityIdentifier("checklist.item.clearIssue")
-            } else {
-                Button {
-                    setStatus(.issue)
-                } label: {
-                    Label("Отметить как проблему", systemImage: "exclamationmark.circle")
-                }
-                .accessibilityLabel("Отметить как проблему")
-                .accessibilityIdentifier("checklist.item.markIssue")
-            }
-        }
+    private func openIssueEditor(isCreate: Bool) {
+        guard !isLocked else { return }
+        issueEditorIsCreate = isCreate
+        showIssueEditor = true
     }
 
     private func setStatus(_ status: ItemStatus) {
@@ -282,6 +287,8 @@ struct ChecklistItemRow2: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        .accessibilityLabel("Добавить фотографии")
+        .accessibilityHint("Открывает выбор фотографий для этого пункта.")
     }
 
     private func noteButton() -> some View {
@@ -304,6 +311,8 @@ struct ChecklistItemRow2: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        .accessibilityLabel("Заметка")
+        .accessibilityHint("Открывает текстовую заметку пункта.")
     }
 
     // MARK: - Note Editor
@@ -377,39 +386,19 @@ struct ChecklistItemRow2: View {
     private func photoThumb(idx: Int, path: String) -> some View {
         if let url = existingFileURL(path),
            let ui = UIImage(contentsOfFile: url.path) {
-            let base = Image(uiImage: ui)
-                .resizable()
-                .scaledToFill()
-                .frame(width: 110, height: 74)
-                .clipped()
-                .cornerRadius(10)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 10)
-                        .stroke(Color.secondary.opacity(0.2), lineWidth: 1)
-                )
-                .onTapGesture {
+            ChecklistPhotoThumb(
+                image: ui,
+                isLocked: isLocked,
+                accessibilityLabel: "Фотография \(idx + 1)",
+                onOpen: {
                     currentIndex = idx
                     showFullScreen = true
+                },
+                onDelete: {
+                    deletePhoto(at: idx)
                 }
-
-            if isLocked {
-                base
-            } else {
-                base.contextMenu {
-                    Button {
-                        currentIndex = idx
-                        showFullScreen = true
-                    } label: {
-                        Label("Открыть фото", systemImage: "arrow.up.left.and.arrow.down.right")
-                    }
-
-                    Button(role: .destructive) {
-                        deletePhoto(at: idx)
-                    } label: {
-                        Label("Удалить это фото", systemImage: "trash")
-                    }
-                }
-            }
+            )
+            .frame(width: 110, height: 74)
         } else {
             // Плейсхолдер если файл потерян
             ZStack {
@@ -474,29 +463,92 @@ struct ChecklistItemRow2: View {
 
     // MARK: - Notes FS helpers
 
-    private func noteFileURL(for item: StageItem) -> URL {
-        let dir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-        let notesDir = dir.appendingPathComponent("BCNotes", isDirectory: true)
-        if !FileManager.default.fileExists(atPath: notesDir.path) {
-            try? FileManager.default.createDirectory(at: notesDir, withIntermediateDirectories: true)
-        }
-        return notesDir.appendingPathComponent("\(item.id.uuidString).txt")
-    }
-
     private func noteExists(for item: StageItem) -> Bool {
-        FileManager.default.fileExists(atPath: noteFileURL(for: item).path)
+        guard let url = ChecklistWorkingNote.fileURL(itemID: item.id) else { return false }
+        return FileManager.default.fileExists(atPath: url.path)
     }
 
     private func loadNote(for item: StageItem) -> String? {
-        let url = noteFileURL(for: item)
-        guard let data = try? Data(contentsOf: url),
-              let text = String(data: data, encoding: .utf8) else { return nil }
-        return text
+        ChecklistWorkingNote.readRawText(itemID: item.id)
     }
 
     private func saveNote(_ text: String, for item: StageItem) {
         guard !isLocked else { return }
-        let url = noteFileURL(for: item)
-        try? text.data(using: .utf8)?.write(to: url, options: .atomic)
+        try? ChecklistWorkingNote.write(text, itemID: item.id)
+    }
+}
+
+/// Photo thumbnail with a UIKit context menu bound to this view only.
+/// SwiftUI `.contextMenu` inside `List` is installed on the whole cell.
+private struct ChecklistPhotoThumb: UIViewRepresentable {
+    let image: UIImage
+    let isLocked: Bool
+    let accessibilityLabel: String
+    let onOpen: () -> Void
+    let onDelete: () -> Void
+
+    func makeUIView(context: Context) -> ChecklistPhotoThumbView {
+        let view = ChecklistPhotoThumbView()
+        view.isUserInteractionEnabled = true
+        view.contentMode = .scaleAspectFill
+        view.clipsToBounds = true
+        view.layer.cornerRadius = 10
+        view.layer.borderWidth = 1
+        view.layer.borderColor = UIColor.secondaryLabel.withAlphaComponent(0.2).cgColor
+        view.addGestureRecognizer(UITapGestureRecognizer(target: view, action: #selector(ChecklistPhotoThumbView.openTapped)))
+        view.addInteraction(UIContextMenuInteraction(delegate: view))
+        return view
+    }
+
+    func sizeThatFits(
+        _ proposal: ProposedViewSize,
+        uiView: ChecklistPhotoThumbView,
+        context: Context
+    ) -> CGSize? {
+        CGSize(width: 110, height: 74)
+    }
+
+    func updateUIView(_ view: ChecklistPhotoThumbView, context: Context) {
+        view.image = image
+        view.isLocked = isLocked
+        view.onOpen = onOpen
+        view.onDelete = onDelete
+        view.isAccessibilityElement = true
+        view.accessibilityLabel = accessibilityLabel
+        view.accessibilityHint = "Двойное нажатие открывает просмотр. Удерживайте, чтобы удалить или открыть."
+        view.accessibilityIdentifier = "checklist.item.photo"
+    }
+}
+
+private final class ChecklistPhotoThumbView: UIImageView, UIContextMenuInteractionDelegate {
+    var isLocked = false
+    var onOpen: () -> Void = {}
+    var onDelete: () -> Void = {}
+
+    @objc func openTapped() {
+        onOpen()
+    }
+
+    func contextMenuInteraction(
+        _ interaction: UIContextMenuInteraction,
+        configurationForMenuAtLocation location: CGPoint
+    ) -> UIContextMenuConfiguration? {
+        guard !isLocked else { return nil }
+        return UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { [weak self] _ in
+            let open = UIAction(
+                title: "Открыть фото",
+                image: UIImage(systemName: "arrow.up.left.and.arrow.down.right")
+            ) { _ in
+                self?.onOpen()
+            }
+            let delete = UIAction(
+                title: "Удалить это фото",
+                image: UIImage(systemName: "trash"),
+                attributes: .destructive
+            ) { _ in
+                self?.onDelete()
+            }
+            return UIMenu(children: [open, delete])
+        }
     }
 }

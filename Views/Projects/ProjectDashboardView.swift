@@ -29,6 +29,10 @@ struct ProjectDashboardView: View {
     // Триггер для перерисовки прогресса по нотификации
     @State private var progressVersion: Int = 0
 
+    @State private var issues: [ChecklistIssueRef] = []
+    @State private var issuesLoadGeneration = 0
+    @Environment(\.scenePhase) private var scenePhase
+
     private var project: Project? {
         store.projects.first(where: { $0.id == projectID })
     }
@@ -52,6 +56,9 @@ struct ProjectDashboardView: View {
 
                         // Контакты
                         contactsSection(project)
+
+                        // Замечания рабочих чек-листов
+                        issuesSection(project)
 
                         // Чек-листы
                         stagesSection(project)
@@ -87,9 +94,19 @@ struct ProjectDashboardView: View {
                     }
                 }
 
+                .onAppear {
+                    reloadIssues()
+                }
+
                 // Любое изменение прогресса этапов перерисовывает дашборд
                 .onReceive(NotificationCenter.default.publisher(for: .bcProgressDidChange)) { _ in
                     progressVersion &+= 1
+                    reloadIssues()
+                }
+                .onChange(of: scenePhase) { _, phase in
+                    if phase == .active {
+                        reloadIssues()
+                    }
                 }
 
             } else {
@@ -567,6 +584,74 @@ struct ProjectDashboardView: View {
         if arr.count == 1 { return arr[0].name }
         if arr.count == 2 { return "\(arr[0].name), \(arr[1].name)" }
         return "\(arr[0].name), \(arr[1].name) +\(arr.count - 2)"
+    }
+
+    // MARK: - Замечания
+
+    private func issuesSection(_ project: Project) -> some View {
+        let count = issues.count
+        let hasIssues = count > 0
+
+        return NavigationLink {
+            ProjectIssuesListView(projectID: project.id)
+        } label: {
+            HStack(alignment: .top, spacing: 14) {
+                Image(systemName: hasIssues ? "exclamationmark.triangle.fill" : "checkmark.circle.fill")
+                    .font(.title3.weight(.semibold))
+                    .foregroundStyle(hasIssues ? Color.orange : Color.green)
+                    .accessibilityHidden(true)
+                    .padding(.top, 1)
+
+                VStack(alignment: .leading, spacing: 4) {
+                    if hasIssues {
+                        Text("Требуют внимания")
+                            .font(.body.weight(.semibold))
+                            .foregroundStyle(.primary)
+                            .fixedSize(horizontal: false, vertical: true)
+                        Text("Замечания: \(count)")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                            .fixedSize(horizontal: false, vertical: true)
+                    } else {
+                        Text("Замечаний нет")
+                            .font(.body.weight(.medium))
+                            .foregroundStyle(.primary)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                }
+
+                Spacer(minLength: 8)
+
+                Image(systemName: "chevron.right")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(.secondary)
+                    .padding(.top, 6)
+                    .accessibilityHidden(true)
+            }
+            .padding(16)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(.ultraThinMaterial)
+            .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+        }
+        .buttonStyle(.plain)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(ProjectIssuesFormatting.dashboardAccessibilityLabel(count: count))
+        .accessibilityHint("Открывает список замечаний")
+        .accessibilityIdentifier("project.issues.entry")
+        .accessibilityAddTraits(.isButton)
+    }
+
+    private func reloadIssues() {
+        issuesLoadGeneration += 1
+        let generation = issuesLoadGeneration
+        let pid = projectID
+        Task.detached(priority: .userInitiated) {
+            let result = ProjectIssuesCollector.issues(for: pid)
+            await MainActor.run {
+                guard generation == issuesLoadGeneration else { return }
+                issues = result
+            }
+        }
     }
 
     // MARK: - Секция чек-листов проекта
