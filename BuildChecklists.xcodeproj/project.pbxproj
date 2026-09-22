@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		CF0524792EBBCFA4008A66AD /* SeedPackLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF0524782EBBCFA0008A66AD /* SeedPackLoader.swift */; };
 		CF9A11002E09212600C0FF01 /* ProjectIssuesCollector.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF9A11001E09212600C0FF01 /* ProjectIssuesCollector.swift */; };
+		CF9A11122E09212600C0FF11 /* ChecklistReportSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF9A11112E09212600C0FF11 /* ChecklistReportSnapshot.swift */; };
 		CF9A11004E09212600C0FF01 /* ProjectIssuesListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF9A11003E09212600C0FF01 /* ProjectIssuesListView.swift */; };
 		CF9A11006E09212600C0FF01 /* IssueEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF9A11005E09212600C0FF01 /* IssueEditorView.swift */; };
 		CF9A11008E09212600C0FF01 /* IssueStageDetailHost.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF9A11007E09212600C0FF01 /* IssueStageDetailHost.swift */; };
@@ -118,6 +119,7 @@
 /* Begin PBXFileReference section */
 		CF0524782EBBCFA0008A66AD /* SeedPackLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeedPackLoader.swift; sourceTree = "<group>"; };
 		CF9A11001E09212600C0FF01 /* ProjectIssuesCollector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectIssuesCollector.swift; sourceTree = "<group>"; };
+		CF9A11112E09212600C0FF11 /* ChecklistReportSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChecklistReportSnapshot.swift; sourceTree = "<group>"; };
 		CF9A11003E09212600C0FF01 /* ProjectIssuesListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectIssuesListView.swift; sourceTree = "<group>"; };
 		CF9A11005E09212600C0FF01 /* IssueEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IssueEditorView.swift; sourceTree = "<group>"; };
 		CF9A11007E09212600C0FF01 /* IssueStageDetailHost.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IssueStageDetailHost.swift; sourceTree = "<group>"; };
@@ -1168,6 +1170,7 @@
 				CFE7AF952EBD9F8500723E05 /* FoundationProgressStore.swift */,
 				CF0524782EBBCFA0008A66AD /* SeedPackLoader.swift */,
 				CF9A11001E09212600C0FF01 /* ProjectIssuesCollector.swift */,
+				CF9A11112E09212600C0FF11 /* ChecklistReportSnapshot.swift */,
 				CF59556F2EB9EF15006BF803 /* MediaService.swift */,
 				CF5955632EB9E963006BF803 /* MarkdownLoader.swift */,
 				CF5955612EB9E943006BF803 /* AuthService.swift */,
@@ -1484,6 +1487,7 @@
 				CF3226312EBABFA900401DFB /* RoofCoverPickerView.swift in Sources */,
 				CF0524792EBBCFA4008A66AD /* SeedPackLoader.swift in Sources */,
 				CF9A11002E09212600C0FF01 /* ProjectIssuesCollector.swift in Sources */,
+				CF9A11122E09212600C0FF11 /* ChecklistReportSnapshot.swift in Sources */,
 				CFE7AFAF2EBDA46D00723E05 /* WallsProgressStore.swift in Sources */,
 				CF59555A2EB9E87D006BF803 /* Project.swift in Sources */,
 				CFAB680E2ECFA74000F813F7 /* RoofCoverStagesScreen.swift in Sources */,
