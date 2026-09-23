@@ -22,6 +22,7 @@
 		CF0AFFB42ED6FEAE00BB7DF8 /* EditProjectContactView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF0AFFB32ED6FEA700BB7DF8 /* EditProjectContactView.swift */; };
 		CF0AFFB62ED7043500BB7DF8 /* ProjectFilesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF0AFFB52ED7043000BB7DF8 /* ProjectFilesView.swift */; };
 		CF0D49E52EBFEF7100FF29AE /* StageListCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF0D49E42EBFEF6F00FF29AE /* StageListCard.swift */; };
+		CF9A111A2E09212600C0FF15 /* ProjectUXColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF9A11192E09212600C0FF15 /* ProjectUXColors.swift */; };
 		CF0D4A192EC020A300FF29AE /* InfoTextManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF0D4A182EC020A100FF29AE /* InfoTextManager.swift */; };
 		CF0D4A1B2EC020CF00FF29AE /* InfoSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF0D4A1A2EC020CD00FF29AE /* InfoSheetView.swift */; };
 		CF0D4AF02EC1275C00FF29AE /* InfoTexts in Resources */ = {isa = PBXBuildFile; fileRef = CF0D4AEF2EC1275C00FF29AE /* InfoTexts */; };
@@ -135,6 +136,7 @@
 		CF0AFFB32ED6FEA700BB7DF8 /* EditProjectContactView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditProjectContactView.swift; sourceTree = "<group>"; };
 		CF0AFFB52ED7043000BB7DF8 /* ProjectFilesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectFilesView.swift; sourceTree = "<group>"; };
 		CF0D49E42EBFEF6F00FF29AE /* StageListCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StageListCard.swift; sourceTree = "<group>"; };
+		CF9A11192E09212600C0FF15 /* ProjectUXColors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectUXColors.swift; sourceTree = "<group>"; };
 		CF0D4A182EC020A100FF29AE /* InfoTextManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfoTextManager.swift; sourceTree = "<group>"; };
 		CF0D4A1A2EC020CD00FF29AE /* InfoSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfoSheetView.swift; sourceTree = "<group>"; };
 		CF0D4AEF2EC1275C00FF29AE /* InfoTexts */ = {isa = PBXFileReference; lastKnownFileType = folder; name = InfoTexts; path = Resources/InfoTexts; sourceTree = "<group>"; };
@@ -1281,6 +1283,7 @@
 				CFC3A3902ED49454001D9A2C /* ShareSheet.swift */,
 				CF0D4A1A2EC020CD00FF29AE /* InfoSheetView.swift */,
 				CF0D49E42EBFEF6F00FF29AE /* StageListCard.swift */,
+				CF9A11192E09212600C0FF15 /* ProjectUXColors.swift */,
 				CFE7AF932EBD976100723E05 /* ChecklistItemRow2.swift */,
 				CF9A11009E09212600C0FF01 /* IssuePhotoThumbnail.swift */,
 				CF5955732EB9EF97006BF803 /* ItemCardView.swift */,
@@ -1514,6 +1517,7 @@
 				CFE7AF842EBC7EF400723E05 /* FoundationStagesScreen.swift in Sources */,
 				CFE7AFDE2EBDB09D00723E05 /* RoofStagesScreen.swift in Sources */,
 				CF0D49E52EBFEF7100FF29AE /* StageListCard.swift in Sources */,
+				CF9A111A2E09212600C0FF15 /* ProjectUXColors.swift in Sources */,
 				CFE287792ED3364A00D80679 /* DoorsStagesProvider.swift in Sources */,
 				CFC3A3912ED49459001D9A2C /* ShareSheet.swift in Sources */,
 				CF32262B2EBABF3000401DFB /* WallsPickerView.swift in Sources */,
