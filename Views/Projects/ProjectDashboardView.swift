@@ -46,22 +46,18 @@ struct ProjectDashboardView: View {
                 ScrollView {
                     VStack(spacing: 26) {
 
-                        // Верхняя карточка с прогрессом проекта
                         headerCard(project)
 
-                        // Задачи проекта
+                        if !issues.isEmpty {
+                            issuesSection(project)
+                        }
+
                         tasksSection(project)
 
-                        // Управление проектом
                         managementSection(project)
 
-                        // Контакты
                         contactsSection(project)
 
-                        // Замечания рабочих чек-листов
-                        issuesSection(project)
-
-                        // Чек-листы
                         stagesSection(project)
                     }
                     .padding(.horizontal)
@@ -127,99 +123,115 @@ struct ProjectDashboardView: View {
 
     private func headerCard(_ project: Project) -> some View {
 
-        // Считаем прогресс так же, как в ProjectsListView.overallProgress(for:)
         let projectProgress = overallProgress(for: project)
         let percentage = Int((projectProgress * 100).rounded())
+        let progressColor = colorForProjectProgress(projectProgress)
+        let isComplete = projectProgress >= 1.0
+        let clamped = min(max(projectProgress, 0), 1)
 
-        return VStack(alignment: .leading, spacing: 18) {
-
-            // Заголовок + проценты справа
-            HStack(alignment: .top) {
-
-                VStack(alignment: .leading, spacing: 4) {
-
-                    Text(project.name)
-                        .font(.title3.weight(.semibold))
-
-                    // Адрес
-                    if !project.address.isEmpty {
-                        Text(project.address)
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
-                    }
-
-                    // Ответственный (manager)
-                    if let manager = project.manager, !manager.isEmpty {
-                        HStack(spacing: 6) {
-                            Image(systemName: "person.fill")
-                                .font(.caption)
-                                .foregroundColor(.secondary)
-                            Text("Ответственный: \(manager)")
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                        }
-                    }
-                }
-
-                Spacer()
-
-                // Процент выполнения
-                HStack(spacing: 4) {
-                    Text("\(percentage)%")
-                        .font(.title3.weight(.bold))
-                        .foregroundColor(colorForProjectProgress(projectProgress))
-
-                    if percentage == 100 {
-                        Image(systemName: "checkmark.circle.fill")
-                            .foregroundColor(.green)
-                    }
-                }
-            }
-
-            // Общий прогресс-бар по проекту
-            ProgressView(value: projectProgress)
-                .tint(colorForProjectProgress(projectProgress))
-                .scaleEffect(x: 1, y: 1.3, anchor: .center)
-                .padding(.trailing, 4)
-
-            // Даты + статус срока + файлы
-            VStack(alignment: .leading, spacing: 10) {
-
-                HStack(spacing: 12) {
-
-                    if let start = project.dateStart {
-                        datePill(text: dateString(start),
-                                 icon: "calendar")
-                    }
-
+        return VStack(alignment: .leading, spacing: 12) {
+            ViewThatFits(in: .horizontal) {
+                HStack(alignment: .firstTextBaseline, spacing: 12) {
+                    progressNumber(percentage, color: progressColor)
+                    Spacer(minLength: 12)
                     if let end = project.dateEnd {
-                        datePill(text: dateString(end),
-                                 icon: "calendar.badge.clock")
-                    }
-
-                    Spacer()
-
-                    if let end = project.dateEnd,
-                       let status = deadlineStatus(end) {
-                        Text(status.text)
-                            .font(.caption.weight(.medium))
-                            .foregroundStyle(status.color)
-                            .padding(.horizontal, 10)
-                            .padding(.vertical, 4)
-                            .background(
-                                Capsule()
-                                    .fill(status.color.opacity(0.1))
-                            )
+                        deadlineLabel(deadlineStatus(end, isComplete: isComplete), alignment: .trailing)
                     }
                 }
-
-                filesMiniSection(project)
+                VStack(alignment: .leading, spacing: 4) {
+                    progressNumber(percentage, color: progressColor)
+                    if let end = project.dateEnd {
+                        deadlineLabel(deadlineStatus(end, isComplete: isComplete), alignment: .leading)
+                    }
+                }
             }
 
+            summaryProgressBar(fraction: clamped, color: progressColor)
+
+            if !project.address.isEmpty {
+                Text(project.address)
+                    .font(.subheadline)
+                    .foregroundStyle(ProjectUXColors.secondaryText)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
+
+            if let manager = project.manager?.trimmingCharacters(in: .whitespacesAndNewlines),
+               !manager.isEmpty {
+                Label("Ответственный: \(manager)", systemImage: "person.fill")
+                    .font(.subheadline)
+                    .foregroundStyle(ProjectUXColors.secondaryText)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
+
+            projectDateRow(project)
+
+            filesMiniSection(project)
         }
-        .padding()
-        .background(.ultraThinMaterial)
-        .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
+        .padding(14)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(ProjectUXColors.cardSurface)
+        .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+    }
+
+    private func progressNumber(_ percentage: Int, color: Color) -> some View {
+        Text("\(percentage)%")
+            .font(.largeTitle.weight(.bold))
+            .foregroundStyle(color)
+            .monospacedDigit()
+            .accessibilityLabel("Прогресс \(percentage) процентов")
+    }
+
+    private func deadlineLabel(
+        _ status: (text: String, color: Color),
+        alignment: TextAlignment
+    ) -> some View {
+        Text(status.text)
+            .font(.subheadline.weight(.semibold))
+            .foregroundStyle(status.color)
+            .multilineTextAlignment(alignment)
+            .fixedSize(horizontal: false, vertical: true)
+    }
+
+    private func summaryProgressBar(fraction: Double, color: Color) -> some View {
+        GeometryReader { proxy in
+            ZStack(alignment: .leading) {
+                Capsule()
+                    .fill(ProjectUXColors.progressTrack)
+                if fraction > 0 {
+                    Capsule()
+                        .fill(color)
+                        .frame(width: max(0, proxy.size.width * fraction))
+                }
+            }
+        }
+        .frame(height: 8)
+        .accessibilityHidden(true)
+    }
+
+    @ViewBuilder
+    private func projectDateRow(_ project: Project) -> some View {
+        if project.dateStart != nil || project.dateEnd != nil {
+            ViewThatFits(in: .horizontal) {
+                HStack(spacing: 8) {
+                    if let start = project.dateStart {
+                        datePill(text: dateString(start), icon: "calendar")
+                    }
+                    if let end = project.dateEnd {
+                        datePill(text: dateString(end), icon: "calendar.badge.clock")
+                    }
+                }
+                VStack(alignment: .leading, spacing: 6) {
+                    if let start = project.dateStart {
+                        datePill(text: dateString(start), icon: "calendar")
+                    }
+                    if let end = project.dateEnd {
+                        datePill(text: dateString(end), icon: "calendar.badge.clock")
+                    }
+                }
+            }
+        }
     }
 
     // MARK: - Даты / статус
@@ -227,40 +239,41 @@ struct ProjectDashboardView: View {
     private func datePill(text: String, icon: String) -> some View {
         Label(text, systemImage: icon)
             .font(.caption)
+            .foregroundStyle(ProjectUXColors.primaryText)
             .padding(.horizontal, 10)
             .padding(.vertical, 6)
-            .background(Color(.systemGray6))
+            .background(ProjectUXColors.secondarySurface)
             .clipShape(Capsule())
     }
 
-    private func deadlineStatus(_ endDate: Date) -> (text: String, color: Color)? {
+    /// Same start-of-day difference as before. Red is only a past end date on an unfinished project.
+    private func deadlineStatus(_ endDate: Date, isComplete: Bool) -> (text: String, color: Color) {
         let cal = Calendar.current
         let today = cal.startOfDay(for: Date())
         let target = cal.startOfDay(for: endDate)
         let diff = cal.dateComponents([.day], from: today, to: target).day ?? 0
 
+        if isComplete, diff < 0 {
+            return ("Завершён", ProjectUXColors.progressComplete)
+        }
         if diff > 0 {
-            return ("Осталось \(diff) дн.", Color("AccentYellow"))
+            return ("Осталось \(diff) дн.", ProjectUXColors.secondaryText)
         } else if diff == 0 {
-            return ("Срок сегодня", Color("AccentYellow"))
+            return ("Сегодня", ProjectUXColors.progressActive)
         } else {
-            return ("Просрочено на \(abs(diff)) дн.", .red)
+            return ("Просрочено на \(abs(diff)) дн.", ProjectUXColors.overdue)
         }
     }
 
     // MARK: - Цвет прогресса проекта
 
+    /// Green only when the unrounded ten-pack average is complete, same as the project list.
+    /// A label that rounds to 100% stays yellow while the fraction is below 1.
     private func colorForProjectProgress(_ value: Double) -> Color {
-        switch value {
-        case 0..<0.33:
-            return .red
-        case 0.33..<0.66:
-            return Color("AccentYellow")
-        case 0.66..<0.999:
-            return .green
-        default:
-            return .green
+        if value >= 1.0 {
+            return ProjectUXColors.progressComplete
         }
+        return ProjectUXColors.progressActive
     }
 
     // MARK: - Общий прогресс проекта (ИДЕНТИЧЕН ProjectsListView.overallProgress)
@@ -308,24 +321,28 @@ struct ProjectDashboardView: View {
             } label: {
                 HStack(spacing: 8) {
                     Image(systemName: "folder.fill")
-                        .foregroundColor(Color("AccentYellow"))
+                        .foregroundStyle(ProjectUXColors.accentAction)
                         .font(.subheadline)
 
                     VStack(alignment: .leading, spacing: 2) {
                         Text("Файлы проекта")
                             .font(.subheadline.weight(.medium))
+                            .foregroundStyle(ProjectUXColors.primaryText)
                         Text("Фото: \(photos) • Документы: \(docs) • PDF: \(hasPDF ? "есть" : "нет")")
                             .font(.caption)
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(ProjectUXColors.secondaryText)
+                            .fixedSize(horizontal: false, vertical: true)
                     }
 
-                    Spacer()
+                    Spacer(minLength: 8)
 
                     Image(systemName: "chevron.down")
                         .font(.caption.weight(.semibold))
                         .rotationEffect(.degrees(isFilesExpanded ? 180 : 0))
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(ProjectUXColors.secondaryText)
                 }
+                .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
+                .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
 
@@ -340,15 +357,17 @@ struct ProjectDashboardView: View {
                 } label: {
                     HStack(spacing: 10) {
                         Image(systemName: "doc.on.doc")
-                            .foregroundColor(Color("AccentYellow"))
+                            .foregroundStyle(ProjectUXColors.accentAction)
                         Text("Открыть файлы проекта")
                             .font(.caption.weight(.medium))
-                        Spacer()
+                            .foregroundStyle(ProjectUXColors.primaryText)
+                        Spacer(minLength: 8)
                         Image(systemName: "chevron.right")
                             .font(.caption)
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(ProjectUXColors.secondaryText)
                     }
-                    .padding(.top, 2)
+                    .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
+                    .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
             }
@@ -361,10 +380,8 @@ struct ProjectDashboardView: View {
 
         let allTasks = store.tasks(for: project.id)
         let activeTasks = allTasks.filter { !$0.isCompleted }
-        let completedTasks = allTasks.count - activeTasks.count
 
-        // ближайшие 3 задачи по дате
-        let upcomingSlice = activeTasks.sorted { lhs, rhs in
+        let nearest = activeTasks.sorted { lhs, rhs in
             switch (lhs.dueDate, rhs.dueDate) {
             case let (l?, r?):
                 return l < r
@@ -375,86 +392,86 @@ struct ProjectDashboardView: View {
             case (nil, nil):
                 return lhs.title.localizedCaseInsensitiveCompare(rhs.title) == .orderedAscending
             }
-        }.prefix(3)
-        let upcoming = Array(upcomingSlice)
+        }.first
 
         return dashboardGlass(title: "Задачи проекта") {
-
-            VStack(alignment: .leading, spacing: 10) {
-
+            ViewThatFits(in: .horizontal) {
                 HStack(alignment: .center, spacing: 12) {
-
-                    VStack(alignment: .leading, spacing: 4) {
-                        if allTasks.isEmpty {
-                            Text("Задач пока нет")
-                                .font(.subheadline.weight(.medium))
-                            Text("Создайте первую задачу для этого объекта.")
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                        } else {
-                            Text("Активные: \(activeTasks.count)")
-                                .font(.subheadline.weight(.medium))
-                            Text("Завершённые: \(completedTasks)")
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                        }
-                    }
-
-                    Spacer()
-
-                    Button {
-                        showQuickTaskForm = true
-                    } label: {
-                        HStack(spacing: 6) {
-                            Image(systemName: "plus.circle.fill")
-                            Text("Новая задача")
-                        }
-                        .font(.caption.weight(.semibold))
-                        .padding(.horizontal, 10)
-                        .padding(.vertical, 6)
-                        .background(Color.accentColor.opacity(0.12))
-                        .foregroundColor(.accentColor)
-                        .clipShape(Capsule())
-                    }
-                    .buttonStyle(.plain)
+                    taskSummary(nearest, hasAnyTasks: !allTasks.isEmpty)
+                    Spacer(minLength: 8)
+                    newTaskButton
                 }
-
-                if !upcoming.isEmpty {
-
-                    Divider()
-                        .padding(.top, 6)
-                        .padding(.bottom, 4)
-
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Ближайшие задачи")
-                            .font(.caption.weight(.medium))
-                            .foregroundStyle(.secondary)
-
-                        ForEach(upcoming) { task in
-                            HStack(alignment: .top, spacing: 8) {
-
-                                Image(systemName: "checklist")
-                                    .font(.caption)
-                                    .foregroundColor(.primary)
-
-                                VStack(alignment: .leading, spacing: 2) {
-                                    Text(task.title)
-                                        .font(.subheadline)
-
-                                    if let date = task.dueDate {
-                                        Text(dateString(date))
-                                            .font(.caption2)
-                                            .foregroundStyle(.secondary)
-                                    }
-                                }
-
-                                Spacer()
-                            }
-                        }
-                    }
+                VStack(alignment: .leading, spacing: 8) {
+                    taskSummary(nearest, hasAnyTasks: !allTasks.isEmpty)
+                    newTaskButton
                 }
             }
         }
+    }
+
+    @ViewBuilder
+    private func taskSummary(_ task: TaskItem?, hasAnyTasks: Bool) -> some View {
+        if let task {
+            VStack(alignment: .leading, spacing: 2) {
+                Text(task.title)
+                    .font(.subheadline.weight(.medium))
+                    .foregroundStyle(ProjectUXColors.primaryText)
+                    .fixedSize(horizontal: false, vertical: true)
+                if let date = task.dueDate {
+                    Text(taskDateState(date))
+                        .font(.caption)
+                        .foregroundStyle(taskDateColor(date))
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+        } else {
+            Text(hasAnyTasks ? "Нет активных задач" : "Задач пока нет")
+                .font(.subheadline.weight(.medium))
+                .foregroundStyle(ProjectUXColors.primaryText)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+    }
+
+    private var newTaskButton: some View {
+        Button {
+            showQuickTaskForm = true
+        } label: {
+            HStack(spacing: 6) {
+                Image(systemName: "plus.circle.fill")
+                Text("Новая задача")
+            }
+            .font(.caption.weight(.semibold))
+            .padding(.horizontal, 12)
+            .frame(minHeight: 44)
+            .background(ProjectUXColors.accentAction.opacity(0.16))
+            .foregroundStyle(ProjectUXColors.accentAction)
+            .clipShape(Capsule())
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel("Новая задача")
+    }
+
+    private func taskDateState(_ date: Date) -> String {
+        let cal = Calendar.current
+        let today = cal.startOfDay(for: Date())
+        let due = cal.startOfDay(for: date)
+        if due < today {
+            return "Просрочена · \(dateString(date))"
+        }
+        if due == today {
+            return "Сегодня · \(dateString(date))"
+        }
+        return dateString(date)
+    }
+
+    private func taskDateColor(_ date: Date) -> Color {
+        let cal = Calendar.current
+        let today = cal.startOfDay(for: Date())
+        let due = cal.startOfDay(for: date)
+        if due < today {
+            return ProjectUXColors.overdue
+        }
+        return ProjectUXColors.secondaryText
     }
 
     // MARK: - Управление проектом
@@ -581,7 +598,9 @@ struct ProjectDashboardView: View {
                             Button { call(contact.phone) } label: {
                                 Image(systemName: "phone.fill")
                                     .foregroundColor(.primary)
+                                    .frame(width: 44, height: 44)
                             }
+                            .accessibilityLabel("Позвонить")
                         }
                         .padding(.vertical, 4)
 
@@ -612,48 +631,38 @@ struct ProjectDashboardView: View {
 
     private func issuesSection(_ project: Project) -> some View {
         let count = issues.count
-        let hasIssues = count > 0
 
         return NavigationLink {
             ProjectIssuesListView(projectID: project.id)
         } label: {
-            HStack(alignment: .top, spacing: 14) {
-                Image(systemName: hasIssues ? "exclamationmark.triangle.fill" : "checkmark.circle.fill")
-                    .font(.title3.weight(.semibold))
-                    .foregroundStyle(hasIssues ? Color.orange : Color.green)
+            HStack(alignment: .center, spacing: 12) {
+                Image(systemName: "exclamationmark.triangle.fill")
+                    .font(.body.weight(.semibold))
+                    .foregroundStyle(ProjectUXColors.issue)
                     .accessibilityHidden(true)
-                    .padding(.top, 1)
 
-                VStack(alignment: .leading, spacing: 4) {
-                    if hasIssues {
-                        Text("Требуют внимания")
-                            .font(.body.weight(.semibold))
-                            .foregroundStyle(.primary)
-                            .fixedSize(horizontal: false, vertical: true)
-                        Text("Замечания: \(count)")
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
-                            .fixedSize(horizontal: false, vertical: true)
-                    } else {
-                        Text("Замечаний нет")
-                            .font(.body.weight(.medium))
-                            .foregroundStyle(.primary)
-                            .fixedSize(horizontal: false, vertical: true)
-                    }
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Требует внимания")
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(ProjectUXColors.primaryText)
+                        .fixedSize(horizontal: false, vertical: true)
+                    Text(ProjectIssuesFormatting.remarksPhrase(count))
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(ProjectUXColors.issue)
+                        .fixedSize(horizontal: false, vertical: true)
                 }
 
                 Spacer(minLength: 8)
 
                 Image(systemName: "chevron.right")
                     .font(.caption.weight(.semibold))
-                    .foregroundStyle(.secondary)
-                    .padding(.top, 6)
+                    .foregroundStyle(ProjectUXColors.secondaryText)
                     .accessibilityHidden(true)
             }
-            .padding(16)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background(.ultraThinMaterial)
-            .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+            .padding(.horizontal, 14)
+            .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
+            .background(ProjectUXColors.cardSurface)
+            .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
         }
         .buttonStyle(.plain)
         .accessibilityElement(children: .ignore)
@@ -683,7 +692,7 @@ struct ProjectDashboardView: View {
         _ = progressVersion // триггер перерисовки
 
         return VStack(alignment: .leading, spacing: 16) {
-            Text("Чек-листы проекта")
+            Text("Ход строительства")
                 .font(.headline)
 
             VStack(spacing: 0) {
@@ -975,9 +984,10 @@ private func dashboardRow(
                 .foregroundStyle(.secondary)
                 .font(.caption)
         }
+        }
+        .padding(.vertical, 8)
+        .frame(minHeight: 44)
     }
-    .padding(.vertical, 8)
-}
 
 // MARK: - Экран списка контактов проекта
 
