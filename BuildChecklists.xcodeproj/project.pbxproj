@@ -58,6 +58,7 @@
 		CF59556A2EB9EB41006BF803 /* ProjectFormView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF5955692EB9EB3E006BF803 /* ProjectFormView.swift */; };
 		CF59556C2EB9EB69006BF803 /* ProjectDashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF59556B2EB9EB66006BF803 /* ProjectDashboardView.swift */; };
 		CF9A111C2E09212600C0FF16 /* ChecklistTimelineViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF9A111B2E09212600C0FF16 /* ChecklistTimelineViews.swift */; };
+		CF9A11212E09212700C0FF18 /* ProjectQuickActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF9A11202E09212700C0FF18 /* ProjectQuickActions.swift */; };
 		CF59556E2EB9EB99006BF803 /* StageDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF59556D2EB9EB8D006BF803 /* StageDetailView.swift */; };
 		CF5955702EB9EF18006BF803 /* MediaService.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF59556F2EB9EF15006BF803 /* MediaService.swift */; };
 		CF5955742EB9EFFB006BF803 /* ItemCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF5955732EB9EF97006BF803 /* ItemCardView.swift */; };
@@ -174,6 +175,7 @@
 		CF5955692EB9EB3E006BF803 /* ProjectFormView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectFormView.swift; sourceTree = "<group>"; };
 		CF59556B2EB9EB66006BF803 /* ProjectDashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectDashboardView.swift; sourceTree = "<group>"; };
 		CF9A111B2E09212600C0FF16 /* ChecklistTimelineViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChecklistTimelineViews.swift; sourceTree = "<group>"; };
+		CF9A11202E09212700C0FF18 /* ProjectQuickActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectQuickActions.swift; sourceTree = "<group>"; };
 		CF59556D2EB9EB8D006BF803 /* StageDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StageDetailView.swift; sourceTree = "<group>"; };
 		CF59556F2EB9EF15006BF803 /* MediaService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaService.swift; sourceTree = "<group>"; };
 		CF5955722EB9EF6E006BF803 /* FullScreenImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FullScreenImageView.swift; sourceTree = "<group>"; };
@@ -1248,6 +1250,7 @@
 				CF3226262EBABAF700401DFB /* FoundationPickerView.swift */,
 				CF59556B2EB9EB66006BF803 /* ProjectDashboardView.swift */,
 				CF9A111B2E09212600C0FF16 /* ChecklistTimelineViews.swift */,
+				CF9A11202E09212700C0FF18 /* ProjectQuickActions.swift */,
 				CF9A11172E09212600C0FF14 /* ChecklistReportExportView.swift */,
 				CF9A11003E09212600C0FF01 /* ProjectIssuesListView.swift */,
 				CF9A11005E09212600C0FF01 /* IssueEditorView.swift */,
@@ -1489,6 +1492,7 @@
 				CFE7B00A2EBDC80A00723E05 /* WindowsStagesScreen.swift in Sources */,
 				CF59556C2EB9EB69006BF803 /* ProjectDashboardView.swift in Sources */,
 				CF9A111C2E09212600C0FF16 /* ChecklistTimelineViews.swift in Sources */,
+				CF9A11212E09212700C0FF18 /* ProjectQuickActions.swift in Sources */,
 				CF9A11004E09212600C0FF01 /* ProjectIssuesListView.swift in Sources */,
 				CF9A11006E09212600C0FF01 /* IssueEditorView.swift in Sources */,
 				CF9A11008E09212600C0FF01 /* IssueStageDetailHost.swift in Sources */,

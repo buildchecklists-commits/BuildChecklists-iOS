@@ -54,9 +54,7 @@ struct ProjectDashboardView: View {
 
                         tasksSection(project)
 
-                        managementSection(project)
-
-                        contactsSection(project)
+                        quickActions(project)
 
                         stagesSection(project)
                     }
@@ -166,8 +164,6 @@ struct ProjectDashboardView: View {
             }
 
             projectDateRow(project)
-
-            filesMiniSection(project)
         }
         .padding(14)
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -302,6 +298,26 @@ struct ProjectDashboardView: View {
 
         guard !vals.isEmpty else { return 0 }
         return vals.reduce(0, +) / Double(vals.count)
+    }
+
+    private func quickActions(_ project: Project) -> some View {
+        ProjectQuickActions(
+            openFiles: { showProjectFilesSheet = true },
+            openContacts: { showContactsList = true },
+            exportProjectPDF: { exportPDF(for: project) },
+            openChecklistReport: { showChecklistReport = true },
+            planDestination: {
+                ProjectPlanView(projectID: project.id)
+                    .environmentObject(store)
+            },
+            expensesDestination: {
+                ProjectExpensesView(projectID: project.id)
+                    .environmentObject(store)
+            },
+            issuesDestination: {
+                ProjectIssuesListView(projectID: project.id)
+            }
+        )
     }
 
     // MARK: - Файлы проекта (мини-секция)
