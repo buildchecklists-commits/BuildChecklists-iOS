@@ -686,83 +686,94 @@ struct ProjectDashboardView: View {
             Text("Чек-листы проекта")
                 .font(.headline)
 
-            VStack(spacing: 18) {
+            VStack(spacing: 0) {
 
                 stageRow(
+                    pack: .geology,
                     title: "Геология и подготовка участка",
                     subtitle: "Отчёт, топосъёмка, подготовка площадки",
-                    progress: stageProgress(for: project, GeologyProgressStore.load),
-                    project: project
+                    measurement: packMeasurement(GeologyProgressStore.load, project: project),
+                    showsConnector: true
                 ) { GeologyStagesScreen(project: project) }
 
                 stageRow(
+                    pack: .foundation,
                     title: "Фундамент",
                     subtitle: "Тип основания, подушка, армирование",
-                    progress: stageProgress(for: project, FoundationProgressStore.load),
-                    project: project
+                    measurement: packMeasurement(FoundationProgressStore.load, project: project),
+                    showsConnector: true
                 ) { FoundationStagesScreen(project: project) }
 
                 stageRow(
+                    pack: .walls,
                     title: "Стены",
                     subtitle: "Кладка, армопояса, облицовка",
-                    progress: stageProgress(for: project, WallsProgressStore.load),
-                    project: project
+                    measurement: packMeasurement(WallsProgressStore.load, project: project),
+                    showsConnector: true
                 ) { WallsStagesScreen(project: project) }
 
                 stageRow(
+                    pack: .slab,
                     title: "Перекрытия",
                     subtitle: "Монолит, плиты, деревянные",
-                    progress: stageProgress(for: project, SlabProgressStore.load),
-                    project: project
+                    measurement: packMeasurement(SlabProgressStore.load, project: project),
+                    showsConnector: true
                 ) { SlabStagesScreen(project: project) }
 
                 stageRow(
+                    pack: .roof,
                     title: "Крыша",
                     subtitle: "Стропила, плёнки, обрешётка",
-                    progress: stageProgress(for: project, RoofProgressStore.load),
-                    project: project
+                    measurement: packMeasurement(RoofProgressStore.load, project: project),
+                    showsConnector: true
                 ) { RoofStagesScreen(project: project) }
 
                 stageRow(
+                    pack: .roofCover,
                     title: "Покрытие крыши",
                     subtitle: "Черепица, металл, доборные элементы",
-                    progress: stageProgress(for: project, RoofCoverProgressStore.load),
-                    project: project
+                    measurement: packMeasurement(RoofCoverProgressStore.load, project: project),
+                    showsConnector: true
                 ) { RoofCoverStagesScreen(project: project) }
 
                 stageRow(
+                    pack: .engineering,
                     title: "Инженерия",
                     subtitle: "Электрика, отопление, вода, канализация",
-                    progress: stageProgress(for: project, EngineeringProgressStore.load),
-                    project: project
+                    measurement: packMeasurement(EngineeringProgressStore.load, project: project),
+                    showsConnector: true
                 ) { EngineeringStagesScreen(project: project) }
 
                 stageRow(
+                    pack: .windows,
                     title: "Окна",
                     subtitle: "Замер, монтаж, регулировка, примыкания",
-                    progress: stageProgress(for: project, WindowsProgressStore.load),
-                    project: project
+                    measurement: packMeasurement(WindowsProgressStore.load, project: project),
+                    showsConnector: true
                 ) { WindowsStagesScreen(project: project) }
 
                 stageRow(
+                    pack: .doors,
                     title: "Двери",
                     subtitle: "Коробка, порог, примыкания, фурнитура",
-                    progress: stageProgress(for: project, DoorsProgressStore.load),
-                    project: project
+                    measurement: packMeasurement(DoorsProgressStore.load, project: project),
+                    showsConnector: true
                 ) { DoorsStagesScreen(project: project) }
 
                 stageRow(
+                    pack: .finishing,
                     title: "Отделка",
                     subtitle: "Черновая и чистовая",
-                    progress: stageProgress(for: project, FinishingProgressStore.load),
-                    project: project
+                    measurement: packMeasurement(FinishingProgressStore.load, project: project),
+                    showsConnector: true
                 ) { FinishingStagesScreen(project: project) }
 
                 stageRow(
+                    pack: .landscaping,
                     title: "Благоустройство",
                     subtitle: "Дороги, ливнёвка, заборы",
-                    progress: stageProgress(for: project, LandscapingProgressStore.load),
-                    project: project
+                    measurement: packMeasurement(LandscapingProgressStore.load, project: project),
+                    showsConnector: false
                 ) { LandscapingStagesScreen(project: project) }
             }
         }
@@ -770,112 +781,31 @@ struct ProjectDashboardView: View {
 
     // MARK: - Одна строка этапа
 
-    @ViewBuilder
-    private func stageRow<Destination: View>(
-        title: String,
-        subtitle: String,
-        progress: Double,
-        project: Project,
-        destination: @escaping () -> Destination
-    ) -> some View {
-
-        let clamped = max(0, min(progress, 1))
-        let percent = Int((clamped * 100).rounded())
-        let isCompleted = clamped >= 0.999
-
-        // Цвет шкалы прогресса
-        let barColor: Color = isCompleted ? .green : Color("AccentYellow")
-
-        // Цвет точки таймлайна
-        let timelineColor: Color = {
-            if isCompleted { return .green }
-            if clamped > 0 { return Color("AccentYellow") }
-            return Color(.systemGray4)
-        }()
-
-        HStack(alignment: .top, spacing: 14) {
-
-            // Точка + линия таймлайна
-            VStack(spacing: 0) {
-                Circle()
-                    .fill(timelineColor)
-                    .frame(width: 15, height: 15)
-                    .overlay(
-                        Group {
-                            if isCompleted {
-                                Image(systemName: "checkmark")
-                                    .font(.system(size: 8, weight: .bold))
-                                    .foregroundColor(.white)
-                            } else {
-                                Circle()
-                                    .stroke(Color(.systemBackground), lineWidth: 2)
-                            }
-                        }
-                    )
-
-                Rectangle()
-                    .fill(timelineColor.opacity(0.5))
-                    .frame(width: 2)
-                    .frame(maxHeight: .infinity)
-            }
-            .frame(width: 22)
-
-            // Карточка этапа
-            NavigationLink(destination: destination()) {
-                VStack(alignment: .leading, spacing: 8) {
-
-                    Text(title)
-                        .font(.subheadline.weight(.semibold))
-
-                    Text(subtitle)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-
-                    VStack(alignment: .leading, spacing: 4) {
-
-                        HStack {
-                            Text("\(percent)% готово")
-                                .font(.caption2)
-                                .foregroundStyle(.secondary)
-                            Spacer()
-                        }
-
-                        ProgressView(value: clamped)
-                            .tint(barColor)
-                    }
-                    .padding(.top, 2)
-                }
-                .padding(16)
-                .background(
-                    RoundedRectangle(cornerRadius: 20, style: .continuous)
-                        .fill(Color(.systemBackground).opacity(0.92))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 20)
-                                .stroke(style: StrokeStyle(lineWidth: 1, dash: [5, 5]))
-                                .foregroundColor(.primary.opacity(0.05))
-                        )
-                )
-            }
-            .buttonStyle(.plain)
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
+    /// One `load` per pack. Percent, N of M and issue count all come from that result.
+    private func packMeasurement(
+        _ loader: (UUID) -> [Stage]?,
+        project: Project
+    ) -> ChecklistPackMeasurement {
+        ChecklistPackMeasurement.measure(loader(project.id))
     }
 
-    // MARK: - Расчёт прогресса одного блока этапов
-
-    private func stageProgress(
-        for project: Project,
-        _ loader: (UUID) -> [Stage]?
-    ) -> Double {
-
-        let projectID = project.id
-        guard let stages = loader(projectID), !stages.isEmpty else { return 0 }
-
-        let items = stages.flatMap { $0.items }
-        guard !items.isEmpty else { return 0 }
-
-        let done = items.filter { $0.status == .ok }.count
-        return Double(done) / Double(items.count)
+    @ViewBuilder
+    private func stageRow<Destination: View>(
+        pack: ChecklistPack,
+        title: String,
+        subtitle: String,
+        measurement: ChecklistPackMeasurement,
+        showsConnector: Bool,
+        destination: @escaping () -> Destination
+    ) -> some View {
+        ChecklistPackTimelineRow(
+            title: title,
+            subtitle: subtitle,
+            measurement: measurement,
+            showsConnector: showsConnector,
+            accessibilityIdentifier: "project.checklistPack.\(pack.rawValue)",
+            destination: destination
+        )
     }
 
     // MARK: - PDF Export
