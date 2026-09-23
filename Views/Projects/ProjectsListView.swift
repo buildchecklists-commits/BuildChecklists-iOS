@@ -51,6 +51,7 @@ private enum ProjectSort: String, CaseIterable, Identifiable {
 
 struct ProjectsListView: View {
     @EnvironmentObject var store: AppStore
+    @Environment(\.colorScheme) private var colorScheme
 
     @State private var query: String = ""
     @State private var showForm: Bool = false
@@ -566,46 +567,93 @@ struct ProjectsListView: View {
         let hasProjectPDF = project.projectPDFPath != nil
 
         let coverImage = CoverImageStore.shared.loadCover(for: project.id)
+        let issueCount = ProjectIssuesCollector.issues(for: project.id).count
+        let deadline = projectDeadline(project.dateEnd, isComplete: isCompleted)
+        let fallbackInk = projectCardFallbackInk(colorName: project.cardColor, colorScheme: colorScheme)
 
-        // Количество невыполненных задач, привязанных к этому проекту
-        let openTasksCount = store.tasks(for: project.id).filter { !$0.isCompleted }.count
+        return ZStack(alignment: .topTrailing) {
+            NavigationLink {
+                ProjectDashboardView(projectID: project.id)
+            } label: {
+                ProjectCardView(
+                    name: project.name,
+                    address: project.address,
+                    manager: project.manager,
+                    description: project.description,
+                    progress: progress,
+                    progressPercent: progressPercent,
+                    cardColorName: project.cardColor,
+                    isCompleted: isCompleted,
+                    coverImage: coverImage,
+                    deadline: deadline,
+                    issueCount: issueCount
+                )
+            }
+            .buttonStyle(CardLinkStyle())
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(projectCardSummary(project, progressPercent: progressPercent, deadline: deadline, issueCount: issueCount))
+            .accessibilityAddTraits(.isButton)
+            .accessibilityIdentifier("project.card.open")
 
-        return NavigationLink {
-            ProjectDashboardView(projectID: project.id)
-        } label: {
-            ProjectCardView(
-                name: project.name,
-                address: project.address,
-                manager: project.manager,
-                description: project.description,
-                progress: progress,
-                progressPercent: progressPercent,
-                cardColorName: project.cardColor,
-                isCompleted: isCompleted,
-                coverImage: coverImage,
-                photosCount: photosCount,
-                docsCount: docsCount,
-                hasProjectPDF: hasProjectPDF,
-                openTasksCount: openTasksCount,
-                onPhotosTap: {
-                    photosProject = project
-                },
-                onDocsTap: {
-                    filesProject = project
-                },
-                onProjectTap: {
-                    if project.projectPDFPath != nil {
-                        pdfProject = project
-                    } else {
-                        filesProject = project
-                    }
-                },
-                onEditTap: {
-                    startEdit(project)
+            Button {
+                startEdit(project)
+            } label: {
+                HStack(spacing: 4) {
+                    Image(systemName: "pencil")
+                    Text("Ред.")
                 }
-            )
+                .font(.caption.weight(.semibold))
+                .padding(.horizontal, 10)
+                .frame(minWidth: 44, minHeight: 44)
+                .background {
+                    Capsule().fill(coverImage == nil ? fallbackInk.opacity(0.10) : Color.black.opacity(0.46))
+                }
+                .foregroundStyle(coverImage == nil ? fallbackInk : Color.white)
+                .clipShape(Capsule())
+            }
+            .buttonStyle(.plain)
+            .padding(.top, 8)
+            .padding(.trailing, 10)
+            .accessibilityLabel("Редактировать проект")
+            .accessibilityIdentifier("project.card.edit")
         }
-        .buttonStyle(CardLinkStyle())
+        .overlay(alignment: .bottom) {
+            HStack(spacing: 4) {
+                projectCardAction(
+                    title: "Фото (\(photosCount))",
+                    systemImage: "photo.on.rectangle",
+                    accessibilityLabel: "Фото проекта",
+                    identifier: "project.card.photos",
+                    foreground: coverImage == nil ? fallbackInk : Color.white,
+                    action: { photosProject = project }
+                )
+                projectCardAction(
+                    title: "Документы (\(docsCount))",
+                    compactTitle: "Док. (\(docsCount))",
+                    systemImage: "doc.on.doc",
+                    accessibilityLabel: "Документы проекта",
+                    identifier: "project.card.documents",
+                    foreground: coverImage == nil ? fallbackInk : Color.white,
+                    action: { filesProject = project }
+                )
+                projectCardAction(
+                    title: hasProjectPDF ? "Проект (PDF)" : "Проект",
+                    systemImage: hasProjectPDF ? "doc.richtext" : "doc",
+                    accessibilityLabel: hasProjectPDF ? "Проект, PDF" : "Проект",
+                    identifier: "project.card.projectFile",
+                    foreground: coverImage == nil ? fallbackInk : Color.white,
+                    action: {
+                        if project.projectPDFPath != nil {
+                            pdfProject = project
+                        } else {
+                            filesProject = project
+                        }
+                    }
+                )
+            }
+            .padding(.horizontal, 8)
+            .padding(.bottom, 6)
+        }
         .overlay {
             if isDemoHighlighted {
                 RoundedRectangle(cornerRadius: 20, style: .continuous)
@@ -682,6 +730,92 @@ struct ProjectsListView: View {
         }
     }
 
+    private func projectCardAction(
+        title: String,
+        compactTitle: String? = nil,
+        systemImage: String,
+        accessibilityLabel: String,
+        identifier: String,
+        foreground: Color,
+        action: @escaping () -> Void
+    ) -> some View {
+        Button(action: action) {
+            ViewThatFits(in: .horizontal) {
+                cardActionLabel(title, systemImage: systemImage)
+                cardActionLabel(compactTitle ?? title, systemImage: systemImage)
+            }
+            .foregroundStyle(foreground)
+            .frame(maxWidth: .infinity, minHeight: 44)
+            .contentShape(Rectangle())
+            .accessibilityHidden(true)
+        }
+        .buttonStyle(.plain)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(accessibilityLabel)
+        .accessibilityAddTraits(.isButton)
+        .accessibilityIdentifier(identifier)
+    }
+
+    private func cardActionLabel(_ title: String, systemImage: String) -> some View {
+        HStack(spacing: 3) {
+            Image(systemName: systemImage)
+            Text(title)
+                .lineLimit(1)
+        }
+        .font(.caption2.weight(.semibold))
+    }
+
+    private func projectCardSummary(
+        _ project: Project,
+        progressPercent: Int,
+        deadline: ProjectCardDeadline?,
+        issueCount: Int
+    ) -> String {
+        var parts = [project.name]
+        if !project.address.isEmpty {
+            parts.append(project.address)
+        }
+        parts.append("Прогресс \(progressPercent) процентов")
+        if let deadline {
+            parts.append(deadline.text)
+        }
+        if issueCount > 0 {
+            parts.append(ProjectIssuesFormatting.remarksPhrase(issueCount))
+        }
+        return parts.joined(separator: ", ")
+    }
+
+    private func projectDeadline(_ endDate: Date?, isComplete: Bool) -> ProjectCardDeadline? {
+        guard let endDate else { return nil }
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        let target = calendar.startOfDay(for: endDate)
+        let diff = calendar.dateComponents([.day], from: today, to: target).day ?? 0
+        if isComplete, diff < 0 {
+            return ProjectCardDeadline(text: "Завершён", color: ProjectUXColors.progressComplete, readableOnCover: false)
+        }
+        if diff > 0 {
+            return ProjectCardDeadline(text: "Осталось \(diff) \(dayWord(diff))", color: ProjectUXColors.secondaryText, readableOnCover: true)
+        }
+        if diff == 0 {
+            return ProjectCardDeadline(text: "Сегодня", color: ProjectUXColors.progressActive, readableOnCover: false)
+        }
+        return ProjectCardDeadline(
+            text: "Просрочено на \(abs(diff)) \(dayWord(abs(diff)))",
+            color: ProjectUXColors.overdue,
+            readableOnCover: false
+        )
+    }
+
+    private func dayWord(_ count: Int) -> String {
+        let mod100 = abs(count) % 100
+        let mod10 = abs(count) % 10
+        if (11...14).contains(mod100) { return "дней" }
+        if mod10 == 1 { return "день" }
+        if (2...4).contains(mod10) { return "дня" }
+        return "дней"
+    }
+
     private func overallProgress(for project: Project) -> Double {
         func percent(_ stages: [Stage]?) -> Double {
             guard let stages, !stages.isEmpty else { return 0 }
@@ -709,6 +843,66 @@ struct ProjectsListView: View {
     }
 }
 
+/// Draws the existing JPEG with the same fill as `scaledToFill`, without letting the
+/// bitmap's own aspect become the card's accessibility frame.
+private struct ProjectCardCoverFill: UIViewRepresentable {
+    let image: UIImage
+
+    func makeUIView(context: Context) -> ProjectCardCoverView {
+        let view = ProjectCardCoverView()
+        view.isAccessibilityElement = false
+        view.isUserInteractionEnabled = false
+        return view
+    }
+
+    func updateUIView(_ uiView: ProjectCardCoverView, context: Context) {
+        uiView.image = image
+    }
+
+    func sizeThatFits(
+        _ proposal: ProposedViewSize,
+        uiView: ProjectCardCoverView,
+        context: Context
+    ) -> CGSize? {
+        proposal.replacingUnspecifiedDimensions()
+    }
+}
+
+private final class ProjectCardCoverView: UIView {
+    var image: UIImage? {
+        didSet { setNeedsDisplay() }
+    }
+
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        backgroundColor = .clear
+        contentMode = .redraw
+        clipsToBounds = true
+        isAccessibilityElement = false
+    }
+
+    required init?(coder: NSCoder) { nil }
+
+    override var intrinsicContentSize: CGSize {
+        CGSize(width: UIView.noIntrinsicMetric, height: UIView.noIntrinsicMetric)
+    }
+
+    override func draw(_ rect: CGRect) {
+        guard let image, rect.width > 0, rect.height > 0 else { return }
+        let scale = max(rect.width / image.size.width, rect.height / image.size.height)
+        let size = CGSize(width: image.size.width * scale, height: image.size.height * scale)
+        let origin = CGPoint(x: (rect.width - size.width) / 2, y: (rect.height - size.height) / 2)
+        image.draw(in: CGRect(origin: origin, size: size))
+    }
+}
+
+private struct ProjectCardDeadline {
+    let text: String
+    let color: Color
+    /// Neutral future text turns white on a photo. Red, green and yellow stay themselves.
+    let readableOnCover: Bool
+}
+
 private struct CardLinkStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
@@ -720,7 +914,29 @@ private struct CardLinkStyle: ButtonStyle {
 // MARK: - Карточка проекта: премиальный вид с тёмным градиентом
 // Разметка как в рабочей сборке «релиз 2» (без общего shell).
 
+private func projectCardFallbackInk(colorName: String?, colorScheme: ColorScheme) -> Color {
+    projectCardFallbackIsLight(colorName: colorName, colorScheme: colorScheme)
+        ? Color(red: 17.0 / 255.0, green: 17.0 / 255.0, blue: 17.0 / 255.0)
+        : Color.white
+}
+
+private func projectCardFallbackIsLight(colorName: String?, colorScheme: ColorScheme) -> Bool {
+    let style: UIUserInterfaceStyle = colorScheme == .dark ? .dark : .light
+    let traits = UITraitCollection(userInterfaceStyle: style)
+    let name = (colorName?.isEmpty == false) ? colorName! : "softGray"
+    let resolved = (UIColor(named: name) ?? UIColor(white: 0.90, alpha: 1)).resolvedColor(with: traits)
+    var red: CGFloat = 0
+    var green: CGFloat = 0
+    var blue: CGFloat = 0
+    var alpha: CGFloat = 0
+    guard resolved.getRed(&red, green: &green, blue: &blue, alpha: &alpha) else { return true }
+    let luminance = (0.2126 * red) + (0.7152 * green) + (0.0722 * blue)
+    return luminance >= 0.62
+}
+
 private struct ProjectCardView: View {
+    @Environment(\.colorScheme) private var colorScheme
+
     let name: String
     let address: String
     let manager: String?
@@ -729,206 +945,203 @@ private struct ProjectCardView: View {
     let progressPercent: Int
     let cardColorName: String?
     let isCompleted: Bool
-
     let coverImage: UIImage?
-
-    let photosCount: Int
-    let docsCount: Int
-    let hasProjectPDF: Bool
-
-    /// Количество невыполненных задач по проекту
-    let openTasksCount: Int
-
-    let onPhotosTap: () -> Void
-    let onDocsTap: () -> Void
-    let onProjectTap: () -> Void
-    let onEditTap: () -> Void
+    let deadline: ProjectCardDeadline?
+    let issueCount: Int
 
     private var cardColor: Color {
         if let name = cardColorName { Color(name) }
         else { Color("softGray") }
     }
 
+    private var onCover: Bool { coverImage != nil }
+
+    private var fallbackInk: Color {
+        projectCardFallbackInk(colorName: cardColorName, colorScheme: colorScheme)
+    }
+
+    private var titleColor: Color { onCover ? .white : fallbackInk }
+
+    private var secondaryColor: Color {
+        onCover ? Color.white.opacity(0.92) : fallbackInk.opacity(0.72)
+    }
+
+    private var progressColor: Color {
+        progress >= 1.0 ? ProjectUXColors.progressComplete : ProjectUXColors.progressActive
+    }
+
     var body: some View {
-        // Внешняя геометрия — ProjectCardShell (MainTabView): единый aspectRatio с «Сроки»/«Бюджет».
         ProjectCardShell {
-            ZStack(alignment: .topLeading) {
-                Group {
-                    if let coverImage {
-                        Image(uiImage: coverImage)
-                            .resizable()
-                            .scaledToFill()
-                            .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity)
-                            .clipped()
-                    } else {
-                        LinearGradient(
-                            colors: [
-                                cardColor.opacity(0.9),
-                                cardColor.opacity(0.6)
-                            ],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                        .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity)
-                    }
+            Color.clear
+                .overlay {
+                    cardStack
                 }
-                .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity)
+        }
+    }
 
-                Rectangle()
-                    .fill(
-                        LinearGradient(
-                            colors: [
-                                Color.black.opacity(0.65),
-                                Color.black.opacity(0.45),
-                                Color.black.opacity(0.15)
-                            ],
-                            startPoint: .top,
-                            endPoint: .bottom
-                        )
-                    )
-                    .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity)
-                    .allowsHitTesting(false)
-
-                VStack(alignment: .leading, spacing: 0) {
-                    // Верх: ограничиваем строки — высота уходит в Spacer, низ фиксированного блока не режется.
-                    HStack(alignment: .top, spacing: 8) {
-                        VStack(alignment: .leading, spacing: 3) {
-                            Text(name)
-                                .font(.headline.weight(.semibold))
-                                .lineLimit(2)
-
-                            if !address.isEmpty {
-                                Text(address)
-                                    .font(.subheadline)
-                                    .foregroundColor(.white.opacity(0.8))
-                                    .lineLimit(2)
-                            }
-
-                            if let manager, !manager.isEmpty {
-                                Text("Ответственный: \(manager)")
-                                    .font(.caption)
-                                    .foregroundColor(.white.opacity(0.75))
-                                    .lineLimit(1)
-                            }
-
-                            if let description, !description.isEmpty {
-                                Text(description)
-                                    .font(.caption)
-                                    .foregroundColor(.white.opacity(0.75))
-                                    .lineLimit(1)
-                            }
-                        }
-
-                        Spacer(minLength: 4)
-
-                        VStack(alignment: .trailing, spacing: 5) {
-                            Button(action: onEditTap) {
-                                HStack(spacing: 4) {
-                                    Image(systemName: "pencil")
-                                    Text("Ред.")
-                                }
-                                .font(.caption2.weight(.semibold))
-                                .padding(.horizontal, 8)
-                                .padding(.vertical, 5)
-                                .background(.ultraThinMaterial)
-                                .foregroundColor(.primary)
-                                .clipShape(Capsule())
-                            }
-                            .buttonStyle(.borderless)
-
-                            if isCompleted {
-                                Text("Готово")
-                                    .font(.caption2.weight(.semibold))
-                                    .padding(.horizontal, 8)
-                                    .padding(.vertical, 4)
-                                    .background(Color.green.opacity(0.95))
-                                    .foregroundColor(.white)
-                                    .clipShape(Capsule())
-                            }
-
-                            if openTasksCount > 0 {
-                                HStack(spacing: 4) {
-                                    Image(systemName: "checklist")
-                                    Text("\(openTasksCount)")
-                                }
-                                .font(.caption2.weight(.semibold))
-                                .padding(.horizontal, 8)
-                                .padding(.vertical, 4)
-                                .background(Color.yellow.opacity(0.95))
-                                .foregroundColor(.black)
-                                .clipShape(Capsule())
-                                .accessibilityLabel("Невыполненных задач: \(openTasksCount)")
-                            }
+    private var cardStack: some View {
+        ZStack(alignment: .topLeading) {
+                Color.clear
+                    .overlay {
+                        if let coverImage {
+                            ProjectCardCoverFill(image: coverImage)
+                        } else {
+                            LinearGradient(
+                                colors: [
+                                    cardColor.opacity(0.9),
+                                    cardColor.opacity(0.6)
+                                ],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
                         }
                     }
-                    .layoutPriority(0)
+                    .overlay {
+                        if onCover {
+                            coverScrims
+                        }
+                    }
+                    .clipped()
+                    .accessibilityHidden(true)
 
-                    Spacer(minLength: 6)
+                VStack(alignment: .leading, spacing: 6) {
+                    ViewThatFits(in: .vertical) {
+                        header(includesDescription: true)
+                        header(includesDescription: false)
+                    }
+                    .padding(.trailing, 72)
 
-                    // Низ: прогресс + действия — приоритет, чтобы не обрезалось при фиксированной высоте карточки.
+                    Spacer(minLength: 4)
+
                     VStack(alignment: .leading, spacing: 6) {
-                        VStack(alignment: .leading, spacing: 3) {
-                            HStack {
-                                Text("Прогресс")
-                                    .font(.caption2)
-                                    .foregroundColor(.white.opacity(0.8))
-                                Spacer()
-                                Text("\(progressPercent)%")
-                                    .font(.caption2.weight(.semibold))
-                            }
-
-                            ProgressView(value: progress)
-                                .tint(Color("AccentYellow"))
-                                .accentColor(Color("AccentYellow"))
-                                .scaleEffect(x: 1, y: 0.9, anchor: .center)
+                        if deadline != nil || issueCount > 0 {
+                            statusRow
                         }
-
-                        // Один HStack: три равных слота — иначе «Проект» уезжал на вторую строку (бывший VStack).
-                        HStack(alignment: .center, spacing: 4) {
-                            Button(action: onPhotosTap) {
-                                HStack(spacing: 3) {
-                                    Image(systemName: "photo.on.rectangle")
-                                    Text("Фото (\(photosCount))")
-                                }
-                                .lineLimit(1)
-                                .minimumScaleFactor(0.72)
-                                .frame(maxWidth: .infinity, alignment: .center)
-                            }
-                            .buttonStyle(.borderless)
-
-                            Button(action: onDocsTap) {
-                                HStack(spacing: 3) {
-                                    Image(systemName: "doc.on.doc")
-                                    Text("Документы (\(docsCount))")
-                                }
-                                .lineLimit(1)
-                                .minimumScaleFactor(0.72)
-                                .frame(maxWidth: .infinity, alignment: .center)
-                            }
-                            .buttonStyle(.borderless)
-
-                            Button(action: onProjectTap) {
-                                HStack(spacing: 3) {
-                                    Image(systemName: hasProjectPDF ? "doc.richtext" : "doc")
-                                    Text(hasProjectPDF ? "Проект (PDF)" : "Проект")
-                                }
-                                .lineLimit(1)
-                                .minimumScaleFactor(0.72)
-                                .frame(maxWidth: .infinity, alignment: .center)
-                            }
-                            .buttonStyle(.borderless)
-                            .foregroundColor(hasProjectPDF ? .white : .white.opacity(0.7))
-                        }
-                        .font(.caption2)
+                        progressBlock
                     }
                     .layoutPriority(1)
-                    .fixedSize(horizontal: false, vertical: true)
+
+                    Color.clear
+                        .frame(height: 44)
+                        .accessibilityHidden(true)
                 }
-                .padding(.vertical, 12)
-                .padding(.horizontal, 14)
-                .foregroundColor(.white)
-                .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity, alignment: .topLeading)
+                .padding(.top, 10)
+                .padding(.horizontal, 12)
+                .padding(.bottom, 6)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                .accessibilityHidden(true)
+        }
+    }
+
+    private var coverScrims: some View {
+        GeometryReader { proxy in
+            let height = proxy.size.height
+            ZStack(alignment: .top) {
+                LinearGradient(
+                    stops: [
+                        .init(color: ProjectUXColors.coverScrimTop, location: 0),
+                        .init(color: ProjectUXColors.coverScrimTop.opacity(0.88), location: 0.46),
+                        .init(color: ProjectUXColors.coverScrimTop.opacity(0.40), location: 0.74),
+                        .init(color: ProjectUXColors.coverScrimTop.opacity(0), location: 1)
+                    ],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+                .frame(height: height * 0.48, alignment: .top)
+                .frame(maxHeight: .infinity, alignment: .top)
+                LinearGradient(
+                    stops: [
+                        .init(color: ProjectUXColors.coverScrimBottom.opacity(0), location: 0),
+                        .init(color: ProjectUXColors.coverScrimBottom.opacity(0.18), location: 0.12),
+                        .init(color: ProjectUXColors.coverScrimBottom.opacity(0.55), location: 0.28),
+                        .init(color: ProjectUXColors.coverScrimBottom.opacity(0.86), location: 0.46),
+                        .init(color: ProjectUXColors.coverScrimBottom, location: 0.68)
+                    ],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+                .frame(height: height * 0.58, alignment: .bottom)
+                .frame(maxHeight: .infinity, alignment: .bottom)
             }
+        }
+        .allowsHitTesting(false)
+        .accessibilityHidden(true)
+    }
+
+    private func header(includesDescription: Bool) -> some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(name)
+                .font(.headline.weight(.semibold))
+                .foregroundStyle(titleColor)
+                .lineLimit(2)
+
+            if !address.isEmpty {
+                Text(address)
+                    .font(.subheadline)
+                    .foregroundStyle(secondaryColor)
+                    .lineLimit(2)
+            }
+
+            if let manager = manager?.trimmingCharacters(in: .whitespacesAndNewlines), !manager.isEmpty {
+                Text("Ответственный: \(manager)")
+                    .font(.caption)
+                    .foregroundStyle(secondaryColor)
+                    .lineLimit(1)
+            }
+
+            if includesDescription,
+               let description = description?.trimmingCharacters(in: .whitespacesAndNewlines),
+               !description.isEmpty {
+                Text(description)
+                    .font(.caption)
+                    .foregroundStyle(secondaryColor)
+                    .lineLimit(1)
+            }
+        }
+    }
+
+    private var statusRow: some View {
+        HStack(spacing: 6) {
+            if let deadline {
+                Text(deadline.text)
+                    .font(.caption2.weight(.semibold))
+                    .foregroundStyle(onCover && deadline.readableOnCover ? Color.white : deadline.color)
+                    .lineLimit(2)
+            }
+            if issueCount > 0 {
+                Text(ProjectIssuesFormatting.remarksPhrase(issueCount))
+                    .font(.caption2.weight(.semibold))
+                    .foregroundStyle(ProjectUXColors.issue)
+                    .lineLimit(1)
+            }
+            Spacer(minLength: 0)
+        }
+    }
+
+    private var progressBlock: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            HStack {
+                Text("Прогресс")
+                    .font(.caption2)
+                    .foregroundStyle(secondaryColor)
+                Spacer(minLength: 8)
+                Text("\(progressPercent)%")
+                    .font(.subheadline.weight(.bold))
+                    .foregroundStyle(progressColor)
+                    .monospacedDigit()
+            }
+            GeometryReader { proxy in
+                ZStack(alignment: .leading) {
+                    Capsule().fill(ProjectUXColors.progressTrack)
+                    if progress > 0 {
+                        Capsule()
+                            .fill(progressColor)
+                            .frame(width: max(0, proxy.size.width * min(max(progress, 0), 1)))
+                    }
+                }
+            }
+            .frame(height: 6)
+            .accessibilityHidden(true)
         }
     }
 }

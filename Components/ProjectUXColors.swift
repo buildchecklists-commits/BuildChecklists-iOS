@@ -43,10 +43,10 @@ enum ProjectUXColors {
     static var overdue: Color { Color.red }
 
     /// Top photo fade so white title text stays readable. Independent of the app theme.
-    static var coverScrimTop: Color { Color.black.opacity(0.45) }
+    static var coverScrimTop: Color { Color.black.opacity(0.80) }
 
     /// Stronger bottom fade behind the progress row and the cover actions.
-    static var coverScrimBottom: Color { Color.black.opacity(0.72) }
+    static var coverScrimBottom: Color { Color.black.opacity(0.88) }
 
     static var neutralBadgeBackground: Color { Color(.tertiarySystemFill) }
 
