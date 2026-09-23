@@ -20,6 +20,7 @@ nonisolated enum ChecklistReportPDFError: LocalizedError, Equatable, Sendable {
     case destinationUnavailable
     case pdfStartFailed
     case writeFailed
+    case cancelled
 
     var errorDescription: String? {
         switch self {
@@ -29,6 +30,8 @@ nonisolated enum ChecklistReportPDFError: LocalizedError, Equatable, Sendable {
             return "Не удалось начать PDF."
         case .writeFailed:
             return "Не удалось записать PDF."
+        case .cancelled:
+            return nil
         }
     }
 }
@@ -40,8 +43,10 @@ nonisolated enum ChecklistReportPDFRenderer {
     static func render(
         _ snapshot: ChecklistReportSnapshot,
         options: ChecklistReportRenderOptions,
-        to destination: URL
+        to destination: URL,
+        isCancelled: @escaping @Sendable () -> Bool = { false }
     ) throws {
+        if isCancelled() { throw ChecklistReportPDFError.cancelled }
         guard destination.isFileURL else { throw ChecklistReportPDFError.destinationUnavailable }
         let parent = destination.deletingLastPathComponent()
         var isDirectory: ObjCBool = false
@@ -60,14 +65,28 @@ nonisolated enum ChecklistReportPDFRenderer {
         ]
         let renderer = UIGraphicsPDFRenderer(bounds: pageRect, format: format)
 
+        let outcome = RenderOutcome()
         do {
             try renderer.writePDF(to: temp, withActions: { context in
-                let canvas = Canvas(context: context, pageRect: pageRect, snapshot: snapshot, options: options)
+                let canvas = Canvas(
+                    context: context,
+                    pageRect: pageRect,
+                    snapshot: snapshot,
+                    options: options,
+                    isCancelled: isCancelled
+                )
                 canvas.draw()
+                if canvas.cancelled {
+                    outcome.cancelled = true
+                }
             })
         } catch {
             try? FileManager.default.removeItem(at: temp)
             throw ChecklistReportPDFError.pdfStartFailed
+        }
+        if outcome.cancelled {
+            try? FileManager.default.removeItem(at: temp)
+            throw ChecklistReportPDFError.cancelled
         }
 
         do {
@@ -83,6 +102,11 @@ nonisolated enum ChecklistReportPDFRenderer {
     }
 }
 
+/// Same-thread flag. The PDF drawing closure cannot throw, so cancellation is stored here and applied as soon as `writePDF` returns.
+private final class RenderOutcome: @unchecked Sendable {
+    var cancelled = false
+}
+
 private nonisolated let reportInk = UIColor(white: 0.12, alpha: 1)
 private nonisolated let reportSecondary = UIColor(white: 0.38, alpha: 1)
 private nonisolated let reportRule = UIColor(white: 0.82, alpha: 1)
@@ -95,11 +119,13 @@ private nonisolated final class Canvas {
     let pageRect: CGRect
     let snapshot: ChecklistReportSnapshot
     let options: ChecklistReportRenderOptions
+    let isCancelled: @Sendable () -> Bool
 
     let margin: CGFloat = 40
     let contentBottom: CGFloat
     var page = 0
     var cursor: CGFloat = 0
+    var cancelled = false
 
     let titleFont = reportFont(size: 20, weight: .bold)
     let sectionFont = reportFont(size: 14, weight: .semibold)
@@ -111,21 +137,35 @@ private nonisolated final class Canvas {
         context: UIGraphicsPDFRendererContext,
         pageRect: CGRect,
         snapshot: ChecklistReportSnapshot,
-        options: ChecklistReportRenderOptions
+        options: ChecklistReportRenderOptions,
+        isCancelled: @escaping @Sendable () -> Bool
     ) {
         self.context = context
         self.pageRect = pageRect
         self.snapshot = snapshot
         self.options = options
+        self.isCancelled = isCancelled
         self.contentBottom = pageRect.height - 40
+    }
+
+    func stop() -> Bool {
+        if cancelled || isCancelled() {
+            cancelled = true
+            return true
+        }
+        return false
     }
 
     var contentWidth: CGFloat { pageRect.width - margin * 2 }
 
     func draw() {
+        if stop() { return }
         newPage(isFirst: true)
+        if cancelled { return }
         drawTitleBlock()
+        if cancelled { return }
         drawSummary()
+        if cancelled { return }
         if !hasWorkingChecklistData {
             if options.scope == .full {
                 drawWrapped(
@@ -141,6 +181,7 @@ private nonisolated final class Canvas {
         }
         if options.scope == .full {
             drawPacks()
+            if cancelled { return }
         }
         drawIssues()
     }
@@ -152,6 +193,7 @@ private nonisolated final class Canvas {
     }
 
     func newPage(isFirst: Bool = false) {
+        if stop() { return }
         context.beginPage()
         page += 1
         UIColor.white.setFill()
@@ -200,6 +242,7 @@ private nonisolated final class Canvas {
     }
 
     func drawTitleBlock() {
+        if cancelled { return }
         drawWrapped("BuildChecklists", font: captionFont, color: reportSecondary, spacing: 2)
         drawWrapped("Отчёт по рабочим чек-листам", font: titleFont, color: reportInk, spacing: 8)
         drawWrapped(snapshot.projectName, font: sectionFont, color: reportInk, spacing: 6)
@@ -232,6 +275,7 @@ private nonisolated final class Canvas {
     }
 
     func drawSummary() {
+        if stop() { return }
         ensure(72)
         drawWrapped("Сводка", font: sectionFont, color: reportInk, spacing: 6)
         let ready = snapshot.packs.filter { $0.readState == .ready }
@@ -268,10 +312,14 @@ private nonisolated final class Canvas {
     }
 
     func drawPacks() {
+        if stop() { return }
         ensure(36)
+        if cancelled { return }
         drawWrapped("Чек-листы", font: sectionFont, color: reportInk, spacing: 8)
         for pack in snapshot.packs {
+            if stop() { return }
             ensure(52)
+            if cancelled { return }
             drawWrapped(pack.title, font: strongFont, color: reportInk, spacing: 2)
             if pack.readState == .unreadable {
                 drawWrapped(
@@ -294,6 +342,7 @@ private nonisolated final class Canvas {
                 continue
             }
             for stage in pack.stages {
+                if cancelled { return }
                 drawStage(stage)
             }
             cursor += 6
@@ -301,7 +350,9 @@ private nonisolated final class Canvas {
     }
 
     func drawStage(_ stage: ChecklistReportStage) {
+        if stop() { return }
         ensure(40)
+        if cancelled { return }
         drawWrapped(stage.title, font: strongFont, color: reportInk, indent: 8, spacing: 2)
         if let subtitle = stage.subtitle {
             drawWrapped(subtitle, font: captionFont, color: reportSecondary, indent: 8, spacing: 2)
@@ -319,6 +370,7 @@ private nonisolated final class Canvas {
             return
         }
         for item in stage.items {
+            if cancelled { return }
             drawItem(item)
         }
     }
@@ -334,8 +386,10 @@ private nonisolated final class Canvas {
         let lineHeight = ceil(max(statusFont.lineHeight, bodyFont.lineHeight))
         let lines = titleLines.isEmpty ? [""] : titleLines
         for (index, line) in lines.enumerated() {
+            if cancelled { return }
             if cursor + lineHeight > contentBottom {
                 newPage()
+                if cancelled { return }
             }
             if index == 0 {
                 let diameter: CGFloat = 6
@@ -356,6 +410,7 @@ private nonisolated final class Canvas {
     }
 
     func drawIssues() {
+        if stop() { return }
         let issues = snapshot.packs.flatMap { pack in
             pack.stages.flatMap { stage in
                 stage.items.compactMap { item -> (ChecklistReportPack, ChecklistReportStage, ChecklistReportItem)? in
@@ -375,12 +430,15 @@ private nonisolated final class Canvas {
         ensure(96)
         drawWrapped("Замечания", font: sectionFont, color: reportInk, spacing: 6)
         for (pack, stage, item) in issues {
+            if stop() { return }
             drawIssue(pack: pack, stage: stage, item: item)
         }
     }
 
     func drawIssue(pack: ChecklistReportPack, stage: ChecklistReportStage, item: ChecklistReportItem) {
+        if cancelled { return }
         ensure(64)
+        if cancelled { return }
         drawWrapped("\(pack.title) · \(stage.title)", font: captionFont, color: reportSecondary, spacing: 2)
         if let subtitle = stage.subtitle {
             drawWrapped(subtitle, font: captionFont, color: reportSecondary, spacing: 2)
@@ -408,6 +466,7 @@ private nonisolated final class Canvas {
     }
 
     func drawIssuePhotos(_ item: ChecklistReportItem) {
+        if stop() { return }
         var shown = 0
         var failed = 0
         var extra = 0
@@ -425,6 +484,7 @@ private nonisolated final class Canvas {
         }
 
         for path in item.photoPaths {
+            if stop() { return }
             guard let image = reportThumbnail(path: path, maxPixelSize: 640) else {
                 failed += 1
                 continue
@@ -435,6 +495,7 @@ private nonisolated final class Canvas {
             }
             if column == 0, cursor + rowHeight > contentBottom {
                 newPage()
+                if cancelled { return }
             }
             let x = margin + CGFloat(column) * (cellWidth + gap)
             let cell = CGRect(x: x, y: cursor + 4, width: cellWidth, height: cellHeight)
@@ -463,6 +524,7 @@ private nonisolated final class Canvas {
     }
 
     func ensure(_ height: CGFloat) {
+        if cancelled { return }
         if cursor + height > contentBottom {
             newPage()
         }
@@ -475,13 +537,16 @@ private nonisolated final class Canvas {
         indent: CGFloat = 0,
         spacing: CGFloat
     ) {
+        if cancelled { return }
         let width = contentWidth - indent
         let lines = wrappedLines(text, font: font, width: width)
         let lineHeight = ceil(font.lineHeight)
         let pieces = lines.isEmpty ? [""] : lines
         for line in pieces {
+            if cancelled { return }
             if cursor + lineHeight > contentBottom {
                 newPage()
+                if cancelled { return }
             }
             drawSingleLine(line, font: font, color: color, x: margin + indent, y: cursor, width: width)
             cursor += lineHeight

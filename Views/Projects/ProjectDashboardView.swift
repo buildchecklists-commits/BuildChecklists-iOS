@@ -16,6 +16,7 @@ struct ProjectDashboardView: View {
 
     @State private var showShareSheet = false
     @State private var reportURL: URL?
+    @State private var showChecklistReport = false
 
     @State private var showProjectFilesSheet = false
     @State private var showContactsList = false
@@ -72,6 +73,12 @@ struct ProjectDashboardView: View {
                 .sheet(isPresented: $showShareSheet) {
                     if let url = reportURL {
                         ShareSheet(activityItems: [url])
+                    }
+                }
+                .sheet(isPresented: $showChecklistReport) {
+                    NavigationStack {
+                        ChecklistReportExportView(projectID: project.id)
+                            .environmentObject(store)
                     }
                 }
                 .sheet(isPresented: $showProjectFilesSheet) {
@@ -479,6 +486,21 @@ struct ProjectDashboardView: View {
                     trailing: AnyView(Image(systemName: "square.and.arrow.up"))
                 )
             }
+
+            Divider().padding(.leading, 40)
+
+            Button {
+                showChecklistReport = true
+            } label: {
+                dashboardRow(
+                    icon: "checklist",
+                    title: "Отчёт по чек-листам",
+                    subtitle: "Текущее состояние рабочих чек-листов",
+                    trailing: AnyView(Image(systemName: "chevron.right"))
+                )
+            }
+            .accessibilityIdentifier("project.checklistReport.entry")
+            .accessibilityLabel("Отчёт по чек-листам")
         }
     }
 

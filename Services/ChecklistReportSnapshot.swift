@@ -155,10 +155,21 @@ nonisolated enum ChecklistReportProgress {
     }
 }
 
+nonisolated enum ChecklistReportSnapshotError: Error, Equatable, Sendable {
+    case cancelled
+}
+
 nonisolated enum ChecklistReportSnapshotBuilder {
-    static func make(from source: ChecklistReportSource) -> ChecklistReportSnapshot {
-        let packs = ChecklistPack.allCases.map { pack in
-            makePack(pack, projectID: source.projectID)
+    /// `isCancelled` is checked between packs and items. A cancelled read throws and writes nothing.
+    static func make(
+        from source: ChecklistReportSource,
+        isCancelled: @Sendable () -> Bool = { false }
+    ) throws -> ChecklistReportSnapshot {
+        var packs: [ChecklistReportPack] = []
+        packs.reserveCapacity(ChecklistPack.allCases.count)
+        for pack in ChecklistPack.allCases {
+            if isCancelled() { throw ChecklistReportSnapshotError.cancelled }
+            packs.append(try makePack(pack, projectID: source.projectID, isCancelled: isCancelled))
         }
         var fractions: [ChecklistPack: Double] = [:]
         for pack in packs where ChecklistReportProgress.overallPacks.contains(pack.pack) {
@@ -184,7 +195,12 @@ nonisolated enum ChecklistReportSnapshotBuilder {
         )
     }
 
-    private static func makePack(_ pack: ChecklistPack, projectID: UUID) -> ChecklistReportPack {
+    private static func makePack(
+        _ pack: ChecklistPack,
+        projectID: UUID,
+        isCancelled: @Sendable () -> Bool
+    ) throws -> ChecklistReportPack {
+        if isCancelled() { throw ChecklistReportSnapshotError.cancelled }
         switch classify(pack, projectID: projectID) {
         case .unreadable:
             return ChecklistReportPack(
@@ -202,13 +218,20 @@ nonisolated enum ChecklistReportSnapshotBuilder {
             )
         case .ready:
             let stages = ChecklistPackStore.load(pack: pack, projectID: projectID)
-            return packFromLoadedStages(pack, stages: stages)
+            return try packFromLoadedStages(pack, stages: stages, isCancelled: isCancelled)
         }
     }
 
-    private static func packFromLoadedStages(_ pack: ChecklistPack, stages: [Stage]) -> ChecklistReportPack {
-        let reportStages = stages.enumerated().map { index, stage in
-            makeStage(stage, order: index)
+    private static func packFromLoadedStages(
+        _ pack: ChecklistPack,
+        stages: [Stage],
+        isCancelled: @Sendable () -> Bool
+    ) throws -> ChecklistReportPack {
+        var reportStages: [ChecklistReportStage] = []
+        reportStages.reserveCapacity(stages.count)
+        for (index, stage) in stages.enumerated() {
+            if isCancelled() { throw ChecklistReportSnapshotError.cancelled }
+            reportStages.append(try makeStage(stage, order: index, isCancelled: isCancelled))
         }
         let statuses = reportStages.flatMap { $0.items.map(\.status) }
         let counts = ChecklistReportProgress.counts(statuses: statuses)
@@ -231,10 +254,18 @@ nonisolated enum ChecklistReportSnapshotBuilder {
         )
     }
 
-    private static func makeStage(_ stage: Stage, order: Int) -> ChecklistReportStage {
+    private static func makeStage(
+        _ stage: Stage,
+        order: Int,
+        isCancelled: @Sendable () -> Bool
+    ) throws -> ChecklistReportStage {
+        if isCancelled() { throw ChecklistReportSnapshotError.cancelled }
         let sectionContext = nonempty(stage.subtitle ?? "")
-        let items = stage.items.map { item in
-            makeItem(item, sectionContext: sectionContext)
+        var items: [ChecklistReportItem] = []
+        items.reserveCapacity(stage.items.count)
+        for item in stage.items {
+            if isCancelled() { throw ChecklistReportSnapshotError.cancelled }
+            items.append(makeItem(item, sectionContext: sectionContext))
         }
         let counts = ChecklistReportProgress.counts(statuses: items.map(\.status))
         return ChecklistReportStage(
