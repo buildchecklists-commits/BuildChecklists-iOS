@@ -51,7 +51,6 @@ private enum ProjectSort: String, CaseIterable, Identifiable {
 
 struct ProjectsListView: View {
     @EnvironmentObject var store: AppStore
-    @Environment(\.colorScheme) private var colorScheme
 
     @State private var query: String = ""
     @State private var showForm: Bool = false
@@ -294,6 +293,7 @@ struct ProjectsListView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .padding()
+        .background(ProjectUXColors.screenBackground)
     }
 
     private var contentView: some View {
@@ -340,6 +340,7 @@ struct ProjectsListView: View {
             .padding(.horizontal, 16)
             .padding(.vertical, 12)
         }
+        .background(ProjectUXColors.screenBackground)
     }
 
     private var controlsView: some View {
@@ -393,9 +394,9 @@ struct ProjectsListView: View {
                         .clipShape(Capsule())
                         .overlay(
                             Capsule()
-                                .stroke(Color.accentColor.opacity(0.22), lineWidth: 1)
+                                .stroke(ProjectUXColors.accentAction.opacity(0.45), lineWidth: 1)
                         )
-                        .foregroundStyle(Color.accentColor)
+                        .foregroundStyle(ProjectUXColors.accentAction)
                         .accessibilityLabel("Калькулятор")
                 }
                 .buttonStyle(.plain)
@@ -414,7 +415,8 @@ struct ProjectsListView: View {
                     Image(systemName: "plus")
                         .font(.headline)
                         .padding(10)
-                        .background(Color.accentColor.opacity(0.15))
+                        .background(ProjectUXColors.accentAction.opacity(0.18))
+                        .foregroundStyle(ProjectUXColors.accentAction)
                         .clipShape(Circle())
                 }
                 .buttonStyle(.plain)
@@ -469,7 +471,7 @@ struct ProjectsListView: View {
             HStack(spacing: 8) {
                 Image(systemName: "sparkles")
                     .font(.subheadline)
-                    .foregroundColor(Color("AccentYellow"))
+                    .foregroundStyle(ProjectUXColors.accentAction)
 
                 Text("Демо-режим")
                     .font(.subheadline.weight(.semibold))
@@ -490,8 +492,8 @@ struct ProjectsListView: View {
                 .font(.footnote.weight(.semibold))
                 .padding(.horizontal, 12)
                 .padding(.vertical, 7)
-                .background(Color("AccentYellow"))
-                .foregroundColor(Color("BrandBlack"))
+                .background(ProjectUXColors.accentAction)
+                .foregroundStyle(ProjectUXColors.onAccent)
                 .clipShape(Capsule())
             }
             .buttonStyle(.plain)
@@ -499,11 +501,11 @@ struct ProjectsListView: View {
         .padding(14)
         .background(
             RoundedRectangle(cornerRadius: 18, style: .continuous)
-                .fill(Color("AccentYellow").opacity(0.08))
+                .fill(ProjectUXColors.accentAction.opacity(0.12))
         )
         .overlay(
             RoundedRectangle(cornerRadius: 18, style: .continuous)
-                .stroke(Color("AccentYellow").opacity(0.35), lineWidth: 1)
+                .stroke(ProjectUXColors.accentAction.opacity(0.45), lineWidth: 1)
         )
     }
 
@@ -511,7 +513,7 @@ struct ProjectsListView: View {
         VStack(alignment: .leading, spacing: 10) {
             HStack(spacing: 8) {
                 Image(systemName: "sparkles")
-                    .foregroundColor(Color("AccentYellow"))
+                    .foregroundStyle(ProjectUXColors.accentAction)
                 Text("Демонстрационный проект")
                     .font(.subheadline.weight(.semibold))
                 Spacer()
@@ -540,8 +542,8 @@ struct ProjectsListView: View {
                 }
                 .font(.footnote.weight(.semibold))
                 .buttonStyle(.borderedProminent)
-                .tint(Color("AccentYellow"))
-                .foregroundColor(Color("BrandBlack"))
+                .tint(ProjectUXColors.accentAction)
+                .foregroundStyle(ProjectUXColors.onAccent)
             }
         }
         .padding(12)
@@ -551,7 +553,7 @@ struct ProjectsListView: View {
         )
         .overlay(
             RoundedRectangle(cornerRadius: 14, style: .continuous)
-                .stroke(Color("AccentYellow").opacity(0.35), lineWidth: 1)
+                .stroke(ProjectUXColors.accentAction.opacity(0.45), lineWidth: 1)
         )
         .shadow(color: .black.opacity(0.15), radius: 8, x: 0, y: 4)
     }
@@ -569,7 +571,7 @@ struct ProjectsListView: View {
         let coverImage = CoverImageStore.shared.loadCover(for: project.id)
         let issueCount = ProjectIssuesCollector.issues(for: project.id).count
         let deadline = projectDeadline(project.dateEnd, isComplete: isCompleted)
-        let fallbackInk = projectCardFallbackInk(colorName: project.cardColor, colorScheme: colorScheme)
+        let fallbackInk = projectCardFallbackInk(colorName: project.cardColor)
 
         return ZStack(alignment: .topTrailing) {
             NavigationLink {
@@ -657,8 +659,8 @@ struct ProjectsListView: View {
         .overlay {
             if isDemoHighlighted {
                 RoundedRectangle(cornerRadius: 20, style: .continuous)
-                    .stroke(Color("AccentYellow"), lineWidth: 2)
-                    .shadow(color: Color("AccentYellow").opacity(0.35), radius: 10, x: 0, y: 0)
+                    .stroke(ProjectUXColors.accentAction, lineWidth: 2)
+                    .shadow(color: ProjectUXColors.accentAction.opacity(0.35), radius: 10, x: 0, y: 0)
             }
         }
         .hoverEffect(.lift)
@@ -798,7 +800,7 @@ struct ProjectsListView: View {
             return ProjectCardDeadline(text: "Осталось \(diff) \(dayWord(diff))", color: ProjectUXColors.secondaryText, readableOnCover: true)
         }
         if diff == 0 {
-            return ProjectCardDeadline(text: "Сегодня", color: ProjectUXColors.progressActive, readableOnCover: false)
+            return ProjectCardDeadline(text: "Сегодня", color: ProjectUXColors.progressActive, readableOnCover: true)
         }
         return ProjectCardDeadline(
             text: "Просрочено на \(abs(diff)) \(dayWord(abs(diff)))",
@@ -899,7 +901,7 @@ private final class ProjectCardCoverView: UIView {
 private struct ProjectCardDeadline {
     let text: String
     let color: Color
-    /// Neutral future text turns white on a photo. Red, green and yellow stay themselves.
+    /// Neutral deadline follows the title ink. Red and green keep their own colors.
     let readableOnCover: Bool
 }
 
@@ -914,29 +916,28 @@ private struct CardLinkStyle: ButtonStyle {
 // MARK: - Карточка проекта: премиальный вид с тёмным градиентом
 // Разметка как в рабочей сборке «релиз 2» (без общего shell).
 
-private func projectCardFallbackInk(colorName: String?, colorScheme: ColorScheme) -> Color {
-    projectCardFallbackIsLight(colorName: colorName, colorScheme: colorScheme)
-        ? Color(red: 17.0 / 255.0, green: 17.0 / 255.0, blue: 17.0 / 255.0)
-        : Color.white
-}
-
-private func projectCardFallbackIsLight(colorName: String?, colorScheme: ColorScheme) -> Bool {
-    let style: UIUserInterfaceStyle = colorScheme == .dark ? .dark : .light
-    let traits = UITraitCollection(userInterfaceStyle: style)
+/// Chooses ink when the color is drawn. The closure receives the current traits and does not store a snapshot.
+private func projectCardFallbackInk(colorName: String?) -> Color {
     let name = (colorName?.isEmpty == false) ? colorName! : "softGray"
-    let resolved = (UIColor(named: name) ?? UIColor(white: 0.90, alpha: 1)).resolvedColor(with: traits)
-    var red: CGFloat = 0
-    var green: CGFloat = 0
-    var blue: CGFloat = 0
-    var alpha: CGFloat = 0
-    guard resolved.getRed(&red, green: &green, blue: &blue, alpha: &alpha) else { return true }
-    let luminance = (0.2126 * red) + (0.7152 * green) + (0.0722 * blue)
-    return luminance >= 0.62
+    let dynamic = UIColor { traits in
+        let resolved = (UIColor(named: name) ?? UIColor(white: 0.90, alpha: 1)).resolvedColor(with: traits)
+        var red: CGFloat = 0
+        var green: CGFloat = 0
+        var blue: CGFloat = 0
+        var alpha: CGFloat = 0
+        guard resolved.getRed(&red, green: &green, blue: &blue, alpha: &alpha) else {
+            return UIColor(red: 17.0 / 255.0, green: 17.0 / 255.0, blue: 17.0 / 255.0, alpha: 1)
+        }
+        let luminance = (0.2126 * red) + (0.7152 * green) + (0.0722 * blue)
+        if luminance >= 0.62 {
+            return UIColor(red: 17.0 / 255.0, green: 17.0 / 255.0, blue: 17.0 / 255.0, alpha: 1)
+        }
+        return .white
+    }
+    return Color(uiColor: dynamic)
 }
 
 private struct ProjectCardView: View {
-    @Environment(\.colorScheme) private var colorScheme
-
     let name: String
     let address: String
     let manager: String?
@@ -957,7 +958,7 @@ private struct ProjectCardView: View {
     private var onCover: Bool { coverImage != nil }
 
     private var fallbackInk: Color {
-        projectCardFallbackInk(colorName: cardColorName, colorScheme: colorScheme)
+        projectCardFallbackInk(colorName: cardColorName)
     }
 
     private var titleColor: Color { onCover ? .white : fallbackInk }
@@ -1105,7 +1106,7 @@ private struct ProjectCardView: View {
             if let deadline {
                 Text(deadline.text)
                     .font(.caption2.weight(.semibold))
-                    .foregroundStyle(onCover && deadline.readableOnCover ? Color.white : deadline.color)
+                    .foregroundStyle(deadline.readableOnCover ? titleColor : deadline.color)
                     .lineLimit(2)
             }
             if issueCount > 0 {

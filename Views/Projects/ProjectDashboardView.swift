@@ -61,6 +61,7 @@ struct ProjectDashboardView: View {
                     .padding(.horizontal)
                     .padding(.bottom, 32)
                 }
+                .background(ProjectUXColors.screenBackground)
                 .navigationTitle(project.name)
                 .navigationBarTitleDisplayMode(.inline)
 

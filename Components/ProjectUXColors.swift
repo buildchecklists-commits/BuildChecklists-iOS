@@ -27,6 +27,11 @@ enum ProjectUXColors {
     /// Dark stays system gold, so it does not turn white like `AccentYellow`.
     static var accentAction: Color { Color(uiColor: projectAccent) }
 
+    /// Label on a filled accent. Stays near-black in both appearances, unlike `BrandBlack`.
+    static var onAccent: Color {
+        Color(red: 17.0 / 255.0, green: 17.0 / 255.0, blue: 17.0 / 255.0)
+    }
+
     /// Unfilled progress track. Gray in both appearances. Not used for a low percent.
     static var progressTrack: Color { Color(.quaternarySystemFill) }
 
