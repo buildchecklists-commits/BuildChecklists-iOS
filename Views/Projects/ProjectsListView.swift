@@ -84,8 +84,11 @@ struct ProjectsListView: View {
     @State private var showDemoCoachmark: Bool = false
     @State private var didDismissDemoCoachmark: Bool = false
 
+    /// One column. Wide iPad windows center this column instead of placing two narrow cards side by side.
+    private let projectColumnMaxWidth: CGFloat = 640
+
     private let gridColumns: [GridItem] = [
-        GridItem(.adaptive(minimum: 320, maximum: 480), spacing: 16)
+        GridItem(.flexible(), spacing: 16)
     ]
 
     private var projectsWithProgress: [(project: Project, progress: Double)] {
@@ -291,8 +294,9 @@ struct ProjectsListView: View {
                     .padding(.top, 8)
             }
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .padding()
+        .frame(maxWidth: projectColumnMaxWidth)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(ProjectUXColors.screenBackground)
     }
 
@@ -339,6 +343,8 @@ struct ProjectsListView: View {
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 12)
+            .frame(maxWidth: projectColumnMaxWidth)
+            .frame(maxWidth: .infinity)
         }
         .background(ProjectUXColors.screenBackground)
     }
@@ -414,12 +420,13 @@ struct ProjectsListView: View {
                 } label: {
                     Image(systemName: "plus")
                         .font(.headline)
-                        .padding(10)
+                        .frame(width: 44, height: 44)
                         .background(ProjectUXColors.accentAction.opacity(0.18))
                         .foregroundStyle(ProjectUXColors.accentAction)
                         .clipShape(Circle())
                 }
                 .buttonStyle(.plain)
+                .accessibilityLabel("Новый проект")
             }
 
             NavigationLink {
@@ -428,6 +435,7 @@ struct ProjectsListView: View {
                 HStack(alignment: .center, spacing: 12) {
                     Image(systemName: "calendar.badge.clock")
                         .font(.title3)
+                        .accessibilityHidden(true)
 
                     VStack(alignment: .leading, spacing: 2) {
                         Text("Календарь задач")
@@ -444,6 +452,7 @@ struct ProjectsListView: View {
                     Image(systemName: "chevron.right")
                         .font(.footnote.weight(.semibold))
                         .foregroundStyle(.secondary)
+                        .accessibilityHidden(true)
                 }
                 .padding(12)
                 .frame(maxWidth: .infinity)
@@ -453,12 +462,17 @@ struct ProjectsListView: View {
                 )
             }
             .buttonStyle(.plain)
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel("Календарь задач. Напоминания: купить материалы, заказать бетон и т.д.")
+            .accessibilityAddTraits(.isButton)
         }
     }
 
     private func sectionHeader(title: String) -> some View {
         HStack {
-            Text(title).font(.headline)
+            Text(title)
+                .font(.headline)
+                .accessibilityAddTraits(.isHeader)
             Spacer()
         }
     }
@@ -593,8 +607,10 @@ struct ProjectsListView: View {
             }
             .buttonStyle(CardLinkStyle())
             .accessibilityElement(children: .ignore)
-            .accessibilityLabel(projectCardSummary(project, progressPercent: progressPercent, deadline: deadline, issueCount: issueCount))
+            .accessibilityLabel(projectCardSummary(project, progressPercent: progressPercent, deadline: deadline, issueCount: issueCount, isCompleted: isCompleted))
+            .accessibilityHint("Открывает проект")
             .accessibilityAddTraits(.isButton)
+            .accessibilitySortPriority(5)
             .accessibilityIdentifier("project.card.open")
 
             Button {
@@ -616,7 +632,8 @@ struct ProjectsListView: View {
             .buttonStyle(.plain)
             .padding(.top, 8)
             .padding(.trailing, 10)
-            .accessibilityLabel("Редактировать проект")
+            .accessibilityLabel("Редактировать проект, \(project.name)")
+            .accessibilitySortPriority(4)
             .accessibilityIdentifier("project.card.edit")
         }
         .overlay(alignment: .bottom) {
@@ -624,8 +641,9 @@ struct ProjectsListView: View {
                 projectCardAction(
                     title: "Фото (\(photosCount))",
                     systemImage: "photo.on.rectangle",
-                    accessibilityLabel: "Фото проекта",
+                    accessibilityLabel: "Фото проекта, \(project.name)",
                     identifier: "project.card.photos",
+                    sortPriority: 3,
                     foreground: coverImage == nil ? fallbackInk : Color.white,
                     action: { photosProject = project }
                 )
@@ -633,16 +651,18 @@ struct ProjectsListView: View {
                     title: "Документы (\(docsCount))",
                     compactTitle: "Док. (\(docsCount))",
                     systemImage: "doc.on.doc",
-                    accessibilityLabel: "Документы проекта",
+                    accessibilityLabel: "Документы проекта, \(project.name)",
                     identifier: "project.card.documents",
+                    sortPriority: 2,
                     foreground: coverImage == nil ? fallbackInk : Color.white,
                     action: { filesProject = project }
                 )
                 projectCardAction(
                     title: hasProjectPDF ? "Проект (PDF)" : "Проект",
                     systemImage: hasProjectPDF ? "doc.richtext" : "doc",
-                    accessibilityLabel: hasProjectPDF ? "Проект, PDF" : "Проект",
+                    accessibilityLabel: hasProjectPDF ? "Проект, PDF, \(project.name)" : "Проект, \(project.name)",
                     identifier: "project.card.projectFile",
+                    sortPriority: 1,
                     foreground: coverImage == nil ? fallbackInk : Color.white,
                     action: {
                         if project.projectPDFPath != nil {
@@ -738,6 +758,7 @@ struct ProjectsListView: View {
         systemImage: String,
         accessibilityLabel: String,
         identifier: String,
+        sortPriority: Double = 0,
         foreground: Color,
         action: @escaping () -> Void
     ) -> some View {
@@ -752,9 +773,12 @@ struct ProjectsListView: View {
             .accessibilityHidden(true)
         }
         .buttonStyle(.plain)
+        .frame(maxWidth: .infinity)
+        .frame(height: 44)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(accessibilityLabel)
         .accessibilityAddTraits(.isButton)
+        .accessibilitySortPriority(sortPriority)
         .accessibilityIdentifier(identifier)
     }
 
@@ -771,13 +795,17 @@ struct ProjectsListView: View {
         _ project: Project,
         progressPercent: Int,
         deadline: ProjectCardDeadline?,
-        issueCount: Int
+        issueCount: Int,
+        isCompleted: Bool
     ) -> String {
         var parts = [project.name]
         if !project.address.isEmpty {
             parts.append(project.address)
         }
         parts.append("Прогресс \(progressPercent) процентов")
+        if isCompleted, deadline?.text != "Завершён" {
+            parts.append("проект завершён")
+        }
         if let deadline {
             parts.append(deadline.text)
         }

@@ -67,6 +67,9 @@ struct ChecklistPackMeasurement: Equatable {
         if issueCount > 0 {
             parts.append(Self.remarksPhrase(issueCount))
         }
+        if tone == .complete {
+            parts.append("завершено")
+        }
         return parts.joined(separator: ", ")
     }
 }
@@ -125,7 +128,19 @@ struct ChecklistPackTimelineRow<Destination: View>: View {
     private let connectorGap: CGFloat = 18
 
     var body: some View {
-        NavigationLink(destination: destination()) {
+        ZStack {
+            NavigationLink(destination: destination()) {
+                Color.clear
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(measurement.accessibilityLabel(title: title))
+            .accessibilityHint("Открывает чек-лист пакета")
+            .accessibilityIdentifier(accessibilityIdentifier)
+            .accessibilityAddTraits(.isButton)
+
             ChecklistPackTimelineLabel(
                 title: title,
                 subtitle: subtitle,
@@ -134,13 +149,9 @@ struct ChecklistPackTimelineRow<Destination: View>: View {
                 railWidth: railWidth,
                 connectorGap: connectorGap
             )
+            .accessibilityHidden(true)
+            .allowsHitTesting(false)
         }
-        .buttonStyle(.plain)
-        .accessibilityElement(children: .ignore)
-        .accessibilityLabel(measurement.accessibilityLabel(title: title))
-        .accessibilityHint("Открывает чек-лист пакета")
-        .accessibilityIdentifier(accessibilityIdentifier)
-        .accessibilityAddTraits(.isButton)
     }
 }
 
@@ -286,11 +297,17 @@ private struct ChecklistPackCard: View {
                 tone: measurement.tone
             )
         }
+        .accessibilityElement(children: .ignore)
+        .accessibilityHidden(true)
         .padding(12)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background {
             RoundedRectangle(cornerRadius: 20, style: .continuous)
                 .fill(ProjectUXColors.cardSurface)
+        }
+        .overlay {
+            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                .strokeBorder(ProjectUXColors.readableBorder, lineWidth: 1)
         }
         .contentShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
     }

@@ -13,6 +13,9 @@ struct ProjectQuickActions<PlanDestination: View, ExpensesDestination: View, Iss
     @ViewBuilder var expensesDestination: () -> ExpensesDestination
     @ViewBuilder var issuesDestination: () -> IssuesDestination
 
+    private let actionSlots = Array(QuickActionSlot.allCases)
+    @State private var gridHeight: CGFloat = 44
+
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Быстрые действия")
@@ -20,63 +23,113 @@ struct ProjectQuickActions<PlanDestination: View, ExpensesDestination: View, Iss
                 .foregroundStyle(ProjectUXColors.primaryText)
                 .accessibilityAddTraits(.isHeader)
 
-            ProjectQuickActionGrid(metrics: ProjectQuickActionMetrics(dynamicTypeSize: dynamicTypeSize)) {
-                actionLink(
-                    title: "План",
-                    accessibilityLabel: "План. Сроки текущего проекта",
-                    systemImage: "calendar",
-                    identifier: "project.quickAction.plan",
-                    destination: planDestination
-                )
-                actionLink(
-                    title: "Расходы",
-                    accessibilityLabel: "Расходы. Экран расходов текущего проекта",
-                    systemImage: "creditcard",
-                    identifier: "project.quickAction.expenses",
-                    destination: expensesDestination
-                )
-                actionButton(
-                    title: "Файлы",
-                    accessibilityLabel: "Файлы. Фото, документы и PDF проекта",
-                    systemImage: "folder.fill",
-                    identifier: "project.quickAction.files",
-                    action: openFiles
-                )
-                actionButton(
-                    title: "Контакты",
-                    accessibilityLabel: "Контакты. Список контактов проекта",
-                    systemImage: "person.2.fill",
-                    identifier: "project.quickAction.contacts",
-                    action: openContacts
-                )
-                actionLink(
-                    title: "Замечания",
-                    accessibilityLabel: "Замечания. Список замечаний проекта",
-                    systemImage: "exclamationmark.triangle",
-                    identifier: "project.quickAction.issues",
-                    destination: issuesDestination
-                )
-                actionButton(
-                    title: "PDF проекта",
-                    accessibilityLabel: "PDF проекта. Сводка по объекту, расходам и чек-листам",
-                    systemImage: "doc.richtext",
-                    identifier: "project.quickAction.projectPDF",
-                    action: exportProjectPDF
-                )
-                actionButton(
-                    title: "PDF чек-листов",
-                    accessibilityLabel: "PDF чек-листов. Настройки отчёта по рабочим чек-листам",
-                    systemImage: "checklist",
-                    identifier: "project.quickAction.checklistPDF",
-                    action: openChecklistReport
-                )
+            // Ordinary rows, not a custom Layout. Layout children were visited
+            // after the timeline. Row order here is the VoiceOver order.
+            GeometryReader { proxy in
+                actionRows(width: proxy.size.width)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .background {
+                        GeometryReader { grid in
+                            Color.clear.preference(key: QuickActionHeightKey.self, value: grid.size.height)
+                        }
+                    }
             }
+            .frame(height: gridHeight)
         }
+        .onPreferenceChange(QuickActionHeightKey.self) { gridHeight = max($0, 44) }
         .padding(14)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(ProjectUXColors.cardSurface)
         .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
-        .accessibilityElement(children: .contain)
+        .overlay {
+            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                .strokeBorder(ProjectUXColors.readableBorder, lineWidth: 1)
+        }
+    }
+
+    private func actionRows(width: CGFloat) -> some View {
+        let metrics = ProjectQuickActionMetrics(dynamicTypeSize: dynamicTypeSize)
+        let spacing: CGFloat = 8
+        let columns = max(metrics.columns(for: max(width, 1)), 1)
+        let itemWidth = (width - spacing * CGFloat(columns - 1)) / CGFloat(columns)
+        let rowCount = (actionSlots.count + columns - 1) / columns
+        return VStack(spacing: spacing) {
+            ForEach(0..<rowCount, id: \.self) { row in
+                let start = row * columns
+                let count = min(columns, actionSlots.count - start)
+                HStack(spacing: spacing) {
+                    if count < columns { Spacer(minLength: 0) }
+                    ForEach(0..<count, id: \.self) { offset in
+                        actionSlot(actionSlots[start + offset])
+                            .frame(width: max(itemWidth, 44), alignment: .top)
+                    }
+                    if count < columns { Spacer(minLength: 0) }
+                }
+                .frame(maxWidth: .infinity)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func actionSlot(_ slot: QuickActionSlot) -> some View {
+        switch slot {
+        case .plan:
+            actionLink(
+                title: "План",
+                accessibilityLabel: "План. Сроки текущего проекта",
+                systemImage: "calendar",
+                identifier: "project.quickAction.plan",
+                destination: planDestination
+            )
+        case .expenses:
+            actionLink(
+                title: "Расходы",
+                accessibilityLabel: "Расходы. Экран расходов текущего проекта",
+                systemImage: "creditcard",
+                identifier: "project.quickAction.expenses",
+                destination: expensesDestination
+            )
+        case .files:
+            actionButton(
+                title: "Файлы",
+                accessibilityLabel: "Файлы. Фото, документы и PDF проекта",
+                systemImage: "folder.fill",
+                identifier: "project.quickAction.files",
+                action: openFiles
+            )
+        case .contacts:
+            actionButton(
+                title: "Контакты",
+                accessibilityLabel: "Контакты. Список контактов проекта",
+                systemImage: "person.2.fill",
+                identifier: "project.quickAction.contacts",
+                action: openContacts
+            )
+        case .issues:
+            actionLink(
+                title: "Замечания",
+                accessibilityLabel: "Замечания. Список замечаний проекта",
+                systemImage: "exclamationmark.triangle",
+                identifier: "project.quickAction.issues",
+                destination: issuesDestination
+            )
+        case .projectPDF:
+            actionButton(
+                title: "PDF проекта",
+                accessibilityLabel: "PDF проекта. Сводка по объекту, расходам и чек-листам",
+                systemImage: "doc.richtext",
+                identifier: "project.quickAction.projectPDF",
+                action: exportProjectPDF
+            )
+        case .checklistPDF:
+            actionButton(
+                title: "PDF чек-листов",
+                accessibilityLabel: "PDF чек-листов. Настройки отчёта по рабочим чек-листам",
+                systemImage: "checklist",
+                identifier: "project.quickAction.checklistPDF",
+                action: openChecklistReport
+            )
+        }
     }
 
     private func actionLink<Destination: View>(
@@ -86,14 +139,22 @@ struct ProjectQuickActions<PlanDestination: View, ExpensesDestination: View, Iss
         identifier: String,
         destination: () -> Destination
     ) -> some View {
-        NavigationLink(destination: destination) {
+        ZStack {
+            NavigationLink(destination: destination) {
+                Color.clear
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(ProjectQuickActionButtonStyle())
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(accessibilityLabel)
+            .accessibilityAddTraits(.isButton)
+            .accessibilityIdentifier(identifier)
+
             actionFace(title: title, systemImage: systemImage)
+                .accessibilityHidden(true)
+                .allowsHitTesting(false)
         }
-        .buttonStyle(ProjectQuickActionButtonStyle())
-        .accessibilityElement(children: .ignore)
-        .accessibilityLabel(accessibilityLabel)
-        .accessibilityAddTraits(.isButton)
-        .accessibilityIdentifier(identifier)
     }
 
     private func actionButton(
@@ -103,14 +164,22 @@ struct ProjectQuickActions<PlanDestination: View, ExpensesDestination: View, Iss
         identifier: String,
         action: @escaping () -> Void
     ) -> some View {
-        Button(action: action) {
+        ZStack {
+            Button(action: action) {
+                Color.clear
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(ProjectQuickActionButtonStyle())
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(accessibilityLabel)
+            .accessibilityAddTraits(.isButton)
+            .accessibilityIdentifier(identifier)
+
             actionFace(title: title, systemImage: systemImage)
+                .accessibilityHidden(true)
+                .allowsHitTesting(false)
         }
-        .buttonStyle(ProjectQuickActionButtonStyle())
-        .accessibilityElement(children: .ignore)
-        .accessibilityLabel(accessibilityLabel)
-        .accessibilityAddTraits(.isButton)
-        .accessibilityIdentifier(identifier)
     }
 
     private func actionFace(title: String, systemImage: String) -> some View {
@@ -124,11 +193,24 @@ struct ProjectQuickActions<PlanDestination: View, ExpensesDestination: View, Iss
                 .foregroundStyle(ProjectUXColors.primaryText)
                 .multilineTextAlignment(.center)
                 .fixedSize(horizontal: false, vertical: true)
+                .accessibilityHidden(true)
         }
+        .accessibilityHidden(true)
         .frame(maxWidth: .infinity, minHeight: 44)
         .padding(.horizontal, 4)
         .padding(.vertical, 8)
         .contentShape(Rectangle())
+    }
+}
+
+private enum QuickActionSlot: Int, CaseIterable {
+    case plan, expenses, files, contacts, issues, projectPDF, checklistPDF
+}
+
+private struct QuickActionHeightKey: PreferenceKey {
+    static var defaultValue: CGFloat = 44
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = max(value, nextValue())
     }
 }
 
@@ -146,64 +228,11 @@ private struct ProjectQuickActionMetrics {
             if width >= 300 { return 2 }
             return 1
         }
-        if width >= 700 { return 7 }
+        // Seven across once the grid itself is wide enough to keep captions readable.
+        // A 640 pt column leaves about 580 pt here. Narrower widths keep the phone grid.
+        if width >= 520 { return 7 }
         if width >= 324 { return 4 }
         return 3
-    }
-}
-
-/// Equal columns from the container width. A short last row stays the same item width and is centered.
-private struct ProjectQuickActionGrid: Layout {
-    var metrics: ProjectQuickActionMetrics
-    var spacing: CGFloat = 8
-
-    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
-        let width = proposal.width ?? 0
-        guard width > 0, !subviews.isEmpty else { return CGSize(width: max(width, 0), height: 0) }
-        let frames = frames(for: subviews, width: width)
-        let height = frames.map(\.maxY).max() ?? 0
-        return CGSize(width: width, height: height)
-    }
-
-    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
-        let frames = frames(for: subviews, width: bounds.width)
-        for (index, subview) in subviews.enumerated() where index < frames.count {
-            let frame = frames[index]
-            subview.place(
-                at: CGPoint(x: bounds.minX + frame.minX, y: bounds.minY + frame.minY),
-                anchor: .topLeading,
-                proposal: ProposedViewSize(width: frame.width, height: frame.height)
-            )
-        }
-    }
-
-    private func frames(for subviews: Subviews, width: CGFloat) -> [CGRect] {
-        let columns = max(metrics.columns(for: width), 1)
-        let itemWidth = (width - spacing * CGFloat(columns - 1)) / CGFloat(columns)
-        var frames: [CGRect] = []
-        var y: CGFloat = 0
-        var index = 0
-        while index < subviews.count {
-            let end = min(index + columns, subviews.count)
-            var rowHeight: CGFloat = 44
-            var sizes: [CGSize] = []
-            for item in subviews[index..<end] {
-                let size = item.sizeThatFits(ProposedViewSize(width: itemWidth, height: nil))
-                let height = max(size.height, 44)
-                sizes.append(CGSize(width: itemWidth, height: height))
-                rowHeight = max(rowHeight, height)
-            }
-            let count = sizes.count
-            let rowWidth = CGFloat(count) * itemWidth + CGFloat(max(count - 1, 0)) * spacing
-            let originX = count < columns ? (width - rowWidth) / 2 : 0
-            for column in sizes.indices {
-                let x = originX + CGFloat(column) * (itemWidth + spacing)
-                frames.append(CGRect(x: x, y: y, width: itemWidth, height: rowHeight))
-            }
-            y += rowHeight + spacing
-            index = end
-        }
-        return frames
     }
 }
 

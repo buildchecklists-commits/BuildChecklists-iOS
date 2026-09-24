@@ -23,6 +23,9 @@ enum ProjectUXColors {
     /// Quieter edge than `separator`. Still semantic, not a fixed gray.
     static var subtleBorder: Color { Color(.quaternarySystemFill) }
 
+    /// Card edge. Strengthens when Increase Contrast is on, and stays a separator otherwise.
+    static var readableBorder: Color { Color(uiColor: projectReadableBorder) }
+
     /// Project accent for the new screens. Light matches the brand yellow.
     /// Dark stays system gold, so it does not turn white like `AccentYellow`.
     static var accentAction: Color { Color(uiColor: projectAccent) }
@@ -63,5 +66,13 @@ enum ProjectUXColors {
             return UIColor(red: 1, green: 196.0 / 255.0, blue: 0, alpha: 1)
         }
         return .systemYellow
+    }
+
+    /// Resolved when drawn. Increase Contrast uses the full separator; the normal edge stays quieter.
+    private static let projectReadableBorder = UIColor { traits in
+        if traits.accessibilityContrast == .high {
+            return .separator
+        }
+        return UIColor.separator.withAlphaComponent(0.35)
     }
 }

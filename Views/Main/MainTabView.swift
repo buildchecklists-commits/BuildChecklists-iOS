@@ -403,20 +403,39 @@ enum ProjectCardChrome {
     static let cornerRadius: CGFloat = 20
 }
 
-/// Один внешний shell: ширина от родителя, высота от aspectRatio, обводка и тень.
+/// Один внешний shell: ширина от родителя, высота строго width / (16/11).
+/// Высота не берётся из идеального размера текста, иначе Dynamic Type раздвигает карточку.
 struct ProjectCardShell<Content: View>: View {
     @ViewBuilder var content: () -> Content
 
     var body: some View {
-        content()
-            .aspectRatio(ProjectCardChrome.aspectRatio, contentMode: .fit)
-            .frame(maxWidth: .infinity)
-            .clipShape(RoundedRectangle(cornerRadius: ProjectCardChrome.cornerRadius, style: .continuous))
-            .overlay(
-                RoundedRectangle(cornerRadius: ProjectCardChrome.cornerRadius, style: .continuous)
-                    .strokeBorder(Color.white.opacity(0.14), lineWidth: 0.7)
-            )
-            .shadow(color: .black.opacity(0.22), radius: 10, x: 0, y: 5)
+        ProjectCardRatioLayout(aspectRatio: ProjectCardChrome.aspectRatio) {
+            content()
+        }
+        .frame(maxWidth: .infinity)
+        .clipShape(RoundedRectangle(cornerRadius: ProjectCardChrome.cornerRadius, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: ProjectCardChrome.cornerRadius, style: .continuous)
+                .strokeBorder(Color.white.opacity(0.14), lineWidth: 0.7)
+        )
+        .shadow(color: .black.opacity(0.22), radius: 10, x: 0, y: 5)
+    }
+}
+
+/// Возвращает высоту только из предложенной ширины. Идеальный размер содержимого не участвует.
+private struct ProjectCardRatioLayout: Layout {
+    var aspectRatio: CGFloat
+
+    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
+        let width = proposal.width ?? subviews.first?.sizeThatFits(ProposedViewSize(width: nil, height: nil)).width ?? 0
+        return CGSize(width: width, height: width / aspectRatio)
+    }
+
+    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
+        let childProposal = ProposedViewSize(width: bounds.width, height: bounds.height)
+        for subview in subviews {
+            subview.place(at: bounds.origin, anchor: .topLeading, proposal: childProposal)
+        }
     }
 }
 

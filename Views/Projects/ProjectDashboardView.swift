@@ -60,6 +60,8 @@ struct ProjectDashboardView: View {
                     }
                     .padding(.horizontal)
                     .padding(.bottom, 32)
+                    .frame(maxWidth: 640)
+                    .frame(maxWidth: .infinity)
                 }
                 .background(ProjectUXColors.screenBackground)
                 .navigationTitle(project.name)
@@ -157,19 +159,63 @@ struct ProjectDashboardView: View {
 
             if let manager = project.manager?.trimmingCharacters(in: .whitespacesAndNewlines),
                !manager.isEmpty {
-                Label("Ответственный: \(manager)", systemImage: "person.fill")
-                    .font(.subheadline)
-                    .foregroundStyle(ProjectUXColors.secondaryText)
-                    .fixedSize(horizontal: false, vertical: true)
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                HStack(alignment: .firstTextBaseline, spacing: 6) {
+                    Image(systemName: "person.fill")
+                        .accessibilityHidden(true)
+                    Text("Ответственный: \(manager)")
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                }
+                .font(.subheadline)
+                .foregroundStyle(ProjectUXColors.secondaryText)
+                .fixedSize(horizontal: false, vertical: true)
             }
 
             projectDateRow(project)
         }
+        .accessibilityHidden(true)
         .padding(14)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(ProjectUXColors.cardSurface)
         .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+        .overlay {
+            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                .strokeBorder(ProjectUXColors.readableBorder, lineWidth: 1)
+                .allowsHitTesting(false)
+                .accessibilityHidden(true)
+        }
+        .overlay {
+            Color.clear
+                .allowsHitTesting(false)
+                .accessibilityElement(children: .ignore)
+                .accessibilityLabel(summaryAccessibilityLabel(project, percentage: percentage, isComplete: isComplete))
+        }
+    }
+
+    private func summaryAccessibilityLabel(_ project: Project, percentage: Int, isComplete: Bool) -> String {
+        var parts = [
+            isComplete
+                ? "Прогресс \(percentage) процентов, проект завершён"
+                : "Прогресс \(percentage) процентов"
+        ]
+        if let end = project.dateEnd {
+            let deadline = deadlineStatus(end, isComplete: isComplete).text
+            if deadline != "Завершён" || !isComplete {
+                parts.append(deadline)
+            }
+        }
+        if !project.address.isEmpty {
+            parts.append(project.address)
+        }
+        if let manager = project.manager?.trimmingCharacters(in: .whitespacesAndNewlines), !manager.isEmpty {
+            parts.append("Ответственный: \(manager)")
+        }
+        if let start = project.dateStart {
+            parts.append("Начало \(dateString(start))")
+        }
+        if let end = project.dateEnd {
+            parts.append("Окончание \(dateString(end))")
+        }
+        return parts.joined(separator: ", ")
     }
 
     private func progressNumber(_ percentage: Int, color: Color) -> some View {
@@ -177,7 +223,7 @@ struct ProjectDashboardView: View {
             .font(.largeTitle.weight(.bold))
             .foregroundStyle(color)
             .monospacedDigit()
-            .accessibilityLabel("Прогресс \(percentage) процентов")
+            .accessibilityHidden(true)
     }
 
     private func deadlineLabel(
@@ -234,13 +280,20 @@ struct ProjectDashboardView: View {
     // MARK: - Даты / статус
 
     private func datePill(text: String, icon: String) -> some View {
-        Label(text, systemImage: icon)
-            .font(.caption)
-            .foregroundStyle(ProjectUXColors.primaryText)
-            .padding(.horizontal, 10)
-            .padding(.vertical, 6)
-            .background(ProjectUXColors.secondarySurface)
-            .clipShape(Capsule())
+        HStack(spacing: 4) {
+            Image(systemName: icon)
+                .accessibilityHidden(true)
+            Text(text)
+                .accessibilityHidden(true)
+        }
+        .font(.caption)
+        .foregroundStyle(ProjectUXColors.primaryText)
+        .padding(.horizontal, 10)
+        .padding(.vertical, 6)
+        .background(ProjectUXColors.secondarySurface)
+        .clipShape(Capsule())
+        .accessibilityElement(children: .ignore)
+        .accessibilityHidden(true)
     }
 
     /// Same start-of-day difference as before. Red is only a past end date on an unfinished project.
@@ -450,22 +503,30 @@ struct ProjectDashboardView: View {
     }
 
     private var newTaskButton: some View {
-        Button {
-            showQuickTaskForm = true
-        } label: {
-            HStack(spacing: 6) {
-                Image(systemName: "plus.circle.fill")
-                Text("Новая задача")
-            }
-            .font(.caption.weight(.semibold))
-            .padding(.horizontal, 12)
-            .frame(minHeight: 44)
-            .background(ProjectUXColors.accentAction.opacity(0.16))
-            .foregroundStyle(ProjectUXColors.accentAction)
-            .clipShape(Capsule())
+        HStack(spacing: 6) {
+            Image(systemName: "plus.circle.fill")
+                .accessibilityHidden(true)
+            Text("Новая задача")
         }
-        .buttonStyle(.plain)
-        .accessibilityLabel("Новая задача")
+        .font(.caption.weight(.semibold))
+        .padding(.horizontal, 12)
+        .frame(minHeight: 44)
+        .background(ProjectUXColors.accentAction.opacity(0.16))
+        .foregroundStyle(ProjectUXColors.accentAction)
+        .clipShape(Capsule())
+        .accessibilityHidden(true)
+        .overlay {
+            Button {
+                showQuickTaskForm = true
+            } label: {
+                Color.clear
+                    .contentShape(Capsule())
+            }
+            .buttonStyle(.plain)
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel("Новая задача")
+            .accessibilityAddTraits(.isButton)
+        }
     }
 
     private func taskDateState(_ date: Date) -> String {
@@ -649,44 +710,62 @@ struct ProjectDashboardView: View {
     private func issuesSection(_ project: Project) -> some View {
         let count = issues.count
 
-        return NavigationLink {
-            ProjectIssuesListView(projectID: project.id)
-        } label: {
-            HStack(alignment: .center, spacing: 12) {
-                Image(systemName: "exclamationmark.triangle.fill")
-                    .font(.body.weight(.semibold))
-                    .foregroundStyle(ProjectUXColors.issue)
-                    .accessibilityHidden(true)
-
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("Требует внимания")
-                        .font(.subheadline.weight(.semibold))
-                        .foregroundStyle(ProjectUXColors.primaryText)
-                        .fixedSize(horizontal: false, vertical: true)
-                    Text(ProjectIssuesFormatting.remarksPhrase(count))
-                        .font(.caption.weight(.semibold))
-                        .foregroundStyle(ProjectUXColors.issue)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-
-                Spacer(minLength: 8)
-
-                Image(systemName: "chevron.right")
-                    .font(.caption.weight(.semibold))
-                    .foregroundStyle(ProjectUXColors.secondaryText)
-                    .accessibilityHidden(true)
+        return ZStack {
+            NavigationLink {
+                ProjectIssuesListView(projectID: project.id)
+            } label: {
+                Color.clear
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .contentShape(Rectangle())
             }
-            .padding(.horizontal, 14)
-            .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
-            .background(ProjectUXColors.cardSurface)
-            .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+            .buttonStyle(.plain)
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(ProjectIssuesFormatting.dashboardAccessibilityLabel(count: count))
+            .accessibilityHint("Открывает список замечаний")
+            .accessibilityIdentifier("project.issues.entry")
+            .accessibilityAddTraits(.isButton)
+
+            issuesCard(count)
+                .accessibilityHidden(true)
+                .allowsHitTesting(false)
         }
-        .buttonStyle(.plain)
-        .accessibilityElement(children: .ignore)
-        .accessibilityLabel(ProjectIssuesFormatting.dashboardAccessibilityLabel(count: count))
-        .accessibilityHint("Открывает список замечаний")
-        .accessibilityIdentifier("project.issues.entry")
-        .accessibilityAddTraits(.isButton)
+    }
+
+    private func issuesCard(_ count: Int) -> some View {
+        HStack(alignment: .center, spacing: 12) {
+            Image(systemName: "exclamationmark.triangle.fill")
+                .font(.body.weight(.semibold))
+                .foregroundStyle(ProjectUXColors.issue)
+                .accessibilityHidden(true)
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text("Требует внимания")
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(ProjectUXColors.primaryText)
+                    .fixedSize(horizontal: false, vertical: true)
+                Text(ProjectIssuesFormatting.remarksPhrase(count))
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(ProjectUXColors.issue)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+
+            Spacer(minLength: 8)
+
+            Image(systemName: "chevron.right")
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(ProjectUXColors.secondaryText)
+                .accessibilityHidden(true)
+        }
+        .padding(.horizontal, 14)
+        .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
+        .background(ProjectUXColors.cardSurface)
+        .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+        .overlay {
+            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                .strokeBorder(ProjectUXColors.readableBorder, lineWidth: 1)
+                .allowsHitTesting(false)
+                .accessibilityHidden(true)
+        }
     }
 
     private func reloadIssues() {
@@ -711,6 +790,7 @@ struct ProjectDashboardView: View {
         return VStack(alignment: .leading, spacing: 16) {
             Text("Ход строительства")
                 .font(.headline)
+                .accessibilityAddTraits(.isHeader)
 
             VStack(spacing: 0) {
 
@@ -957,6 +1037,7 @@ private func dashboardGlass<Content: View>(
 
         Text(title)
             .font(.headline)
+            .accessibilityAddTraits(.isHeader)
 
         VStack(spacing: 0) {
             content()
@@ -964,6 +1045,10 @@ private func dashboardGlass<Content: View>(
         .padding()
         .background(.ultraThinMaterial)
         .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+        .overlay {
+            RoundedRectangle(cornerRadius: 24, style: .continuous)
+                .strokeBorder(ProjectUXColors.readableBorder, lineWidth: 1)
+        }
     }
 }
 
