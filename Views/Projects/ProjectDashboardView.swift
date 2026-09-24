@@ -10,7 +10,6 @@ extension Notification.Name {
 struct ProjectDashboardView: View {
 
     @EnvironmentObject var store: AppStore
-    @Environment(\.dismiss) private var dismiss
 
     let projectID: UUID
 
@@ -20,9 +19,6 @@ struct ProjectDashboardView: View {
 
     @State private var showProjectFilesSheet = false
     @State private var showContactsList = false
-
-    @State private var isFilesExpanded = false
-    @State private var areContactsExpanded = false
 
     // sheet для быстрой формы задачи
     @State private var showQuickTaskForm = false
@@ -362,76 +358,6 @@ struct ProjectDashboardView: View {
         )
     }
 
-    // MARK: - Файлы проекта (мини-секция)
-
-    private func filesMiniSection(_ project: Project) -> some View {
-
-        let photos = project.photoPaths.count
-        let docs = project.documentPaths.count
-        let hasPDF = project.projectPDFPath != nil
-
-        return VStack(alignment: .leading, spacing: 6) {
-
-            Button {
-                withAnimation(.spring(response: 0.3, dampingFraction: 0.9)) {
-                    isFilesExpanded.toggle()
-                }
-            } label: {
-                HStack(spacing: 8) {
-                    Image(systemName: "folder.fill")
-                        .foregroundStyle(ProjectUXColors.accentAction)
-                        .font(.subheadline)
-
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("Файлы проекта")
-                            .font(.subheadline.weight(.medium))
-                            .foregroundStyle(ProjectUXColors.primaryText)
-                        Text("Фото: \(photos) • Документы: \(docs) • PDF: \(hasPDF ? "есть" : "нет")")
-                            .font(.caption)
-                            .foregroundStyle(ProjectUXColors.secondaryText)
-                            .fixedSize(horizontal: false, vertical: true)
-                    }
-
-                    Spacer(minLength: 8)
-
-                    Image(systemName: "chevron.down")
-                        .font(.caption.weight(.semibold))
-                        .rotationEffect(.degrees(isFilesExpanded ? 180 : 0))
-                        .foregroundStyle(ProjectUXColors.secondaryText)
-                }
-                .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
-                .contentShape(Rectangle())
-            }
-            .buttonStyle(.plain)
-
-            if isFilesExpanded {
-
-                Divider()
-                    .padding(.leading, 32)
-                    .padding(.vertical, 4)
-
-                Button {
-                    showProjectFilesSheet = true
-                } label: {
-                    HStack(spacing: 10) {
-                        Image(systemName: "doc.on.doc")
-                            .foregroundStyle(ProjectUXColors.accentAction)
-                        Text("Открыть файлы проекта")
-                            .font(.caption.weight(.medium))
-                            .foregroundStyle(ProjectUXColors.primaryText)
-                        Spacer(minLength: 8)
-                        Image(systemName: "chevron.right")
-                            .font(.caption)
-                            .foregroundStyle(ProjectUXColors.secondaryText)
-                    }
-                    .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
-                    .contentShape(Rectangle())
-                }
-                .buttonStyle(.plain)
-            }
-        }
-    }
-
     // MARK: - Секция задач проекта
 
     private func tasksSection(_ project: Project) -> some View {
@@ -538,159 +464,6 @@ struct ProjectDashboardView: View {
             return ProjectUXColors.overdue
         }
         return ProjectUXColors.secondaryText
-    }
-
-    // MARK: - Управление проектом
-
-    private func managementSection(_ project: Project) -> some View {
-        dashboardGlass(title: "Управление проектом") {
-
-            NavigationLink {
-                ProjectExpensesView(projectID: project.id)
-                    .environmentObject(store)
-            } label: {
-                dashboardRow(
-                    icon: "creditcard",
-                    title: "Расходы проекта",
-                    subtitle: "Контроль бюджета и затрат",
-                    trailing: AnyView(Image(systemName: "chevron.right"))
-                )
-            }
-
-            Divider().padding(.leading, 40)
-
-            Button {
-                exportPDF(for: project)
-            } label: {
-                dashboardRow(
-                    icon: "doc.richtext",
-                    title: "Экспорт отчёта в PDF",
-                    subtitle: "Сводка по объекту, расходам, чек-листам",
-                    trailing: AnyView(Image(systemName: "square.and.arrow.up"))
-                )
-            }
-
-            Divider().padding(.leading, 40)
-
-            Button {
-                showChecklistReport = true
-            } label: {
-                dashboardRow(
-                    icon: "checklist",
-                    title: "Отчёт по чек-листам",
-                    subtitle: "Текущее состояние рабочих чек-листов",
-                    trailing: AnyView(Image(systemName: "chevron.right"))
-                )
-            }
-            .accessibilityIdentifier("project.checklistReport.entry")
-            .accessibilityLabel("Отчёт по чек-листам")
-        }
-    }
-
-    // MARK: - Контакты
-
-    private func contactsSection(_ project: Project) -> some View {
-
-        let favorites = project.contacts
-            .filter { $0.isFavorite }
-            .sorted { $0.name < $1.name }
-
-        return dashboardGlass(title: "Важные контакты") {
-
-            Button {
-                withAnimation(.spring(response: 0.3, dampingFraction: 0.9)) {
-                    areContactsExpanded.toggle()
-                }
-            } label: {
-                HStack(spacing: 12) {
-                    Image(systemName: "person.2.fill")
-                        .font(.title3)
-                        .foregroundColor(.primary)
-
-                    Text(contactsSummary(favorites))
-                        .font(.body.weight(.medium))
-
-                    Spacer()
-
-                    Image(systemName: "chevron.down")
-                        .rotationEffect(.degrees(areContactsExpanded ? 180 : 0))
-                        .foregroundStyle(.secondary)
-                }
-                .padding(.vertical, 4)
-            }
-            .buttonStyle(.plain)
-
-            if areContactsExpanded {
-
-                Divider().padding(.leading, 40)
-
-                if favorites.isEmpty {
-                    Button { showContactsList = true } label: {
-                        dashboardRow(
-                            icon: "person.crop.circle.badge.plus",
-                            title: "Добавить контакт",
-                            subtitle: "Создать первый контакт"
-                        )
-                    }
-                } else {
-
-                    ForEach(favorites) { contact in
-                        HStack {
-                            VStack(alignment: .leading, spacing: 4) {
-
-                                HStack(spacing: 6) {
-                                    Text(contact.name)
-                                        .font(.subheadline.weight(.medium))
-                                    if contact.isFavorite {
-                                        Image(systemName: "star.fill")
-                                            .foregroundColor(.yellow)
-                                            .font(.caption)
-                                    }
-                                }
-
-                                if !contact.role.isEmpty {
-                                    Text(contact.role)
-                                        .font(.footnote)
-                                        .foregroundStyle(.secondary)
-                                }
-
-                                Text(contact.phone)
-                                    .font(.footnote)
-                                    .foregroundStyle(.secondary)
-                            }
-
-                            Spacer()
-
-                            Button { call(contact.phone) } label: {
-                                Image(systemName: "phone.fill")
-                                    .foregroundColor(.primary)
-                                    .frame(width: 44, height: 44)
-                            }
-                            .accessibilityLabel("Позвонить")
-                        }
-                        .padding(.vertical, 4)
-
-                        Divider().padding(.leading, 40)
-                    }
-
-                    Button { showContactsList = true } label: {
-                        dashboardRow(
-                            icon: "book",
-                            title: "Открыть записную книжку",
-                            subtitle: "",
-                            trailing: AnyView(Image(systemName: "chevron.right"))
-                        )
-                    }
-                }
-            }
-        }
-    }
-
-    private func contactsSummary(_ arr: [ProjectContact]) -> String {
-        if arr.isEmpty { return "Контакты не заданы" }
-        if arr.count == 1 { return arr[0].name }
-        if arr.count == 2 { return "\(arr[0].name), \(arr[1].name)" }
-        return "\(arr[0].name), \(arr[1].name) +\(arr.count - 2)"
     }
 
     // MARK: - Замечания
@@ -924,11 +697,6 @@ struct ProjectDashboardView: View {
 
     // MARK: - Helpers
 
-    private func call(_ num: String) {
-        guard let url = URL(string: "tel://\(num)") else { return }
-        UIApplication.shared.open(url)
-    }
-
     /// The app is not localized, so `Locale.current` falls back to English.
     /// Month names follow the system language list instead.
     private func dateString(_ date: Date) -> String {
@@ -1044,45 +812,6 @@ private func dashboardGlass<Content: View>(
         }
     }
 }
-
-// MARK: - Dashboard Row (чёрные, жирные иконки)
-
-private func dashboardRow(
-    icon: String,
-    title: String,
-    subtitle: String,
-    trailing: AnyView? = nil
-) -> some View {
-
-    HStack(spacing: 14) {
-
-        Image(systemName: icon)
-            .font(.title3.weight(.bold))
-            .foregroundColor(.primary)
-
-        VStack(alignment: .leading, spacing: 2) {
-
-            Text(title)
-                .font(.body.weight(.medium))
-
-            if !subtitle.isEmpty {
-                Text(subtitle)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
-        }
-
-        Spacer()
-
-        if let trailing {
-            trailing
-                .foregroundStyle(.secondary)
-                .font(.caption)
-        }
-        }
-        .padding(.vertical, 8)
-        .frame(minHeight: 44)
-    }
 
 // MARK: - Экран списка контактов проекта
 
