@@ -40,21 +40,9 @@ struct ChecklistPackMeasurement: Equatable {
         total == 0 ? "Ещё не начато" : "\(done) из \(total)"
     }
 
-    /// Same Russian plural as the issues list. Count is shown only when it is greater than zero.
+    /// Same Russian plural as the project card and dashboard.
     static func remarksPhrase(_ count: Int) -> String {
-        let mod100 = count % 100
-        let mod10 = count % 10
-        let word: String
-        if (11...14).contains(mod100) {
-            word = "замечаний"
-        } else if mod10 == 1 {
-            word = "замечание"
-        } else if (2...4).contains(mod10) {
-            word = "замечания"
-        } else {
-            word = "замечаний"
-        }
-        return "\(count) \(word)"
+        ProjectUXCopy.remarksPhrase(count)
     }
 
     func accessibilityLabel(title: String) -> String {
@@ -193,6 +181,9 @@ private struct ChecklistTimelineRail: View {
     var fraction: Double
     var tone: ChecklistProgressTone
 
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.colorSchemeContrast) private var contrast
+
     private let markerSize: CGFloat = 16
     private let trackWidth: CGFloat = 4
 
@@ -209,11 +200,10 @@ private struct ChecklistTimelineRail: View {
                     Capsule()
                         .fill(ProjectUXColors.progressTrack)
                         .frame(width: trackWidth, height: trackHeight)
-                    if fillHeight > 0 {
-                        Capsule()
-                            .fill(tone.color)
-                            .frame(width: trackWidth, height: fillHeight)
-                    }
+                    Capsule()
+                        .fill(tone.color)
+                        .frame(width: trackWidth, height: fillHeight)
+                        .animation(ProjectProgressMotion.animation(reduceMotion: reduceMotion), value: fraction)
                 }
                 .frame(width: markerSize, height: trackHeight, alignment: .top)
             }
@@ -238,7 +228,10 @@ private struct ChecklistTimelineRail: View {
                 .fill(ProjectUXColors.progressActive)
         case .notStarted:
             Circle()
-                .strokeBorder(ProjectUXColors.secondaryText.opacity(0.55), lineWidth: 2)
+                .strokeBorder(
+                    ProjectUXColors.secondaryText.opacity(contrast == .increased ? 1 : 0.55),
+                    lineWidth: 2
+                )
                 .background(Circle().fill(ProjectUXColors.cardSurface))
         }
     }
@@ -292,9 +285,9 @@ private struct ChecklistPackCard: View {
                     .fixedSize(horizontal: false, vertical: true)
             }
 
-            ChecklistPackProgressBar(
+            ProjectProgressBar(
                 fraction: measurement.clampedFraction,
-                tone: measurement.tone
+                color: measurement.tone.color
             )
         }
         .accessibilityElement(children: .ignore)
@@ -339,28 +332,5 @@ private struct ChecklistTitleRow: Layout {
             at: CGPoint(x: bounds.maxX - trailing.width, y: bounds.minY + 2),
             proposal: ProposedViewSize(width: trailing.width, height: trailing.height)
         )
-    }
-}
-
-private struct ChecklistPackProgressBar: View {
-    var fraction: Double
-    var tone: ChecklistProgressTone
-
-    var body: some View {
-        let clamped = min(max(fraction, 0), 1)
-
-        GeometryReader { proxy in
-            ZStack(alignment: .leading) {
-                Capsule()
-                    .fill(ProjectUXColors.progressTrack)
-                if clamped > 0 {
-                    Capsule()
-                        .fill(tone.color)
-                        .frame(width: proxy.size.width * clamped)
-                }
-            }
-        }
-        .frame(height: 8)
-        .accessibilityHidden(true)
     }
 }

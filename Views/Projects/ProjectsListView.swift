@@ -221,11 +221,11 @@ struct ProjectsListView: View {
         }
 
         .onAppear {
-            recalcAllProjectsProgress(animated: false)
+            recalcAllProjectsProgress()
             updateDemoCoachmarkVisibility()
         }
         .onChange(of: store.projects) { _, _ in
-            recalcAllProjectsProgress(animated: true)
+            recalcAllProjectsProgress()
             updateDemoCoachmarkVisibility()
         }
         .onChange(of: store.isDemoMode) { _, isDemo in
@@ -237,7 +237,7 @@ struct ProjectsListView: View {
             }
         }
         .onReceive(NotificationCenter.default.publisher(for: .bcProgressDidChange)) { _ in
-            recalcAllProjectsProgress(animated: true)
+            recalcAllProjectsProgress()
         }
         .overlay {
             if shouldShowDemoCoachmark {
@@ -349,6 +349,105 @@ struct ProjectsListView: View {
         .background(ProjectUXColors.screenBackground)
     }
 
+    private func sortMenu(showsTitle: Bool) -> some View {
+        Menu {
+            ForEach(ProjectSort.allCases) { sort in
+                Button { selectedSort = sort } label: {
+                    Label(sort.title, systemImage: sort.iconName)
+                }
+            }
+        } label: {
+            HStack(spacing: 4) {
+                Image(systemName: selectedSort.iconName)
+                if showsTitle {
+                    Text(selectedSort.title)
+                        .lineLimit(1)
+                        .fixedSize(horizontal: true, vertical: false)
+                }
+                Image(systemName: "chevron.up.chevron.down")
+                    .font(.caption2)
+            }
+            .font(.subheadline)
+            .foregroundStyle(ProjectUXColors.accentAction)
+            .padding(.horizontal, 6)
+            .frame(minWidth: 44, minHeight: 44)
+            .background(.thinMaterial)
+            .clipShape(Capsule())
+            .accessibilityHidden(true)
+        }
+        .accessibilityLabel("Сортировка, \(selectedSort.title)")
+        .accessibilityAddTraits(.isButton)
+    }
+
+    private func calculatorButton(showsTitle: Bool) -> some View {
+        Button {
+            showCalculator = true
+        } label: {
+            Group {
+                if showsTitle {
+                    Text("Калькулятор")
+                        .font(.subheadline)
+                        .lineLimit(1)
+                        .fixedSize(horizontal: true, vertical: false)
+                        .padding(.horizontal, 6)
+                        .frame(minHeight: 44)
+                        .background(.thinMaterial)
+                        .clipShape(Capsule())
+                        .overlay(
+                            Capsule()
+                                .stroke(ProjectUXColors.accentAction.opacity(0.45), lineWidth: 1)
+                        )
+                } else {
+                    Image(systemName: "plus.forwardslash.minus")
+                        .font(.headline)
+                        .frame(width: 44, height: 44)
+                        .background(.thinMaterial)
+                        .clipShape(Circle())
+                        .overlay(
+                            Circle()
+                                .stroke(ProjectUXColors.accentAction.opacity(0.45), lineWidth: 1)
+                        )
+                }
+            }
+            .foregroundStyle(ProjectUXColors.accentAction)
+            .accessibilityHidden(true)
+        }
+        .buttonStyle(.plain)
+        .frame(minWidth: 44, minHeight: 44)
+        .accessibilityLabel("Калькулятор")
+        .accessibilityAddTraits(.isButton)
+        .accessibilityIdentifier("project.list.calculator")
+    }
+
+    private func newProjectButton(showsTitle: Bool) -> some View {
+        Button {
+            guard requireWritableAccess("создавать проекты") else { return }
+            showForm = true
+        } label: {
+            HStack(spacing: 4) {
+                if showsTitle {
+                    Text("Новый проект")
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                        .fixedSize(horizontal: true, vertical: false)
+                }
+                Image(systemName: "plus")
+                    .font(.headline)
+                    .frame(width: 44, height: 44)
+                    .background(ProjectUXColors.accentAction.opacity(0.18))
+                    .foregroundStyle(ProjectUXColors.accentAction)
+                    .clipShape(Circle())
+            }
+            .accessibilityHidden(true)
+        }
+        .buttonStyle(.plain)
+        .frame(minWidth: 44, minHeight: 44)
+        .accessibilityLabel("Новый проект")
+        .accessibilityAddTraits(.isButton)
+        .accessibilityIdentifier("project.list.new")
+    }
+
     private var controlsView: some View {
         VStack(spacing: 8) {
             Picker("Фильтр", selection: $selectedFilter) {
@@ -358,75 +457,30 @@ struct ProjectsListView: View {
             }
             .pickerStyle(.segmented)
 
-            HStack(alignment: .center, spacing: 8) {
-                // LEFT: сортировка
-                Menu {
-                    ForEach(ProjectSort.allCases) { sort in
-                        Button { selectedSort = sort } label: {
-                            Label(sort.title, systemImage: sort.iconName)
-                        }
-                    }
-                } label: {
+            HStack(spacing: 0) {
+                ViewThatFits(in: .horizontal) {
+                    sortMenu(showsTitle: true)
+                    sortMenu(showsTitle: false)
+                }
+                .fixedSize(horizontal: true, vertical: false)
+                .layoutPriority(1)
+
+                Spacer(minLength: 8)
+
+                ViewThatFits(in: .horizontal) {
                     HStack(spacing: 6) {
-                        Image(systemName: selectedSort.iconName)
-
-                        Text(selectedSort.title)
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.85)
-
-                        Image(systemName: "chevron.up.chevron.down")
-                            .font(.caption2)
+                        calculatorButton(showsTitle: true)
+                        newProjectButton(showsTitle: true)
                     }
-                    .font(.subheadline)
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 6)
-                    .background(.thinMaterial)
-                    .clipShape(Capsule())
+                    .fixedSize(horizontal: true, vertical: false)
+
+                    HStack(spacing: 6) {
+                        calculatorButton(showsTitle: false)
+                        newProjectButton(showsTitle: false)
+                    }
+                    .fixedSize(horizontal: true, vertical: false)
                 }
-
-                Spacer(minLength: 8)
-
-                // CENTER: калькулятор — компактный pill как “Ручная”, без иконки
-                Button {
-                    showCalculator = true
-                } label: {
-                    Text("Калькулятор")
-                        .font(.subheadline)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.9)
-                        .padding(.horizontal, 10)
-                        .padding(.vertical, 6)
-                        .background(.thinMaterial)
-                        .clipShape(Capsule())
-                        .overlay(
-                            Capsule()
-                                .stroke(ProjectUXColors.accentAction.opacity(0.45), lineWidth: 1)
-                        )
-                        .foregroundStyle(ProjectUXColors.accentAction)
-                        .accessibilityLabel("Калькулятор")
-                }
-                .buttonStyle(.plain)
-
-                Spacer(minLength: 8)
-
-                // RIGHT: новый проект
-                Text("Новый проект")
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
-
-                Button {
-                    guard requireWritableAccess("создавать проекты") else { return }
-                    showForm = true
-                } label: {
-                    Image(systemName: "plus")
-                        .font(.headline)
-                        .frame(width: 44, height: 44)
-                        .background(ProjectUXColors.accentAction.opacity(0.18))
-                        .foregroundStyle(ProjectUXColors.accentAction)
-                        .clipShape(Circle())
-                }
-                .buttonStyle(.plain)
-                .accessibilityLabel("Новый проект")
+                .layoutPriority(1)
             }
 
             NavigationLink {
@@ -725,16 +779,12 @@ struct ProjectsListView: View {
 
     // MARK: - Progress Cache
 
-    private func recalcAllProjectsProgress(animated: Bool) {
+    private func recalcAllProjectsProgress() {
         var dict: [UUID: Double] = [:]
         for project in store.projects {
             dict[project.id] = overallProgress(for: project)
         }
-        if animated {
-            withAnimation { progressCache = dict }
-        } else {
-            progressCache = dict
-        }
+        progressCache = dict
     }
 
     private func updateDemoCoachmarkVisibility() {
@@ -765,7 +815,12 @@ struct ProjectsListView: View {
         Button(action: action) {
             ViewThatFits(in: .horizontal) {
                 cardActionLabel(title, systemImage: systemImage)
-                cardActionLabel(compactTitle ?? title, systemImage: systemImage)
+                if let compactTitle, compactTitle != title {
+                    cardActionLabel(compactTitle, systemImage: systemImage)
+                }
+                Image(systemName: systemImage)
+                    .font(.caption2.weight(.semibold))
+                    .frame(minWidth: 44, minHeight: 44)
             }
             .foregroundStyle(foreground)
             .frame(maxWidth: .infinity, minHeight: 44)
@@ -773,8 +828,7 @@ struct ProjectsListView: View {
             .accessibilityHidden(true)
         }
         .buttonStyle(.plain)
-        .frame(maxWidth: .infinity)
-        .frame(height: 44)
+        .frame(maxWidth: .infinity, minHeight: 44)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(accessibilityLabel)
         .accessibilityAddTraits(.isButton)
@@ -787,8 +841,10 @@ struct ProjectsListView: View {
             Image(systemName: systemImage)
             Text(title)
                 .lineLimit(1)
+                .fixedSize(horizontal: true, vertical: false)
         }
         .font(.caption2.weight(.semibold))
+        .fixedSize(horizontal: true, vertical: false)
     }
 
     private func projectCardSummary(
@@ -825,25 +881,22 @@ struct ProjectsListView: View {
             return ProjectCardDeadline(text: "Завершён", color: ProjectUXColors.progressComplete, readableOnCover: false)
         }
         if diff > 0 {
-            return ProjectCardDeadline(text: "Осталось \(diff) \(dayWord(diff))", color: ProjectUXColors.secondaryText, readableOnCover: true)
+            return ProjectCardDeadline(
+                text: ProjectUXCopy.remainingDays(diff),
+                compactText: ProjectUXCopy.compactRemainingDays(diff),
+                color: ProjectUXColors.secondaryText,
+                readableOnCover: true
+            )
         }
         if diff == 0 {
             return ProjectCardDeadline(text: "Сегодня", color: ProjectUXColors.progressActive, readableOnCover: true)
         }
         return ProjectCardDeadline(
-            text: "Просрочено на \(abs(diff)) \(dayWord(abs(diff)))",
+            text: ProjectUXCopy.overdueDays(abs(diff)),
+            compactText: ProjectUXCopy.compactOverdueDays(abs(diff)),
             color: ProjectUXColors.overdue,
             readableOnCover: false
         )
-    }
-
-    private func dayWord(_ count: Int) -> String {
-        let mod100 = abs(count) % 100
-        let mod10 = abs(count) % 10
-        if (11...14).contains(mod100) { return "дней" }
-        if mod10 == 1 { return "день" }
-        if (2...4).contains(mod10) { return "дня" }
-        return "дней"
     }
 
     private func overallProgress(for project: Project) -> Double {
@@ -928,6 +981,8 @@ private final class ProjectCardCoverView: UIView {
 
 private struct ProjectCardDeadline {
     let text: String
+    /// Shown only when `text` does not fit. «Сегодня» and «Завершён» stay as they are.
+    var compactText: String? = nil
     let color: Color
     /// Neutral deadline follows the title ink. Red and green keep their own colors.
     let readableOnCover: Bool
@@ -1130,21 +1185,40 @@ private struct ProjectCardView: View {
     }
 
     private var statusRow: some View {
-        HStack(spacing: 6) {
+        HStack(alignment: .firstTextBaseline, spacing: 6) {
             if let deadline {
-                Text(deadline.text)
-                    .font(.caption2.weight(.semibold))
-                    .foregroundStyle(deadline.readableOnCover ? titleColor : deadline.color)
-                    .lineLimit(2)
+                ViewThatFits(in: .horizontal) {
+                    statusPhrase(deadline.text, color: deadlineInk(deadline))
+                    if let compact = deadline.compactText {
+                        statusPhrase(compact, color: deadlineInk(deadline))
+                    }
+                }
+                .accessibilityHidden(true)
             }
             if issueCount > 0 {
                 Text(ProjectIssuesFormatting.remarksPhrase(issueCount))
                     .font(.caption2.weight(.semibold))
                     .foregroundStyle(ProjectUXColors.issue)
                     .lineLimit(1)
+                    .fixedSize(horizontal: true, vertical: false)
+                    .layoutPriority(1)
+                    .accessibilityHidden(true)
             }
             Spacer(minLength: 0)
         }
+    }
+
+    private func deadlineInk(_ deadline: ProjectCardDeadline) -> Color {
+        deadline.readableOnCover ? titleColor : deadline.color
+    }
+
+    /// One line at its natural width, so `ViewThatFits` can choose the full phrase or the short one.
+    private func statusPhrase(_ text: String, color: Color) -> some View {
+        Text(text)
+            .font(.caption2.weight(.semibold))
+            .foregroundStyle(color)
+            .lineLimit(1)
+            .fixedSize(horizontal: true, vertical: false)
     }
 
     private var progressBlock: some View {
@@ -1159,18 +1233,7 @@ private struct ProjectCardView: View {
                     .foregroundStyle(progressColor)
                     .monospacedDigit()
             }
-            GeometryReader { proxy in
-                ZStack(alignment: .leading) {
-                    Capsule().fill(ProjectUXColors.progressTrack)
-                    if progress > 0 {
-                        Capsule()
-                            .fill(progressColor)
-                            .frame(width: max(0, proxy.size.width * min(max(progress, 0), 1)))
-                    }
-                }
-            }
-            .frame(height: 6)
-            .accessibilityHidden(true)
+            ProjectProgressBar(fraction: progress, color: progressColor)
         }
     }
 }

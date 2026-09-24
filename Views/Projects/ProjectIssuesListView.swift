@@ -2,19 +2,7 @@ import SwiftUI
 
 enum ProjectIssuesFormatting {
     static func remarksPhrase(_ count: Int) -> String {
-        let mod100 = count % 100
-        let mod10 = count % 10
-        let word: String
-        if (11...14).contains(mod100) {
-            word = "замечаний"
-        } else if mod10 == 1 {
-            word = "замечание"
-        } else if (2...4).contains(mod10) {
-            word = "замечания"
-        } else {
-            word = "замечаний"
-        }
-        return "\(count) \(word)"
+        ProjectUXCopy.remarksPhrase(count)
     }
 
     static func dashboardAccessibilityLabel(count: Int) -> String {

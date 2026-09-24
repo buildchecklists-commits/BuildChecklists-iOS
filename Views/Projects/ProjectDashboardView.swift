@@ -238,19 +238,7 @@ struct ProjectDashboardView: View {
     }
 
     private func summaryProgressBar(fraction: Double, color: Color) -> some View {
-        GeometryReader { proxy in
-            ZStack(alignment: .leading) {
-                Capsule()
-                    .fill(ProjectUXColors.progressTrack)
-                if fraction > 0 {
-                    Capsule()
-                        .fill(color)
-                        .frame(width: max(0, proxy.size.width * fraction))
-                }
-            }
-        }
-        .frame(height: 8)
-        .accessibilityHidden(true)
+        ProjectProgressBar(fraction: fraction, color: color)
     }
 
     @ViewBuilder
@@ -307,11 +295,11 @@ struct ProjectDashboardView: View {
             return ("Завершён", ProjectUXColors.progressComplete)
         }
         if diff > 0 {
-            return ("Осталось \(diff) дн.", ProjectUXColors.secondaryText)
+            return (ProjectUXCopy.remainingDays(diff), ProjectUXColors.secondaryText)
         } else if diff == 0 {
             return ("Сегодня", ProjectUXColors.progressActive)
         } else {
-            return ("Просрочено на \(abs(diff)) дн.", ProjectUXColors.overdue)
+            return (ProjectUXCopy.overdueDays(abs(diff)), ProjectUXColors.overdue)
         }
     }
 
@@ -941,10 +929,15 @@ struct ProjectDashboardView: View {
         UIApplication.shared.open(url)
     }
 
+    /// The app is not localized, so `Locale.current` falls back to English.
+    /// Month names follow the system language list instead.
     private func dateString(_ date: Date) -> String {
-        let f = DateFormatter()
-        f.dateStyle = .medium
-        return f.string(from: date)
+        let formatter = DateFormatter()
+        let identifier = Locale.preferredLanguages.first ?? Locale.current.identifier
+        formatter.locale = Locale(identifier: identifier)
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .none
+        return formatter.string(from: date)
     }
 }
 
@@ -1044,9 +1037,9 @@ private func dashboardGlass<Content: View>(
         }
         .padding()
         .background(.ultraThinMaterial)
-        .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
         .overlay {
-            RoundedRectangle(cornerRadius: 24, style: .continuous)
+            RoundedRectangle(cornerRadius: 20, style: .continuous)
                 .strokeBorder(ProjectUXColors.readableBorder, lineWidth: 1)
         }
     }

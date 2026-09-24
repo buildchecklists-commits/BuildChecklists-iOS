@@ -35,8 +35,8 @@ enum ProjectUXColors {
         Color(red: 17.0 / 255.0, green: 17.0 / 255.0, blue: 17.0 / 255.0)
     }
 
-    /// Unfilled progress track. Gray in both appearances. Not used for a low percent.
-    static var progressTrack: Color { Color(.quaternarySystemFill) }
+    /// Unfilled progress track. Quiet in the normal appearance, stronger when Increase Contrast is on.
+    static var progressTrack: Color { Color(uiColor: projectProgressTrack) }
 
     /// Work in progress. Same project accent, not red and not white in dark mode.
     static var progressActive: Color { Color(uiColor: projectAccent) }
@@ -74,5 +74,85 @@ enum ProjectUXColors {
             return .separator
         }
         return UIColor.separator.withAlphaComponent(0.35)
+    }
+
+    /// Empty track and timeline line. Separator in Increase Contrast, otherwise the quiet system fill.
+    private static let projectProgressTrack = UIColor { traits in
+        if traits.accessibilityContrast == .high {
+            return .separator
+        }
+        return .quaternarySystemFill
+    }
+}
+
+/// Short fill motion for the new progress bars. Markers, labels, and theme changes are not animated here.
+enum ProjectProgressMotion {
+    static let duration: TimeInterval = 0.25
+
+    static func animation(reduceMotion: Bool) -> Animation? {
+        reduceMotion ? nil : .easeOut(duration: duration)
+    }
+}
+
+/// Russian phrases shared by the new project card, dashboard, and timeline.
+enum ProjectUXCopy {
+    static func remarksPhrase(_ count: Int) -> String {
+        "\(count) \(plural(count, one: "замечание", few: "замечания", many: "замечаний"))"
+    }
+
+    static func dayWord(_ count: Int) -> String {
+        plural(count, one: "день", few: "дня", many: "дней")
+    }
+
+    static func remainingDays(_ count: Int) -> String {
+        "Осталось \(count) \(dayWord(count))"
+    }
+
+    static func overdueDays(_ count: Int) -> String {
+        "Просрочено на \(count) \(dayWord(count))"
+    }
+
+    /// Short form used only when the full phrase does not fit. The period is intentional.
+    static func compactRemainingDays(_ count: Int) -> String {
+        "Осталось \(count) дн."
+    }
+
+    static func compactOverdueDays(_ count: Int) -> String {
+        "Просрочено на \(count) дн."
+    }
+
+    private static func plural(_ count: Int, one: String, few: String, many: String) -> String {
+        let value = abs(count)
+        let mod100 = value % 100
+        let mod10 = value % 10
+        if (11...14).contains(mod100) { return many }
+        if mod10 == 1 { return one }
+        if (2...4).contains(mod10) { return few }
+        return many
+    }
+}
+
+/// Horizontal progress scale used by the new project screens. Only the filled width animates.
+struct ProjectProgressBar: View {
+    var fraction: Double
+    var color: Color
+
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    private var clamped: Double { min(max(fraction, 0), 1) }
+
+    var body: some View {
+        GeometryReader { proxy in
+            ZStack(alignment: .leading) {
+                Capsule()
+                    .fill(ProjectUXColors.progressTrack)
+                Capsule()
+                    .fill(color)
+                    .frame(width: max(0, proxy.size.width * clamped))
+                    .animation(ProjectProgressMotion.animation(reduceMotion: reduceMotion), value: clamped)
+            }
+        }
+        .frame(height: 8)
+        .accessibilityHidden(true)
     }
 }
