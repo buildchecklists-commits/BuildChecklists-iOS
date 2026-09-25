@@ -11,7 +11,7 @@ nonisolated enum PlanFactReportResult: Equatable {
 nonisolated enum PlanFactReportRenderer {
     static let documentTitle = "План/факт"
 
-    static func render(_ snapshot: ProjectReportSnapshot) -> PlanFactReportResult {
+    static func render(_ snapshot: ProjectReportSnapshot, includeCharts: Bool = false) -> PlanFactReportResult {
         let money = visibleMoney(snapshot.moneyRows)
         let schedule = snapshot.schedule.filter(\.hasAnyDate)
         guard !money.isEmpty || !schedule.isEmpty else { return .noContent }
@@ -23,7 +23,7 @@ nonisolated enum PlanFactReportRenderer {
                 formedAt: snapshot.metadata.generatedAt,
                 runningTitle: snapshot.metadata.name
             )
-            draw(snapshot, money: money, schedule: schedule, on: page)
+            draw(snapshot, money: money, schedule: schedule, on: page, includeCharts: includeCharts)
         }
         return .pdf(data)
     }
@@ -32,11 +32,22 @@ nonisolated enum PlanFactReportRenderer {
         _ snapshot: ProjectReportSnapshot,
         money: [ProjectReportMoneyRow],
         schedule: [ProjectReportScheduleRow],
-        on page: ReportPage
+        on page: ReportPage,
+        includeCharts: Bool
     ) {
         drawHeader(snapshot, on: page)
         drawMoneySummary(snapshot.moneyRows, on: page)
+        if includeCharts {
+            ReportCharts.drawPlanFact(snapshot.moneyRows, on: page)
+            ReportCharts.drawExpenseStructure(
+                snapshot.moneyRows.map { ($0.stage.title, $0.fact) },
+                on: page
+            )
+        }
         drawMoneyTable(money, on: page)
+        if includeCharts, !schedule.isEmpty {
+            ReportCharts.drawScheduleDeviation(snapshot, on: page)
+        }
         drawScheduleTable(schedule, on: page)
     }
 

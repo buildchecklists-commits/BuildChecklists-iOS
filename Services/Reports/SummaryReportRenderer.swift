@@ -4,7 +4,7 @@ import UIKit
 nonisolated enum SummaryReportRenderer {
     static let documentTitle = "Сводный отчёт"
 
-    static func pdfData(for snapshot: ProjectReportSnapshot) -> Data {
+    static func pdfData(for snapshot: ProjectReportSnapshot, includeCharts: Bool = false) -> Data {
         let bounds = CGRect(origin: .zero, size: ReportPage.pageSize)
         let renderer = UIGraphicsPDFRenderer(bounds: bounds)
         return renderer.pdfData { context in
@@ -13,17 +13,17 @@ nonisolated enum SummaryReportRenderer {
                 formedAt: snapshot.metadata.generatedAt,
                 runningTitle: snapshot.metadata.name
             )
-            draw(snapshot, on: page)
+            draw(snapshot, on: page, includeCharts: includeCharts)
         }
     }
 
-    private static func draw(_ snapshot: ProjectReportSnapshot, on page: ReportPage) {
+    private static func draw(_ snapshot: ProjectReportSnapshot, on page: ReportPage, includeCharts: Bool) {
         drawHeader(snapshot, on: page)
         drawSummary(snapshot, on: page)
-        drawProgress(snapshot, on: page)
-        drawSchedule(snapshot, on: page)
+        drawProgress(snapshot, on: page, includeCharts: includeCharts)
+        drawSchedule(snapshot, on: page, includeCharts: includeCharts)
         drawIssues(snapshot, on: page)
-        drawExpenses(snapshot, on: page)
+        drawExpenses(snapshot, on: page, includeCharts: includeCharts)
         drawTasks(snapshot, on: page)
         drawContacts(snapshot, on: page)
     }
@@ -59,7 +59,10 @@ nonisolated enum SummaryReportRenderer {
         }
     }
 
-    private static func drawProgress(_ snapshot: ProjectReportSnapshot, on page: ReportPage) {
+    private static func drawProgress(_ snapshot: ProjectReportSnapshot, on page: ReportPage, includeCharts: Bool) {
+        if includeCharts {
+            ReportCharts.drawProgress(snapshot.packs, on: page)
+        }
         let rows = snapshot.packs.map { pack -> [String] in
             let percent = pack.readState == .ready
                 ? "\(ChecklistReportProgress.roundedDisplayPercent(pack.progress))%"
@@ -84,9 +87,12 @@ nonisolated enum SummaryReportRenderer {
         )
     }
 
-    private static func drawSchedule(_ snapshot: ProjectReportSnapshot, on page: ReportPage) {
+    private static func drawSchedule(_ snapshot: ProjectReportSnapshot, on page: ReportPage, includeCharts: Bool) {
         let rows = snapshot.schedule.filter(scheduleRowHasContent)
         guard !rows.isEmpty else { return }
+        if includeCharts {
+            ReportCharts.drawScheduleDeviation(snapshot, on: page)
+        }
         let columns = scheduleColumns
         page.drawSection(
             "Сроки",
@@ -267,7 +273,14 @@ nonisolated enum SummaryReportRenderer {
         drawTable("Замечания", columns: columns, rows: rows, on: page)
     }
 
-    private static func drawExpenses(_ snapshot: ProjectReportSnapshot, on page: ReportPage) {
+    private static func drawExpenses(_ snapshot: ProjectReportSnapshot, on page: ReportPage, includeCharts: Bool) {
+        if includeCharts {
+            ReportCharts.drawPlanFact(snapshot.moneyRows, on: page)
+            ReportCharts.drawExpenseStructure(
+                snapshot.moneyRows.map { ($0.stage.title, $0.fact) },
+                on: page
+            )
+        }
         let rows = snapshot.moneyRows
             .filter { $0.fact > 0 }
             .map { [ $0.stage.title, ReportFormat.money($0.fact) ] }

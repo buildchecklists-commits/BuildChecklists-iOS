@@ -10,7 +10,7 @@ nonisolated enum ExpensesReportResult: Equatable {
 nonisolated enum ExpensesReportRenderer {
     static let documentTitle = "Отчёт по расходам"
 
-    static func render(_ snapshot: ProjectReportSnapshot) -> ExpensesReportResult {
+    static func render(_ snapshot: ProjectReportSnapshot, includeCharts: Bool = false) -> ExpensesReportResult {
         guard !snapshot.expenses.isEmpty else { return .noContent }
         let bounds = CGRect(origin: .zero, size: ReportPage.pageSize)
         let renderer = UIGraphicsPDFRenderer(bounds: bounds)
@@ -20,14 +20,17 @@ nonisolated enum ExpensesReportRenderer {
                 formedAt: snapshot.metadata.generatedAt,
                 runningTitle: snapshot.metadata.name
             )
-            draw(snapshot, on: page)
+            draw(snapshot, on: page, includeCharts: includeCharts)
         }
         return .pdf(data)
     }
 
-    private static func draw(_ snapshot: ProjectReportSnapshot, on page: ReportPage) {
+    private static func draw(_ snapshot: ProjectReportSnapshot, on page: ReportPage, includeCharts: Bool) {
         let expenses = snapshot.expenses
         drawHeader(snapshot, expenses: expenses, on: page)
+        if includeCharts {
+            ReportCharts.drawExpenseStructure(expenses, on: page)
+        }
         var plain: [[String]] = []
         var sectionDrawn = false
         func openSectionIfNeeded() {
