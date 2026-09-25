@@ -13,6 +13,7 @@
 		CF9A11142E09212600C0FF12 /* ChecklistReportPDFRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF9A11132E09212600C0FF12 /* ChecklistReportPDFRenderer.swift */; };
 		A1B2C3D42E25000100C0FF03 /* ReportPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D42E25000100C0FF02 /* ReportPage.swift */; };
 		A1B2C3D42E25000100C0FF05 /* ProjectReportSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D42E25000100C0FF04 /* ProjectReportSnapshot.swift */; };
+		A1B2C3D42E25000100C0FF07 /* SummaryReportRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D42E25000100C0FF06 /* SummaryReportRenderer.swift */; };
 		CF9A11162E09212600C0FF13 /* ChecklistReportExportFile.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF9A11152E09212600C0FF13 /* ChecklistReportExportFile.swift */; };
 		CF9A11182E09212600C0FF14 /* ChecklistReportExportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF9A11172E09212600C0FF14 /* ChecklistReportExportView.swift */; };
 		CF9A11004E09212600C0FF01 /* ProjectIssuesListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF9A11003E09212600C0FF01 /* ProjectIssuesListView.swift */; };
@@ -131,6 +132,7 @@
 		CF9A11132E09212600C0FF12 /* ChecklistReportPDFRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChecklistReportPDFRenderer.swift; sourceTree = "<group>"; };
 		A1B2C3D42E25000100C0FF02 /* ReportPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportPage.swift; sourceTree = "<group>"; };
 		A1B2C3D42E25000100C0FF04 /* ProjectReportSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectReportSnapshot.swift; sourceTree = "<group>"; };
+		A1B2C3D42E25000100C0FF06 /* SummaryReportRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SummaryReportRenderer.swift; sourceTree = "<group>"; };
 		CF9A11152E09212600C0FF13 /* ChecklistReportExportFile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChecklistReportExportFile.swift; sourceTree = "<group>"; };
 		CF9A11172E09212600C0FF14 /* ChecklistReportExportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChecklistReportExportView.swift; sourceTree = "<group>"; };
 		CF9A11003E09212600C0FF01 /* ProjectIssuesListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectIssuesListView.swift; sourceTree = "<group>"; };
@@ -1174,6 +1176,7 @@
 			children = (
 				A1B2C3D42E25000100C0FF02 /* ReportPage.swift */,
 				A1B2C3D42E25000100C0FF04 /* ProjectReportSnapshot.swift */,
+				A1B2C3D42E25000100C0FF06 /* SummaryReportRenderer.swift */,
 			);
 			path = Reports;
 			sourceTree = "<group>";
@@ -1525,6 +1528,7 @@
 				CF9A11142E09212600C0FF12 /* ChecklistReportPDFRenderer.swift in Sources */,
 				A1B2C3D42E25000100C0FF03 /* ReportPage.swift in Sources */,
 				A1B2C3D42E25000100C0FF05 /* ProjectReportSnapshot.swift in Sources */,
+				A1B2C3D42E25000100C0FF07 /* SummaryReportRenderer.swift in Sources */,
 				CF9A11162E09212600C0FF13 /* ChecklistReportExportFile.swift in Sources */,
 				CF9A11182E09212600C0FF14 /* ChecklistReportExportView.swift in Sources */,
 				CFE7AFAF2EBDA46D00723E05 /* WallsProgressStore.swift in Sources */,
