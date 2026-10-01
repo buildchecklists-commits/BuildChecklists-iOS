@@ -59,7 +59,7 @@ nonisolated enum ReportFormat {
         formatter.maximumFractionDigits = 2
         formatter.usesGroupingSeparator = true
         let body = formatter.string(from: amount as NSDecimalNumber) ?? "0.00"
-        return body + " ₽"
+        return body + "\u{00A0}₽"
     }
 }
 
@@ -544,14 +544,45 @@ nonisolated final class ReportPage {
         }
         var lines: [String] = []
         var current = ""
+        func fits(_ value: String) -> Bool {
+            (value as NSString).size(withAttributes: attributes).width <= width
+        }
+        func appendWrappedToken(_ token: String) {
+            guard !token.isEmpty else { return }
+            if fits(token) {
+                lines.append(token)
+                return
+            }
+            var piece = ""
+            for character in token {
+                let next = piece + String(character)
+                if piece.isEmpty || fits(next) {
+                    piece = next
+                } else {
+                    lines.append(piece)
+                    piece = String(character)
+                }
+            }
+            if !piece.isEmpty { lines.append(piece) }
+        }
         for character in text {
             let next = current + String(character)
-            if current.isEmpty || (next as NSString).size(withAttributes: attributes).width <= width {
+            if current.isEmpty || fits(next) {
                 current = next
-            } else {
-                lines.append(current)
-                current = String(character)
+                continue
             }
+            if let index = current.lastIndex(of: " "), !current[..<index].isEmpty {
+                lines.append(String(current[..<index]))
+                let tail = String(current[current.index(after: index)...])
+                current = tail + String(character)
+                if !fits(current) {
+                    appendWrappedToken(current)
+                    current = ""
+                }
+                continue
+            }
+            lines.append(current)
+            current = String(character)
         }
         if !current.isEmpty { lines.append(current) }
         return lines.isEmpty ? [text] : lines

@@ -94,11 +94,11 @@ nonisolated enum PlanFactReportRenderer {
         drawTable(
             "Бюджет по этапам",
             columns: [
-                ReportColumn(title: "Этап", fraction: 0.24),
+                ReportColumn(title: "Этап", fraction: 0.21),
                 ReportColumn(title: "План", fraction: 0.17, trailing: true, monospacedDigits: true),
                 ReportColumn(title: "Факт", fraction: 0.17, trailing: true, monospacedDigits: true),
-                ReportColumn(title: "Отклонение", fraction: 0.24),
-                ReportColumn(title: "Состояние", fraction: 0.18)
+                ReportColumn(title: "Отклонение", fraction: 0.26),
+                ReportColumn(title: "Состояние", fraction: 0.19)
             ],
             rows: tableRows,
             on: page
