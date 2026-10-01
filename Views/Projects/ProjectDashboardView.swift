@@ -16,6 +16,7 @@ struct ProjectDashboardView: View {
     @State private var showShareSheet = false
     @State private var reportURL: URL?
     @State private var showChecklistReport = false
+    @State private var showReports = false
 
     @State private var showProjectFilesSheet = false
     @State private var showContactsList = false
@@ -29,6 +30,7 @@ struct ProjectDashboardView: View {
     @State private var issues: [ChecklistIssueRef] = []
     @State private var issuesLoadGeneration = 0
     @Environment(\.scenePhase) private var scenePhase
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     private var project: Project? {
         store.projects.first(where: { $0.id == projectID })
@@ -39,7 +41,7 @@ struct ProjectDashboardView: View {
     var body: some View {
         Group {
             if let project {
-                ScrollView {
+                OfferedWidthBox {
                     VStack(spacing: 26) {
 
                         headerCard(project)
@@ -56,12 +58,19 @@ struct ProjectDashboardView: View {
                     }
                     .padding(.horizontal)
                     .padding(.bottom, 32)
-                    .frame(maxWidth: 640)
-                    .frame(maxWidth: .infinity)
                 }
                 .background(ProjectUXColors.screenBackground)
                 .navigationTitle(project.name)
                 .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .principal) {
+                        Text(project.name)
+                            .font(.headline.weight(.semibold))
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.45)
+                            .accessibilityAddTraits(.isHeader)
+                    }
+                }
 
                 .sheet(isPresented: $showShareSheet) {
                     if let url = reportURL {
@@ -71,6 +80,12 @@ struct ProjectDashboardView: View {
                 .sheet(isPresented: $showChecklistReport) {
                     NavigationStack {
                         ChecklistReportExportView(projectID: project.id)
+                            .environmentObject(store)
+                    }
+                }
+                .sheet(isPresented: $showReports) {
+                    NavigationStack {
+                        ReportExportView(projectID: project.id)
                             .environmentObject(store)
                     }
                 }
@@ -127,43 +142,108 @@ struct ProjectDashboardView: View {
         let clamped = min(max(projectProgress, 0), 1)
 
         return VStack(alignment: .leading, spacing: 12) {
-            ViewThatFits(in: .horizontal) {
-                HStack(alignment: .firstTextBaseline, spacing: 12) {
+            if dynamicTypeSize.isAccessibilitySize {
+                VStack(alignment: .leading, spacing: 6) {
                     progressNumber(percentage, color: progressColor)
-                    Spacer(minLength: 12)
                     if let end = project.dateEnd {
-                        deadlineLabel(deadlineStatus(end, isComplete: isComplete), alignment: .trailing)
+                        UnbrokenText(
+                            text: deadlineStatus(end, isComplete: isComplete).text,
+                            textStyle: .subheadline,
+                            weight: .semibold,
+                            color: deadlineStatus(end, isComplete: isComplete).color,
+                            maxLines: 2
+                        )
                     }
                 }
-                VStack(alignment: .leading, spacing: 4) {
-                    progressNumber(percentage, color: progressColor)
-                    if let end = project.dateEnd {
-                        deadlineLabel(deadlineStatus(end, isComplete: isComplete), alignment: .leading)
+                .frame(maxWidth: .infinity, alignment: .leading)
+            } else {
+                ViewThatFits(in: .horizontal) {
+                    HStack(alignment: .firstTextBaseline, spacing: 12) {
+                        progressNumber(percentage, color: progressColor)
+                            .fixedSize(horizontal: true, vertical: false)
+                        Spacer(minLength: 12)
+                        if let end = project.dateEnd {
+                            deadlineLabel(deadlineStatus(end, isComplete: isComplete), alignment: .trailing)
+                                .lineLimit(1)
+                                .fixedSize(horizontal: true, vertical: false)
+                        }
                     }
+                    VStack(alignment: .leading, spacing: 4) {
+                        progressNumber(percentage, color: progressColor)
+                        if let end = project.dateEnd {
+                            UnbrokenText(
+                                text: deadlineStatus(end, isComplete: isComplete).text,
+                                textStyle: .subheadline,
+                                weight: .semibold,
+                                color: deadlineStatus(end, isComplete: isComplete).color,
+                                maxLines: 2
+                            )
+                        }
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
                 }
             }
 
             summaryProgressBar(fraction: clamped, color: progressColor)
 
             if !project.address.isEmpty {
-                Text(project.address)
-                    .font(.subheadline)
-                    .foregroundStyle(ProjectUXColors.secondaryText)
-                    .fixedSize(horizontal: false, vertical: true)
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                UnbrokenText(
+                    text: project.address,
+                    textStyle: .subheadline,
+                    color: ProjectUXColors.secondaryText,
+                    maxLines: 4
+                )
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
 
             if let manager = project.manager?.trimmingCharacters(in: .whitespacesAndNewlines),
                !manager.isEmpty {
-                HStack(alignment: .firstTextBaseline, spacing: 6) {
-                    Image(systemName: "person.fill")
-                        .accessibilityHidden(true)
-                    Text("Ответственный: \(manager)")
+                if dynamicTypeSize.isAccessibilitySize {
+                    VStack(alignment: .leading, spacing: 2) {
+                        UnbrokenText(
+                            text: "Ответственный",
+                            textStyle: .subheadline,
+                            color: ProjectUXColors.secondaryText,
+                            maxLines: 1
+                        )
+                        UnbrokenText(
+                            text: manager,
+                            textStyle: .subheadline,
+                            weight: .semibold,
+                            color: ProjectUXColors.primaryText,
+                            maxLines: 2
+                        )
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                } else {
+                    ViewThatFits(in: .horizontal) {
+                        HStack(alignment: .firstTextBaseline, spacing: 6) {
+                            Image(systemName: "person.fill")
+                                .accessibilityHidden(true)
+                            Text("Ответственный: \(manager)")
+                                .lineLimit(1)
+                                .fixedSize(horizontal: true, vertical: false)
+                        }
+                        .font(.subheadline)
+                        .foregroundStyle(ProjectUXColors.secondaryText)
+                        VStack(alignment: .leading, spacing: 2) {
+                            UnbrokenText(
+                                text: "Ответственный",
+                                textStyle: .subheadline,
+                                color: ProjectUXColors.secondaryText,
+                                maxLines: 1
+                            )
+                            UnbrokenText(
+                                text: manager,
+                                textStyle: .subheadline,
+                                weight: .semibold,
+                                color: ProjectUXColors.primaryText,
+                                maxLines: 2
+                            )
+                        }
                         .frame(maxWidth: .infinity, alignment: .leading)
+                    }
                 }
-                .font(.subheadline)
-                .foregroundStyle(ProjectUXColors.secondaryText)
-                .fixedSize(horizontal: false, vertical: true)
             }
 
             projectDateRow(project)
@@ -230,7 +310,9 @@ struct ProjectDashboardView: View {
             .font(.subheadline.weight(.semibold))
             .foregroundStyle(status.color)
             .multilineTextAlignment(alignment)
-            .fixedSize(horizontal: false, vertical: true)
+            .lineLimit(1)
+            .minimumScaleFactor(0.55)
+            .fixedSize(horizontal: true, vertical: false)
     }
 
     private func summaryProgressBar(fraction: Double, color: Color) -> some View {
@@ -240,22 +322,41 @@ struct ProjectDashboardView: View {
     @ViewBuilder
     private func projectDateRow(_ project: Project) -> some View {
         if project.dateStart != nil || project.dateEnd != nil {
-            ViewThatFits(in: .horizontal) {
-                HStack(spacing: 8) {
+            if dynamicTypeSize.isAccessibilitySize {
+                VStack(alignment: .leading, spacing: 6) {
                     if let start = project.dateStart {
                         datePill(text: dateString(start), icon: "calendar")
+                            .frame(maxWidth: .infinity, alignment: .leading)
                     }
                     if let end = project.dateEnd {
                         datePill(text: dateString(end), icon: "calendar.badge.clock")
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+            } else {
+                ViewThatFits(in: .horizontal) {
+                HStack(spacing: 8) {
+                    if let start = project.dateStart {
+                        datePill(text: dateString(start), icon: "calendar")
+                            .fixedSize(horizontal: true, vertical: false)
+                    }
+                    if let end = project.dateEnd {
+                        datePill(text: dateString(end), icon: "calendar.badge.clock")
+                            .fixedSize(horizontal: true, vertical: false)
                     }
                 }
                 VStack(alignment: .leading, spacing: 6) {
                     if let start = project.dateStart {
                         datePill(text: dateString(start), icon: "calendar")
+                            .frame(maxWidth: .infinity, alignment: .leading)
                     }
                     if let end = project.dateEnd {
                         datePill(text: dateString(end), icon: "calendar.badge.clock")
+                            .frame(maxWidth: .infinity, alignment: .leading)
                     }
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
                 }
             }
         }
@@ -264,18 +365,23 @@ struct ProjectDashboardView: View {
     // MARK: - Даты / статус
 
     private func datePill(text: String, icon: String) -> some View {
-        HStack(spacing: 4) {
-            Image(systemName: icon)
+        HStack(alignment: .center, spacing: 8) {
+            Image(systemName: icon == "calendar.badge.clock" ? "calendar" : icon)
+                .font(.body)
+                .frame(minWidth: 24, minHeight: 24)
                 .accessibilityHidden(true)
-            Text(text)
-                .accessibilityHidden(true)
+            UnbrokenText(
+                text: text,
+                textStyle: .caption1,
+                color: ProjectUXColors.primaryText,
+                maxLines: 2
+            )
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .font(.caption)
-        .foregroundStyle(ProjectUXColors.primaryText)
         .padding(.horizontal, 10)
         .padding(.vertical, 6)
-        .background(ProjectUXColors.secondarySurface)
-        .clipShape(Capsule())
+        .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
+        .background(Color(.secondarySystemBackground), in: Capsule())
         .accessibilityElement(children: .ignore)
         .accessibilityHidden(true)
     }
@@ -344,6 +450,7 @@ struct ProjectDashboardView: View {
             openContacts: { showContactsList = true },
             exportProjectPDF: { exportPDF(for: project) },
             openChecklistReport: { showChecklistReport = true },
+            openReports: { showReports = true },
             planDestination: {
                 ProjectPlanView(projectID: project.id)
                     .environmentObject(store)
@@ -382,13 +489,17 @@ struct ProjectDashboardView: View {
             ViewThatFits(in: .horizontal) {
                 HStack(alignment: .center, spacing: 12) {
                     taskSummary(nearest, hasAnyTasks: !allTasks.isEmpty)
+                        .fixedSize(horizontal: true, vertical: false)
                     Spacer(minLength: 8)
                     newTaskButton
+                        .fixedSize(horizontal: true, vertical: false)
                 }
                 VStack(alignment: .leading, spacing: 8) {
                     taskSummary(nearest, hasAnyTasks: !allTasks.isEmpty)
+                        .frame(maxWidth: .infinity, alignment: .leading)
                     newTaskButton
                 }
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
         }
     }
@@ -397,22 +508,30 @@ struct ProjectDashboardView: View {
     private func taskSummary(_ task: TaskItem?, hasAnyTasks: Bool) -> some View {
         if let task {
             VStack(alignment: .leading, spacing: 2) {
-                Text(task.title)
-                    .font(.subheadline.weight(.medium))
-                    .foregroundStyle(ProjectUXColors.primaryText)
-                    .fixedSize(horizontal: false, vertical: true)
+                UnbrokenText(
+                    text: task.title,
+                    textStyle: .subheadline,
+                    weight: .medium,
+                    color: ProjectUXColors.primaryText,
+                    maxLines: 3
+                )
                 if let date = task.dueDate {
-                    Text(taskDateState(date))
-                        .font(.caption)
-                        .foregroundStyle(taskDateColor(date))
-                        .fixedSize(horizontal: false, vertical: true)
+                    UnbrokenText(
+                        text: taskDateState(date),
+                        textStyle: .caption1,
+                        color: taskDateColor(date),
+                        maxLines: 2
+                    )
                 }
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
         } else {
             Text(hasAnyTasks ? "Нет активных задач" : "Задач пока нет")
                 .font(.subheadline.weight(.medium))
                 .foregroundStyle(ProjectUXColors.primaryText)
-                .fixedSize(horizontal: false, vertical: true)
+                .lineLimit(2)
+                .minimumScaleFactor(0.6)
+                .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
 
@@ -421,10 +540,12 @@ struct ProjectDashboardView: View {
             Image(systemName: "plus.circle.fill")
                 .accessibilityHidden(true)
             Text("Новая задача")
+                .lineLimit(1)
+                .minimumScaleFactor(0.55)
         }
         .font(.caption.weight(.semibold))
         .padding(.horizontal, 12)
-        .frame(minHeight: 44)
+        .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
         .background(ProjectUXColors.accentAction.opacity(0.16))
         .foregroundStyle(ProjectUXColors.accentAction)
         .clipShape(Capsule())
@@ -493,31 +614,18 @@ struct ProjectDashboardView: View {
     }
 
     private func issuesCard(_ count: Int) -> some View {
-        HStack(alignment: .center, spacing: 12) {
-            Image(systemName: "exclamationmark.triangle.fill")
-                .font(.body.weight(.semibold))
-                .foregroundStyle(ProjectUXColors.issue)
-                .accessibilityHidden(true)
-
-            VStack(alignment: .leading, spacing: 2) {
-                Text("Требует внимания")
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(ProjectUXColors.primaryText)
-                    .fixedSize(horizontal: false, vertical: true)
-                Text(ProjectIssuesFormatting.remarksPhrase(count))
-                    .font(.caption.weight(.semibold))
-                    .foregroundStyle(ProjectUXColors.issue)
-                    .fixedSize(horizontal: false, vertical: true)
+        Group {
+            if dynamicTypeSize.isAccessibilitySize {
+                issuesCardStacked(count)
+            } else {
+                ViewThatFits(in: .horizontal) {
+                    issuesCardRow(count)
+                    issuesCardStacked(count)
+                }
             }
-
-            Spacer(minLength: 8)
-
-            Image(systemName: "chevron.right")
-                .font(.caption.weight(.semibold))
-                .foregroundStyle(ProjectUXColors.secondaryText)
-                .accessibilityHidden(true)
         }
         .padding(.horizontal, 14)
+        .padding(.vertical, 12)
         .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
         .background(ProjectUXColors.cardSurface)
         .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
@@ -527,6 +635,63 @@ struct ProjectDashboardView: View {
                 .allowsHitTesting(false)
                 .accessibilityHidden(true)
         }
+    }
+
+    private func issuesCardRow(_ count: Int) -> some View {
+        HStack(alignment: .center, spacing: 12) {
+            Image(systemName: "exclamationmark.triangle.fill")
+                .font(.body.weight(.semibold))
+                .foregroundStyle(ProjectUXColors.issue)
+                .accessibilityHidden(true)
+            VStack(alignment: .leading, spacing: 2) {
+                Text("Требует внимания")
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(ProjectUXColors.primaryText)
+                    .lineLimit(1)
+                    .fixedSize(horizontal: true, vertical: false)
+                Text(ProjectIssuesFormatting.remarksPhrase(count))
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(ProjectUXColors.issue)
+                    .lineLimit(1)
+                    .fixedSize(horizontal: true, vertical: false)
+            }
+            Spacer(minLength: 8)
+            Image(systemName: "chevron.right")
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(ProjectUXColors.secondaryText)
+                .accessibilityHidden(true)
+        }
+    }
+
+    private func issuesCardStacked(_ count: Int) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(spacing: 12) {
+                Image(systemName: "exclamationmark.triangle.fill")
+                    .font(.body.weight(.semibold))
+                    .foregroundStyle(ProjectUXColors.issue)
+                    .accessibilityHidden(true)
+                Spacer(minLength: 8)
+                Image(systemName: "chevron.right")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(ProjectUXColors.secondaryText)
+                    .accessibilityHidden(true)
+            }
+            UnbrokenText(
+                text: "Требует внимания",
+                textStyle: .subheadline,
+                weight: .semibold,
+                color: ProjectUXColors.primaryText,
+                maxLines: 2
+            )
+            UnbrokenText(
+                text: ProjectIssuesFormatting.remarksPhrase(count),
+                textStyle: .caption1,
+                weight: .semibold,
+                color: ProjectUXColors.issue,
+                maxLines: 2
+            )
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     private func reloadIssues() {

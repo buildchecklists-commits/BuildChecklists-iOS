@@ -245,10 +245,13 @@ private struct ChecklistPackCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             ChecklistTitleRow(spacing: 8) {
-                Text(title)
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(ProjectUXColors.primaryText)
-                    .multilineTextAlignment(.leading)
+                UnbrokenText(
+                    text: title,
+                    textStyle: .subheadline,
+                    weight: .semibold,
+                    color: ProjectUXColors.primaryText,
+                    maxLines: 3
+                )
 
                 Image(systemName: "chevron.right")
                     .font(.footnote.weight(.semibold))
@@ -256,13 +259,13 @@ private struct ChecklistPackCard: View {
                     .accessibilityHidden(true)
             }
 
-            Text(subtitle)
-                .font(.caption)
-                .foregroundStyle(ProjectUXColors.secondaryText)
-                .multilineTextAlignment(.leading)
-                .lineLimit(nil)
-                .fixedSize(horizontal: false, vertical: true)
-                .frame(maxWidth: .infinity, alignment: .leading)
+            UnbrokenText(
+                text: subtitle,
+                textStyle: .caption1,
+                color: ProjectUXColors.secondaryText,
+                maxLines: 4
+            )
+            .frame(maxWidth: .infinity, alignment: .leading)
 
             HStack(alignment: .firstTextBaseline, spacing: 6) {
                 Text(measurement.countText)

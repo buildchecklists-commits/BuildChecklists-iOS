@@ -18,6 +18,22 @@ private enum ProjectFilter: String, CaseIterable, Identifiable {
         case .completed: return "Завершённые"
         }
     }
+
+    var compactTitle: String {
+        switch self {
+        case .all: return "Все"
+        case .current: return "Тек."
+        case .completed: return "Готово"
+        }
+    }
+
+    var iconName: String {
+        switch self {
+        case .all: return "square.grid.2x2"
+        case .current: return "clock"
+        case .completed: return "checkmark"
+        }
+    }
 }
 
 private enum ProjectSort: String, CaseIterable, Identifiable {
@@ -51,6 +67,7 @@ private enum ProjectSort: String, CaseIterable, Identifiable {
 
 struct ProjectsListView: View {
     @EnvironmentObject var store: AppStore
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     @State private var query: String = ""
     @State private var showForm: Bool = false
@@ -159,8 +176,29 @@ struct ProjectsListView: View {
                 contentView
             }
         }
-        .navigationTitle("Мои проекты")
-        .searchable(text: $query, prompt: "Поиск по проектам…")
+        .navigationTitle(dynamicTypeSize.isAccessibilitySize ? "" : "Мои проекты")
+        .navigationBarTitleDisplayMode(dynamicTypeSize.isAccessibilitySize ? .inline : .large)
+        .searchable(
+            text: $query,
+            placement: dynamicTypeSize.isAccessibilitySize
+                ? .navigationBarDrawer(displayMode: .always)
+                : .automatic,
+            prompt: dynamicTypeSize.isAccessibilitySize
+                ? Text("Поиск").accessibilityLabel("Поиск по проектам…")
+                : Text("Поиск по проектам…")
+        )
+        .toolbar {
+            if dynamicTypeSize.isAccessibilitySize {
+                ToolbarItem(placement: .principal) {
+                    Text("Мои проекты")
+                        .font(.headline.weight(.semibold))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.5)
+                        .accessibilityAddTraits(.isHeader)
+                        .accessibilityLabel("Мои проекты")
+                }
+            }
+        }
         .sheet(isPresented: $showForm) {
             ProjectFormView().environmentObject(store)
         }
@@ -301,7 +339,7 @@ struct ProjectsListView: View {
     }
 
     private var contentView: some View {
-        ScrollView {
+        OfferedWidthBox(maxWidth: projectColumnMaxWidth) {
             VStack(alignment: .leading, spacing: 20) {
                 controlsView
 
@@ -335,7 +373,6 @@ struct ProjectsListView: View {
                     }
                 }
 
-                // В демо-режиме — аккуратный баннер внизу списка
                 if store.isDemoMode {
                     demoBanner
                         .padding(.top, 8)
@@ -343,8 +380,6 @@ struct ProjectsListView: View {
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 12)
-            .frame(maxWidth: projectColumnMaxWidth)
-            .frame(maxWidth: .infinity)
         }
         .background(ProjectUXColors.screenBackground)
     }
@@ -450,66 +485,39 @@ struct ProjectsListView: View {
 
     private var controlsView: some View {
         VStack(spacing: 8) {
-            Picker("Фильтр", selection: $selectedFilter) {
-                ForEach(ProjectFilter.allCases) { filter in
-                    Text(filter.title).tag(filter)
-                }
-            }
-            .pickerStyle(.segmented)
-
-            HStack(spacing: 0) {
-                ViewThatFits(in: .horizontal) {
-                    sortMenu(showsTitle: true)
-                    sortMenu(showsTitle: false)
-                }
-                .fixedSize(horizontal: true, vertical: false)
-                .layoutPriority(1)
-
-                Spacer(minLength: 8)
-
-                ViewThatFits(in: .horizontal) {
-                    HStack(spacing: 6) {
-                        calculatorButton(showsTitle: true)
-                        newProjectButton(showsTitle: true)
-                    }
+            ViewThatFits(in: .horizontal) {
+                filterPicker(title: \.title)
                     .fixedSize(horizontal: true, vertical: false)
-
-                    HStack(spacing: 6) {
-                        calculatorButton(showsTitle: false)
-                        newProjectButton(showsTitle: false)
-                    }
+                filterPicker(title: \.compactTitle)
                     .fixedSize(horizontal: true, vertical: false)
-                }
-                .layoutPriority(1)
+                filterPicker(title: nil)
+                    .fixedSize(horizontal: true, vertical: false)
+                filterMenu
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
+
+            ViewThatFits(in: .horizontal) {
+                listTools(showsTitles: true)
+                listTools(showsTitles: false)
+            }
+            .frame(maxWidth: .infinity)
 
             NavigationLink {
                 TasksCenterView()
             } label: {
-                HStack(alignment: .center, spacing: 12) {
-                    Image(systemName: "calendar.badge.clock")
-                        .font(.title3)
-                        .accessibilityHidden(true)
-
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("Календарь задач")
-                            .font(.subheadline.weight(.semibold))
-
-                        Text("Напоминания: купить материалы, заказать бетон и т.д.")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                            .fixedSize(horizontal: false, vertical: true)
+                Group {
+                    if dynamicTypeSize.isAccessibilitySize {
+                        calendarLabelStacked()
+                    } else {
+                        ViewThatFits(in: .horizontal) {
+                            calendarLabel(showsSubtitle: true)
+                            calendarLabel(showsSubtitle: false)
+                            calendarLabelWrapped()
+                        }
                     }
-
-                    Spacer()
-
-                    Image(systemName: "chevron.right")
-                        .font(.footnote.weight(.semibold))
-                        .foregroundStyle(.secondary)
-                        .accessibilityHidden(true)
                 }
                 .padding(12)
-                .frame(maxWidth: .infinity)
+                .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
                 .background(
                     RoundedRectangle(cornerRadius: 16, style: .continuous)
                         .fill(Color(.secondarySystemBackground))
@@ -522,13 +530,135 @@ struct ProjectsListView: View {
         }
     }
 
-    private func sectionHeader(title: String) -> some View {
-        HStack {
-            Text(title)
-                .font(.headline)
-                .accessibilityAddTraits(.isHeader)
-            Spacer()
+    private func filterPicker(title: KeyPath<ProjectFilter, String>?) -> some View {
+        Picker("Фильтр", selection: $selectedFilter) {
+            ForEach(ProjectFilter.allCases) { filter in
+                if let title {
+                    Text(filter[keyPath: title])
+                        .tag(filter)
+                        .accessibilityLabel(filter.title)
+                } else {
+                    Image(systemName: filter.iconName)
+                        .tag(filter)
+                        .accessibilityLabel(filter.title)
+                }
+            }
         }
+        .pickerStyle(.segmented)
+        .accessibilityLabel("Фильтр")
+    }
+
+    private var filterMenu: some View {
+        Menu {
+            Picker("Фильтр", selection: $selectedFilter) {
+                ForEach(ProjectFilter.allCases) { filter in
+                    Text(filter.title).tag(filter)
+                }
+            }
+        } label: {
+            Text(selectedFilter.title)
+                .font(.subheadline.weight(.semibold))
+                .lineLimit(1)
+                .minimumScaleFactor(0.55)
+                .frame(maxWidth: .infinity, minHeight: 44)
+        }
+        .accessibilityLabel("Фильтр, \(selectedFilter.title)")
+    }
+
+    private func calendarLabelStacked() -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(spacing: 12) {
+                Image(systemName: "calendar.badge.clock")
+                    .font(.title3)
+                    .frame(minWidth: 44, minHeight: 44)
+                    .accessibilityHidden(true)
+                Spacer(minLength: 8)
+                Image(systemName: "chevron.right")
+                    .font(.footnote.weight(.semibold))
+                    .foregroundStyle(.secondary)
+                    .frame(minWidth: 44, minHeight: 44)
+                    .accessibilityHidden(true)
+            }
+            UnbrokenText(
+                text: "Календарь задач",
+                textStyle: .subheadline,
+                weight: .semibold,
+                maxLines: 2
+            )
+        }
+        .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
+    }
+
+    private func calendarLabelWrapped() -> some View {
+        HStack(alignment: .center, spacing: 12) {
+            Image(systemName: "calendar.badge.clock")
+                .font(.title3)
+                .accessibilityHidden(true)
+            UnbrokenText(
+                text: "Календарь задач",
+                textStyle: .subheadline,
+                weight: .semibold,
+                maxLines: 2
+            )
+            Image(systemName: "chevron.right")
+                .font(.footnote.weight(.semibold))
+                .foregroundStyle(.secondary)
+                .accessibilityHidden(true)
+        }
+        .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
+    }
+
+    private func listTools(showsTitles: Bool) -> some View {
+        HStack(spacing: 8) {
+            sortMenu(showsTitle: showsTitles)
+            Spacer(minLength: 8)
+            calculatorButton(showsTitle: showsTitles)
+            newProjectButton(showsTitle: showsTitles)
+        }
+        .fixedSize(horizontal: true, vertical: false)
+    }
+
+    private func calendarLabel(showsSubtitle: Bool) -> some View {
+        HStack(alignment: .center, spacing: 12) {
+            Image(systemName: "calendar.badge.clock")
+                .font(.title3)
+                .accessibilityHidden(true)
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text("Календарь задач")
+                    .font(.subheadline.weight(.semibold))
+                    .lineLimit(1)
+                    .fixedSize(horizontal: true, vertical: false)
+                if showsSubtitle {
+                    Text("Напоминания: купить материалы, заказать бетон и т.д.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                        .fixedSize(horizontal: true, vertical: false)
+                }
+            }
+
+            Spacer(minLength: 0)
+
+            Image(systemName: "chevron.right")
+                .font(.footnote.weight(.semibold))
+                .foregroundStyle(.secondary)
+                .accessibilityHidden(true)
+        }
+        .fixedSize(horizontal: true, vertical: false)
+    }
+
+    private func sectionHeader(title: String) -> some View {
+        UnbrokenText(
+            text: title,
+            textStyle: .headline,
+            weight: .semibold,
+            maxLines: 1
+        )
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(title)
+        .accessibilityAddTraits(.isHeader)
     }
 
     // MARK: - Демо-баннер
@@ -647,17 +777,18 @@ struct ProjectsListView: View {
             } label: {
                 ProjectCardView(
                     name: project.name,
-                    address: project.address,
-                    manager: project.manager,
-                    description: project.description,
+                    address: dynamicTypeSize.isAccessibilitySize ? "" : project.address,
+                    manager: dynamicTypeSize.isAccessibilitySize ? nil : project.manager,
+                    description: dynamicTypeSize.isAccessibilitySize ? nil : project.description,
                     progress: progress,
                     progressPercent: progressPercent,
                     cardColorName: project.cardColor,
                     isCompleted: isCompleted,
                     coverImage: coverImage,
-                    deadline: deadline,
-                    issueCount: issueCount
+                    deadline: dynamicTypeSize.isAccessibilitySize ? nil : deadline,
+                    issueCount: dynamicTypeSize.isAccessibilitySize ? 0 : issueCount
                 )
+                .contentShape(Rectangle())
             }
             .buttonStyle(CardLinkStyle())
             .accessibilityElement(children: .ignore)
@@ -670,18 +801,7 @@ struct ProjectsListView: View {
             Button {
                 startEdit(project)
             } label: {
-                HStack(spacing: 4) {
-                    Image(systemName: "pencil")
-                    Text("Ред.")
-                }
-                .font(.caption.weight(.semibold))
-                .padding(.horizontal, 10)
-                .frame(minWidth: 44, minHeight: 44)
-                .background {
-                    Capsule().fill(coverImage == nil ? fallbackInk.opacity(0.10) : Color.black.opacity(0.46))
-                }
-                .foregroundStyle(coverImage == nil ? fallbackInk : Color.white)
-                .clipShape(Capsule())
+                editLabel(onCover: coverImage != nil, ink: fallbackInk)
             }
             .buttonStyle(.plain)
             .padding(.top, 8)
@@ -690,6 +810,7 @@ struct ProjectsListView: View {
             .accessibilitySortPriority(4)
             .accessibilityIdentifier("project.card.edit")
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
         .overlay(alignment: .bottom) {
             HStack(spacing: 4) {
                 projectCardAction(
@@ -802,6 +923,31 @@ struct ProjectsListView: View {
         }
     }
 
+    private func editLabel(onCover: Bool, ink: Color) -> some View {
+        let foreground = onCover ? Color.white : ink
+        let fill = onCover ? Color.black.opacity(0.46) : ink.opacity(0.10)
+        return Group {
+            if dynamicTypeSize.isAccessibilitySize {
+                Image(systemName: "pencil")
+                    .font(.body.weight(.semibold))
+                    .frame(minWidth: 44, minHeight: 44)
+            } else {
+                HStack(spacing: 4) {
+                    Image(systemName: "pencil")
+                    Text("Ред.")
+                        .lineLimit(1)
+                }
+                .font(.caption.weight(.semibold))
+                .padding(.horizontal, 10)
+                .frame(minWidth: 44, minHeight: 44)
+            }
+        }
+        .background { Capsule().fill(fill) }
+        .foregroundStyle(foreground)
+        .clipShape(Capsule())
+        .contentShape(Capsule())
+    }
+
     private func projectCardAction(
         title: String,
         compactTitle: String? = nil,
@@ -867,6 +1013,12 @@ struct ProjectsListView: View {
         }
         if issueCount > 0 {
             parts.append(ProjectIssuesFormatting.remarksPhrase(issueCount))
+        }
+        if let manager = project.manager?.trimmingCharacters(in: .whitespacesAndNewlines), !manager.isEmpty {
+            parts.append("Ответственный: \(manager)")
+        }
+        if let description = project.description?.trimmingCharacters(in: .whitespacesAndNewlines), !description.isEmpty {
+            parts.append(description)
         }
         return parts.joined(separator: ", ")
     }
@@ -1033,6 +1185,8 @@ private struct ProjectCardView: View {
     let deadline: ProjectCardDeadline?
     let issueCount: Int
 
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+
     private var cardColor: Color {
         if let name = cardColorName { Color(name) }
         else { Color("softGray") }
@@ -1106,7 +1260,7 @@ private struct ProjectCardView: View {
                     .layoutPriority(1)
 
                     Color.clear
-                        .frame(height: 44)
+                        .frame(height: dynamicTypeSize.isAccessibilitySize ? 64 : 44)
                         .accessibilityHidden(true)
                 }
                 .padding(.top, 10)
@@ -1154,34 +1308,44 @@ private struct ProjectCardView: View {
 
     private func header(includesDescription: Bool) -> some View {
         VStack(alignment: .leading, spacing: 2) {
-            Text(name)
-                .font(.headline.weight(.semibold))
-                .foregroundStyle(titleColor)
-                .lineLimit(2)
+            UnbrokenText(
+                text: name,
+                textStyle: dynamicTypeSize.isAccessibilitySize ? .subheadline : .headline,
+                weight: .semibold,
+                color: titleColor,
+                maxLines: dynamicTypeSize.isAccessibilitySize ? 1 : 2
+            )
 
             if !address.isEmpty {
-                Text(address)
-                    .font(.subheadline)
-                    .foregroundStyle(secondaryColor)
-                    .lineLimit(2)
+                UnbrokenText(
+                    text: address,
+                    textStyle: .subheadline,
+                    color: secondaryColor,
+                    maxLines: 2
+                )
             }
 
             if let manager = manager?.trimmingCharacters(in: .whitespacesAndNewlines), !manager.isEmpty {
-                Text("Ответственный: \(manager)")
-                    .font(.caption)
-                    .foregroundStyle(secondaryColor)
-                    .lineLimit(1)
+                UnbrokenText(
+                    text: "Ответственный: \(manager)",
+                    textStyle: .caption1,
+                    color: secondaryColor,
+                    maxLines: 1
+                )
             }
 
             if includesDescription,
                let description = description?.trimmingCharacters(in: .whitespacesAndNewlines),
                !description.isEmpty {
-                Text(description)
-                    .font(.caption)
-                    .foregroundStyle(secondaryColor)
-                    .lineLimit(1)
+                UnbrokenText(
+                    text: description,
+                    textStyle: .caption1,
+                    color: secondaryColor,
+                    maxLines: 1
+                )
             }
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     private var statusRow: some View {
@@ -1200,8 +1364,7 @@ private struct ProjectCardView: View {
                     .font(.caption2.weight(.semibold))
                     .foregroundStyle(ProjectUXColors.issue)
                     .lineLimit(1)
-                    .fixedSize(horizontal: true, vertical: false)
-                    .layoutPriority(1)
+                    .minimumScaleFactor(0.7)
                     .accessibilityHidden(true)
             }
             Spacer(minLength: 0)
@@ -1227,11 +1390,15 @@ private struct ProjectCardView: View {
                 Text("Прогресс")
                     .font(.caption2)
                     .foregroundStyle(secondaryColor)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.6)
                 Spacer(minLength: 8)
                 Text("\(progressPercent)%")
                     .font(.subheadline.weight(.bold))
                     .foregroundStyle(progressColor)
                     .monospacedDigit()
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.6)
             }
             ProjectProgressBar(fraction: progress, color: progressColor)
         }

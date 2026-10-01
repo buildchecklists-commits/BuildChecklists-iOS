@@ -9,34 +9,50 @@ struct ProjectQuickActions<PlanDestination: View, ExpensesDestination: View, Iss
     let openContacts: () -> Void
     let exportProjectPDF: () -> Void
     let openChecklistReport: () -> Void
+    let openReports: () -> Void
     @ViewBuilder var planDestination: () -> PlanDestination
     @ViewBuilder var expensesDestination: () -> ExpensesDestination
     @ViewBuilder var issuesDestination: () -> IssuesDestination
 
     private let actionSlots = Array(QuickActionSlot.allCases)
     @State private var gridHeight: CGFloat = 44
+    @State private var gridWidth: CGFloat = 0
+    @State private var cellsInsideGrid = true
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Быстрые действия")
                 .font(.headline)
                 .foregroundStyle(ProjectUXColors.primaryText)
+                .lineLimit(2)
+                .minimumScaleFactor(0.6)
+                .fixedSize(horizontal: false, vertical: true)
+                .frame(maxWidth: .infinity, alignment: .leading)
                 .accessibilityAddTraits(.isHeader)
 
-            // Ordinary rows, not a custom Layout. Layout children were visited
-            // after the timeline. Row order here is the VoiceOver order.
-            GeometryReader { proxy in
-                actionRows(width: proxy.size.width)
-                    .fixedSize(horizontal: false, vertical: true)
-                    .background {
-                        GeometryReader { grid in
-                            Color.clear.preference(key: QuickActionHeightKey.self, value: grid.size.height)
-                        }
+            // Width is the grid's own geometry after the card padding,
+            // not the window and not the text's ideal width.
+            // Row order is the VoiceOver order.
+            actionRows(width: gridWidth)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background {
+                    GeometryReader { grid in
+                        Color.clear.preference(key: QuickActionWidthKey.self, value: grid.size.width)
                     }
-            }
-            .frame(height: gridHeight)
+                }
+                .coordinateSpace(name: "quickActionGrid")
+                .accessibilityElement(children: .contain)
+                .accessibilityIdentifier("project.quickActions.grid")
+                .accessibilityValue(gridAccessibilityValue)
         }
+        .onPreferenceChange(QuickActionWidthKey.self) { gridWidth = max($0, 0) }
         .onPreferenceChange(QuickActionHeightKey.self) { gridHeight = max($0, 44) }
+        .onPreferenceChange(QuickActionFramesKey.self) { frames in
+            guard gridWidth > 1, frames.count == actionSlots.count else { return }
+            cellsInsideGrid = frames.allSatisfy { span in
+                span.minX >= -0.5 && span.maxX <= gridWidth + 0.5
+            }
+        }
         .padding(14)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(ProjectUXColors.cardSurface)
@@ -47,12 +63,19 @@ struct ProjectQuickActions<PlanDestination: View, ExpensesDestination: View, Iss
         }
     }
 
+    private var gridAccessibilityValue: String {
+        let metrics = ProjectQuickActionMetrics(dynamicTypeSize: dynamicTypeSize)
+        let layout = metrics.layout(for: gridWidth, itemCount: actionSlots.count)
+        return "columns=\(layout.columns);width=\(Int(gridWidth.rounded()));inside=\(cellsInsideGrid ? 1 : 0)"
+    }
+
     private func actionRows(width: CGFloat) -> some View {
         let metrics = ProjectQuickActionMetrics(dynamicTypeSize: dynamicTypeSize)
         let spacing: CGFloat = 8
-        let columns = max(metrics.columns(for: max(width, 1)), 1)
-        let itemWidth = (width - spacing * CGFloat(columns - 1)) / CGFloat(columns)
-        let rowCount = (actionSlots.count + columns - 1) / columns
+        let layout = metrics.layout(for: width, itemCount: actionSlots.count, spacing: spacing)
+        let columns = layout.columns
+        let itemWidth = layout.itemWidth
+        let rowCount = columns > 0 ? (actionSlots.count + columns - 1) / columns : 0
         return VStack(spacing: spacing) {
             ForEach(0..<rowCount, id: \.self) { row in
                 let start = row * columns
@@ -61,13 +84,30 @@ struct ProjectQuickActions<PlanDestination: View, ExpensesDestination: View, Iss
                     if count < columns { Spacer(minLength: 0) }
                     ForEach(0..<count, id: \.self) { offset in
                         actionSlot(actionSlots[start + offset])
-                            .frame(width: max(itemWidth, 44), alignment: .top)
+                            .frame(width: itemWidth, alignment: .top)
+                            .frame(minHeight: 44)
+                            .clipped()
+                            .background {
+                                GeometryReader { cell in
+                                    let frame = cell.frame(in: .named("quickActionGrid"))
+                                    Color.clear.preference(
+                                        key: QuickActionFramesKey.self,
+                                        value: [QuickActionSpan(minX: frame.minX, maxX: frame.maxX)]
+                                    )
+                                }
+                            }
                     }
                     if count < columns { Spacer(minLength: 0) }
                 }
                 .frame(maxWidth: .infinity)
             }
         }
+        .background {
+            GeometryReader { grid in
+                Color.clear.preference(key: QuickActionHeightKey.self, value: grid.size.height)
+            }
+        }
+        .frame(height: width > 1 ? gridHeight : 44)
     }
 
     @ViewBuilder
@@ -129,6 +169,14 @@ struct ProjectQuickActions<PlanDestination: View, ExpensesDestination: View, Iss
                 identifier: "project.quickAction.checklistPDF",
                 action: openChecklistReport
             )
+        case .reports:
+            actionButton(
+                title: "Отчёты",
+                accessibilityLabel: "Отчёты. Настройка сводки, заказчика, расходов и плана",
+                systemImage: "doc.text.magnifyingglass",
+                identifier: "project.quickAction.reports",
+                action: openReports
+            )
         }
     }
 
@@ -188,11 +236,14 @@ struct ProjectQuickActions<PlanDestination: View, ExpensesDestination: View, Iss
                 .font(.body.weight(.semibold))
                 .foregroundStyle(ProjectUXColors.accentAction)
                 .accessibilityHidden(true)
-            Text(title)
-                .font(.caption.weight(.medium))
-                .foregroundStyle(ProjectUXColors.primaryText)
-                .multilineTextAlignment(.center)
-                .fixedSize(horizontal: false, vertical: true)
+            UnbrokenText(
+                text: title,
+                textStyle: .caption1,
+                weight: .medium,
+                color: ProjectUXColors.primaryText,
+                alignment: .center,
+                maxLines: 3
+            )
                 .accessibilityHidden(true)
         }
         .accessibilityHidden(true)
@@ -204,7 +255,7 @@ struct ProjectQuickActions<PlanDestination: View, ExpensesDestination: View, Iss
 }
 
 private enum QuickActionSlot: Int, CaseIterable {
-    case plan, expenses, files, contacts, issues, projectPDF, checklistPDF
+    case plan, expenses, files, contacts, issues, projectPDF, checklistPDF, reports
 }
 
 private struct QuickActionHeightKey: PreferenceKey {
@@ -214,7 +265,26 @@ private struct QuickActionHeightKey: PreferenceKey {
     }
 }
 
-private struct ProjectQuickActionMetrics {
+private struct QuickActionWidthKey: PreferenceKey {
+    static var defaultValue: CGFloat = 0
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = max(value, nextValue())
+    }
+}
+
+private struct QuickActionSpan: Equatable {
+    var minX: CGFloat
+    var maxX: CGFloat
+}
+
+private struct QuickActionFramesKey: PreferenceKey {
+    static var defaultValue: [QuickActionSpan] = []
+    static func reduce(value: inout [QuickActionSpan], nextValue: () -> [QuickActionSpan]) {
+        value.append(contentsOf: nextValue())
+    }
+}
+
+struct ProjectQuickActionMetrics {
     var dynamicTypeSize: DynamicTypeSize
 
     func columns(for width: CGFloat) -> Int {
@@ -229,10 +299,66 @@ private struct ProjectQuickActionMetrics {
             return 1
         }
         // Seven across once the grid itself is wide enough to keep captions readable.
+        // The eighth action wraps to the next row and stays centered.
         // A 640 pt column leaves about 580 pt here. Narrower widths keep the phone grid.
         if width >= 520 { return 7 }
         if width >= 324 { return 4 }
         return 3
+    }
+
+    /// Preferred column count, then fewer columns until every cell is at least 44 pt
+    /// and the row stays inside `width`. Every cell in the mode uses the same width.
+    func layout(for width: CGFloat, itemCount: Int, spacing: CGFloat = 8, minimumItem: CGFloat = 44) -> (columns: Int, itemWidth: CGFloat) {
+        let safeWidth = max(width, 0)
+        guard safeWidth > 1, itemCount > 0 else { return (1, safeWidth) }
+        var columns = min(max(columns(for: safeWidth), 1), itemCount)
+        while columns > 1 {
+            let item = (safeWidth - spacing * CGFloat(columns - 1)) / CGFloat(columns)
+            if item >= minimumItem - 0.5 { break }
+            columns -= 1
+        }
+        let itemWidth = columns <= 1
+            ? safeWidth
+            : (safeWidth - spacing * CGFloat(columns - 1)) / CGFloat(columns)
+        return (columns, max(itemWidth, 0))
+    }
+
+    func cellsStayInside(width: CGFloat, itemCount: Int, spacing: CGFloat = 8) -> Bool {
+        let fitted = layout(for: width, itemCount: itemCount, spacing: spacing)
+        guard fitted.itemWidth > 0 else { return false }
+        let intervals = cellIntervals(
+            width: width,
+            columns: fitted.columns,
+            itemWidth: fitted.itemWidth,
+            count: itemCount,
+            spacing: spacing
+        )
+        return intervals.count == itemCount && intervals.allSatisfy { span in
+            span.minX >= -0.5 && span.maxX <= width + 0.5
+        }
+    }
+
+    func cellIntervals(
+        width: CGFloat,
+        columns: Int,
+        itemWidth: CGFloat,
+        count: Int,
+        spacing: CGFloat = 8
+    ) -> [(minX: CGFloat, maxX: CGFloat)] {
+        guard columns > 0, count > 0 else { return [] }
+        var result: [(minX: CGFloat, maxX: CGFloat)] = []
+        let rowCount = (count + columns - 1) / columns
+        for row in 0..<rowCount {
+            let start = row * columns
+            let rowCountItems = min(columns, count - start)
+            let rowWidth = itemWidth * CGFloat(rowCountItems) + spacing * CGFloat(max(rowCountItems - 1, 0))
+            let origin = rowCountItems < columns ? max((width - rowWidth) / 2, 0) : 0
+            for index in 0..<rowCountItems {
+                let minX = origin + CGFloat(index) * (itemWidth + spacing)
+                result.append((minX: minX, maxX: minX + itemWidth))
+            }
+        }
+        return result
     }
 }
 

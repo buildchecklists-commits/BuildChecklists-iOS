@@ -427,7 +427,10 @@ private struct ProjectCardRatioLayout: Layout {
     var aspectRatio: CGFloat
 
     func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
-        let width = proposal.width ?? subviews.first?.sizeThatFits(ProposedViewSize(width: nil, height: nil)).width ?? 0
+        // Unbounded measurement must not adopt the text's single-line width.
+        // That width exceeds a narrow list and clips both edges of the card.
+        let width = proposal.width ?? 0
+        guard width > 0 else { return .zero }
         return CGSize(width: width, height: width / aspectRatio)
     }
 
@@ -436,6 +439,232 @@ private struct ProjectCardRatioLayout: Layout {
         for subview in subviews {
             subview.place(at: bounds.origin, anchor: .topLeading, proposal: childProposal)
         }
+    }
+}
+
+/// Pins children to the scroll view's viewport width.
+/// Ideal text width cannot widen the scroll content.
+struct OfferedWidthBox<Content: View>: View {
+    var maxWidth: CGFloat = 640
+    @ViewBuilder var content: () -> Content
+    @State private var viewportWidth: CGFloat = 0
+
+    var body: some View {
+        ScrollView {
+            content()
+                .frame(width: viewportWidth > 1 ? min(viewportWidth, maxWidth) : nil, alignment: .top)
+        }
+        .background {
+            ViewportWidthReader { width in
+                let next = min(max(width, 0), maxWidth)
+                if abs(next - viewportWidth) > 0.5 {
+                    viewportWidth = next
+                }
+            }
+        }
+        .frame(maxWidth: maxWidth)
+        .frame(maxWidth: .infinity)
+        .clipped()
+    }
+}
+
+private struct ViewportWidthReader: UIViewRepresentable {
+    var onWidth: (CGFloat) -> Void
+
+    func makeUIView(context: Context) -> ViewportWidthView {
+        let view = ViewportWidthView()
+        view.onWidth = onWidth
+        view.isUserInteractionEnabled = false
+        view.backgroundColor = .clear
+        return view
+    }
+
+    func updateUIView(_ view: ViewportWidthView, context: Context) {
+        view.onWidth = onWidth
+    }
+}
+
+private final class ViewportWidthView: UIView {
+    var onWidth: ((CGFloat) -> Void)?
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        guard bounds.width > 1 else { return }
+        onWidth?(bounds.width)
+    }
+}
+
+extension DynamicTypeSize {
+    var uiContentSizeCategory: UIContentSizeCategory {
+        switch self {
+        case .xSmall: return .extraSmall
+        case .small: return .small
+        case .medium: return .medium
+        case .large: return .large
+        case .xLarge: return .extraLarge
+        case .xxLarge: return .extraExtraLarge
+        case .xxxLarge: return .extraExtraExtraLarge
+        case .accessibility1: return .accessibilityMedium
+        case .accessibility2: return .accessibilityLarge
+        case .accessibility3: return .accessibilityExtraLarge
+        case .accessibility4: return .accessibilityExtraExtraLarge
+        case .accessibility5: return .accessibilityExtraExtraExtraLarge
+        @unknown default: return .large
+        }
+    }
+}
+
+/// Wraps on spaces. A word that does not fit is scaled, not split character by character.
+struct UnbrokenText: View {
+    var text: String
+    var textStyle: UIFont.TextStyle = .body
+    var weight: UIFont.Weight = .regular
+    var color: Color = .primary
+    var alignment: TextAlignment = .leading
+    var maxLines: Int = 3
+
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+
+    var body: some View {
+        UnbrokenLabel(
+            text: text,
+            textStyle: textStyle,
+            weight: weight,
+            color: UIColor(color),
+            alignment: alignment == .center ? .center : (alignment == .trailing ? .right : .left),
+            maxLines: max(maxLines, 1),
+            contentSize: dynamicTypeSize.uiContentSizeCategory
+        )
+    }
+}
+
+private struct UnbrokenLabel: UIViewRepresentable {
+    var text: String
+    var textStyle: UIFont.TextStyle
+    var weight: UIFont.Weight
+    var color: UIColor
+    var alignment: NSTextAlignment
+    var maxLines: Int
+    var contentSize: UIContentSizeCategory
+
+    func makeUIView(context: Context) -> FittingLabel {
+        let label = FittingLabel()
+        label.backgroundColor = .clear
+        label.lineBreakMode = .byWordWrapping
+        label.lineBreakStrategy = .pushOut
+        label.adjustsFontForContentSizeCategory = false
+        label.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+        label.setContentHuggingPriority(.required, for: .vertical)
+        return label
+    }
+
+    func updateUIView(_ label: FittingLabel, context: Context) {
+        label.source = text
+        label.textStyle = textStyle
+        label.fontWeight = weight
+        label.contentCategory = contentSize
+        label.lineCap = maxLines
+        label.textAlignment = alignment
+        label.textColor = color
+        label.numberOfLines = maxLines
+        label.appliedWidth = -1
+        label.refit()
+    }
+
+    func sizeThatFits(_ proposal: ProposedViewSize, uiView: FittingLabel, context: Context) -> CGSize? {
+        uiView.source = text
+        uiView.textStyle = textStyle
+        uiView.fontWeight = weight
+        uiView.contentCategory = contentSize
+        uiView.lineCap = maxLines
+        uiView.textAlignment = alignment
+        uiView.textColor = color
+        let bounded = proposal.width.flatMap { $0.isFinite && $0 > 1 && $0 < 8_000 ? $0 : nil }
+        if let width = bounded {
+            let font = uiView.fittedFont(width: width)
+            uiView.apply(font: font, width: width)
+            let height = uiView.sizeThatFits(CGSize(width: width, height: .greatestFiniteMagnitude)).height
+            return CGSize(width: width, height: max(ceil(height), 1))
+        }
+        let font = uiView.baseFont()
+        let single = (text as NSString).size(withAttributes: [.font: font])
+        return CGSize(width: ceil(single.width), height: ceil(font.lineHeight))
+    }
+}
+
+private final class FittingLabel: UILabel {
+    var source = ""
+    var textStyle: UIFont.TextStyle = .body
+    var fontWeight: UIFont.Weight = .regular
+    var contentCategory: UIContentSizeCategory = .large
+    var lineCap = 3
+    var appliedWidth: CGFloat = -1
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        refit()
+    }
+
+    func refit() {
+        let width = bounds.width
+        guard width > 1, abs(width - appliedWidth) > 0.5 else { return }
+        apply(font: fittedFont(width: width), width: width)
+        appliedWidth = width
+    }
+
+    func apply(font: UIFont, width: CGFloat) {
+        let paragraph = NSMutableParagraphStyle()
+        paragraph.hyphenationFactor = 0
+        paragraph.lineBreakMode = .byWordWrapping
+        paragraph.lineBreakStrategy = .pushOut
+        paragraph.alignment = textAlignment
+        numberOfLines = lineCap
+        attributedText = NSAttributedString(
+            string: displaySource,
+            attributes: [
+                .font: font,
+                .foregroundColor: textColor ?? .label,
+                .paragraphStyle: paragraph
+            ]
+        )
+        preferredMaxLayoutWidth = width
+    }
+
+    func baseFont() -> UIFont {
+        let traits = UITraitCollection(preferredContentSizeCategory: contentCategory)
+        let preferred = UIFont.preferredFont(forTextStyle: textStyle, compatibleWith: traits)
+        return UIFont.systemFont(ofSize: preferred.pointSize, weight: fontWeight)
+    }
+
+    func fittedFont(width: CGFloat) -> UIFont {
+        let base = baseFont()
+        guard width > 1 else { return base }
+        let words = displaySource.split(whereSeparator: \.isWhitespace).map(String.init)
+        var size = base.pointSize
+        let floor: CGFloat = 11
+        while size > floor {
+            let font = base.withSize(size)
+            let widest = words.map { ($0 as NSString).size(withAttributes: [.font: font]).width }.max() ?? 0
+            let paragraph = NSMutableParagraphStyle()
+            paragraph.hyphenationFactor = 0
+            paragraph.lineBreakMode = .byWordWrapping
+            paragraph.lineBreakStrategy = .pushOut
+            let height = ceil((displaySource as NSString).boundingRect(
+                with: CGSize(width: width, height: .greatestFiniteMagnitude),
+                options: [.usesLineFragmentOrigin, .usesFontLeading],
+                attributes: [.font: font, .paragraphStyle: paragraph],
+                context: nil
+            ).height)
+            if widest <= width - 4 && height <= font.lineHeight * CGFloat(lineCap) + 1 {
+                return font
+            }
+            size -= 0.5
+        }
+        return base.withSize(floor)
+    }
+
+    private var displaySource: String {
+        source.replacingOccurrences(of: "/", with: "\u{2060}/\u{2060}")
     }
 }
 
