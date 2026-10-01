@@ -65,24 +65,21 @@ struct ReportExportView: View {
     }
 
     private var settings: some View {
-        VStack(spacing: 0) {
-            Form {
-                if project != nil {
-                    variantSection
-                    if variant == .checklists {
-                        checklistSection
-                    } else {
-                        optionsSection
-                        compositionSection
-                    }
+        Form {
+            if project != nil {
+                variantSection
+                if variant == .checklists {
+                    checklistSection
                 } else {
-                    Text("Проект не найден")
-                        .foregroundStyle(.secondary)
+                    optionsSection
+                    compositionSection
                 }
+            } else {
+                Text("Проект не найден")
+                    .foregroundStyle(.secondary)
             }
-            .layoutPriority(1)
-            .contentMargins(.bottom, 28, for: .scrollContent)
-            .clipped()
+        }
+        .safeAreaInset(edge: .bottom, spacing: 0) {
             if variant != .checklists, project != nil {
                 VStack(alignment: .leading, spacing: 8) {
                     if let errorText {
@@ -98,6 +95,7 @@ struct ReportExportView: View {
                 }
                 .padding(.horizontal, 16)
                 .padding(.vertical, 12)
+                .frame(maxWidth: .infinity, alignment: .leading)
                 .background(.bar)
             }
         }
@@ -329,6 +327,9 @@ struct ReportExportView: View {
         ].joined(separator: ", ")
     }
 
+    /// Brand yellow from the light asset. The dark asset is white, which hides this label.
+    private static let generateTint = Color(red: 1, green: 196.0 / 255, blue: 0)
+
     @ViewBuilder
     private var generationBar: some View {
         if isGenerating {
@@ -358,6 +359,7 @@ struct ReportExportView: View {
                 .frame(maxWidth: .infinity, minHeight: 44)
             }
             .buttonStyle(.borderedProminent)
+            .tint(Self.generateTint)
             .disabled(project == nil || task != nil)
             .accessibilityIdentifier("project.reports.generate")
             .accessibilityLabel("Сформировать отчёт")
@@ -847,30 +849,8 @@ private struct ReportAdaptiveChoice<Selection: Hashable>: View {
     }
 
     var body: some View {
-        Group {
-            if dynamicTypeSize.isAccessibilitySize {
-                VStack(alignment: .leading, spacing: 8) {
-                    Text(title)
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(2)
-                        .minimumScaleFactor(0.6)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .accessibilityHidden(true)
-                    menu
-                }
-            } else {
-                HStack(alignment: .center, spacing: 12) {
-                    Text(title)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.7)
-                        .accessibilityHidden(true)
-                    Spacer(minLength: 8)
-                    menu
-                }
-            }
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
+        menu
+            .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     private var menu: some View {
@@ -879,24 +859,63 @@ private struct ReportAdaptiveChoice<Selection: Hashable>: View {
                 Button {
                     selection = option.0
                 } label: {
-                    if option.0 == selection {
-                        Label(option.1, systemImage: "checkmark")
-                    } else {
-                        Text(option.1)
+                    Group {
+                        if option.0 == selection {
+                            Label(option.1, systemImage: "checkmark")
+                        } else {
+                            Text(option.1)
+                        }
                     }
+                    .lineLimit(2)
+                    .frame(minWidth: 44, minHeight: 44, alignment: .leading)
                 }
+                .accessibilityAddTraits(option.0 == selection ? .isSelected : [])
+                .accessibilityRemoveTraits(option.0 == selection ? [] : .isSelected)
             }
         } label: {
-            Text(valueTitle)
-                .font(.body)
-                .lineLimit(1)
-                .minimumScaleFactor(0.5)
-                .multilineTextAlignment(dynamicTypeSize.isAccessibilitySize ? .leading : .trailing)
-                .frame(maxWidth: dynamicTypeSize.isAccessibilitySize ? .infinity : nil, alignment: dynamicTypeSize.isAccessibilitySize ? .leading : .trailing)
-                .frame(minHeight: 44)
+            rowLabel
         }
         .accessibilityLabel("\(title): \(valueTitle)")
+        .accessibilityValue(valueTitle)
         .accessibilityIdentifier(identifier)
+    }
+
+    private var rowLabel: some View {
+        Group {
+            if dynamicTypeSize.isAccessibilitySize {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text(title)
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(3)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .accessibilityHidden(true)
+                    Text(valueTitle)
+                        .font(.body)
+                        .lineLimit(3)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .accessibilityHidden(true)
+                }
+            } else {
+                HStack(alignment: .center, spacing: 12) {
+                    Text(title)
+                        .lineLimit(2)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .accessibilityHidden(true)
+                    Spacer(minLength: 8)
+                    Text(valueTitle)
+                        .font(.body)
+                        .lineLimit(2)
+                        .multilineTextAlignment(.trailing)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .accessibilityHidden(true)
+                }
+            }
+        }
+        .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
+        .contentShape(Rectangle())
     }
 }
 

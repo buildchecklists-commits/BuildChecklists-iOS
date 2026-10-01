@@ -346,16 +346,20 @@ nonisolated enum ProjectReportSnapshotBuilder {
         }
     }
 
-    /// Swaps reversed bounds. The end date then covers the whole calendar day.
+    /// Swaps reversed bounds. Each selected day is included from its start through its end.
     private static func normalizedPeriod(from: Date?, to: Date?) -> (from: Date?, to: Date?) {
-        var lower = from
-        var upper = to
+        var lower = from.map { startOfSelectedDay(for: $0) }
+        var upper = to.map { startOfSelectedDay(for: $0) }
         if let start = lower, let end = upper, start > end {
             lower = end
             upper = start
         }
         let inclusiveEnd = upper.flatMap { endOfSelectedDay(for: $0) }
         return (lower, inclusiveEnd)
+    }
+
+    private static func startOfSelectedDay(for date: Date, calendar: Calendar = .current) -> Date {
+        calendar.startOfDay(for: date)
     }
 
     /// First instant that is no longer inside the selected calendar day.
