@@ -121,28 +121,35 @@ struct ReportExportView: View {
     private var variantSection: some View {
         Section {
             ForEach(visibleVariants) { item in
-                HStack(alignment: .center, spacing: 8) {
-                    UnbrokenText(
-                        text: item.title,
-                        textStyle: .body,
-                        weight: variant == item ? .semibold : .regular,
-                        maxLines: 3
-                    )
-                    .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
-                    if variant == item {
-                        Image(systemName: "checkmark")
-                            .font(.body.weight(.semibold))
-                            .accessibilityHidden(true)
+                Button {
+                    variant = item
+                } label: {
+                    HStack(alignment: .center, spacing: 8) {
+                        UnbrokenText(
+                            text: item.title,
+                            textStyle: .body,
+                            weight: variant == item ? .semibold : .regular,
+                            maxLines: 3
+                        )
+                        .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
+                        .allowsHitTesting(false)
+                        if variant == item {
+                            Image(systemName: "checkmark")
+                                .font(.body.weight(.semibold))
+                                .accessibilityHidden(true)
+                                .allowsHitTesting(false)
+                        }
                     }
-                }
+                    .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
                     .contentShape(Rectangle())
-                    .onTapGesture { variant = item }
-                    .accessibilityElement(children: .ignore)
-                    .accessibilityIdentifier("project.reports.variant")
-                    .accessibilityLabel(item.title)
-                    .accessibilityAddTraits(.isButton)
-                    .accessibilityAddTraits(variant == item ? .isSelected : [])
-                    .accessibilityRemoveTraits(variant == item ? [] : .isSelected)
+                }
+                .buttonStyle(.plain)
+                .accessibilityElement(children: .ignore)
+                .accessibilityIdentifier("project.reports.variant")
+                .accessibilityLabel(item.title)
+                .accessibilityAddTraits(.isButton)
+                .accessibilityAddTraits(variant == item ? .isSelected : [])
+                .accessibilityRemoveTraits(variant == item ? [] : .isSelected)
             }
 
             if prepared != nil, !planFactAvailable {
