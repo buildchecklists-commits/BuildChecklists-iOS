@@ -87,7 +87,6 @@
 		CFBE53802EF150FB003D1B96 /* ButtonStyles.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFBE537F2EF150F6003D1B96 /* ButtonStyles.swift */; };
 		CFBE5CD52EDC6F900036D136 /* ProjectPlanView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFBE5CD42EDC6F8A0036D136 /* ProjectPlanView.swift */; };
 		CFC3A3892ED480BB001D9A2C /* Expenses.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFC3A3882ED480B6001D9A2C /* Expenses.swift */; };
-		CFC3A38F2ED4942C001D9A2C /* PDFReportService.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFC3A38E2ED49427001D9A2C /* PDFReportService.swift */; };
 		CFC3A3912ED49459001D9A2C /* ShareSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFC3A3902ED49454001D9A2C /* ShareSheet.swift */; };
 		CFE287792ED3364A00D80679 /* DoorsStagesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFE287782ED3364300D80679 /* DoorsStagesProvider.swift */; };
 		CFE2877B2ED3368500D80679 /* DoorsProgressStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFE2877A2ED3367F00D80679 /* DoorsProgressStore.swift */; };
@@ -212,7 +211,6 @@
 		CFBE537F2EF150F6003D1B96 /* ButtonStyles.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtonStyles.swift; sourceTree = "<group>"; };
 		CFBE5CD42EDC6F8A0036D136 /* ProjectPlanView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectPlanView.swift; sourceTree = "<group>"; };
 		CFC3A3882ED480B6001D9A2C /* Expenses.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Expenses.swift; sourceTree = "<group>"; };
-		CFC3A38E2ED49427001D9A2C /* PDFReportService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFReportService.swift; sourceTree = "<group>"; };
 		CFC3A3902ED49454001D9A2C /* ShareSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareSheet.swift; sourceTree = "<group>"; };
 		CFE287782ED3364300D80679 /* DoorsStagesProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DoorsStagesProvider.swift; sourceTree = "<group>"; };
 		CFE2877A2ED3367F00D80679 /* DoorsProgressStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DoorsProgressStore.swift; sourceTree = "<group>"; };
@@ -1200,7 +1198,6 @@
 			children = (
 				A1B2C3D42E25000100C0FF01 /* Reports */,
 				CF3A10E92EE6FCAB00DA3F90 /* TaskNotificationService.swift */,
-				CFC3A38E2ED49427001D9A2C /* PDFReportService.swift */,
 				CF0D4A182EC020A100FF29AE /* InfoTextManager.swift */,
 				CFE7B0132EBDC8B100723E05 /* LandscapingProgressStore.swift */,
 				CFE7B0112EBDC89800723E05 /* FinishingProgressStore.swift */,
@@ -1490,7 +1487,6 @@
 				CFAB680C2ECFA6A400F813F7 /* RoofCoverProgressStore.swift in Sources */,
 				CFE7AFEA2EBDB66F00723E05 /* GeologyStagesScreen.swift in Sources */,
 				CFE7AFAB2EBDA3E200723E05 /* WallsPackModels.swift in Sources */,
-				CFC3A38F2ED4942C001D9A2C /* PDFReportService.swift in Sources */,
 				CFE7B00E2EBDC84600723E05 /* LandscapingStagesScreen.swift in Sources */,
 				CF59555C2EB9E8BF006BF803 /* Stage.swift in Sources */,
 				CFBE53802EF150FB003D1B96 /* ButtonStyles.swift in Sources */,
