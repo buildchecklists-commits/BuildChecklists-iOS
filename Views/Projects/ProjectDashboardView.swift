@@ -13,10 +13,8 @@ struct ProjectDashboardView: View {
 
     let projectID: UUID
 
-    @State private var showShareSheet = false
-    @State private var reportURL: URL?
     @State private var showChecklistReport = false
-    @State private var showReports = false
+    @State private var reportLaunch: ReportExportConfiguration?
 
     @State private var showProjectFilesSheet = false
     @State private var showContactsList = false
@@ -72,22 +70,18 @@ struct ProjectDashboardView: View {
                     }
                 }
 
-                .sheet(isPresented: $showShareSheet) {
-                    if let url = reportURL {
-                        ShareSheet(activityItems: [url])
-                    }
-                }
                 .sheet(isPresented: $showChecklistReport) {
                     NavigationStack {
                         ChecklistReportExportView(projectID: project.id)
                             .environmentObject(store)
                     }
                 }
-                .sheet(isPresented: $showReports) {
+                .sheet(item: $reportLaunch) { configuration in
                     NavigationStack {
-                        ReportExportView(projectID: project.id)
+                        ReportExportView(projectID: project.id, configuration: configuration)
                             .environmentObject(store)
                     }
+                    .id(configuration.id)
                 }
                 .sheet(isPresented: $showProjectFilesSheet) {
                     NavigationStack {
@@ -448,9 +442,9 @@ struct ProjectDashboardView: View {
         ProjectQuickActions(
             openFiles: { showProjectFilesSheet = true },
             openContacts: { showContactsList = true },
-            exportProjectPDF: { exportPDF(for: project) },
+            exportProjectPDF: { reportLaunch = .ownerSummary },
             openChecklistReport: { showChecklistReport = true },
-            openReports: { showReports = true },
+            openReports: { reportLaunch = .standard },
             planDestination: {
                 ProjectPlanView(projectID: project.id)
                     .environmentObject(store)
@@ -838,26 +832,6 @@ struct ProjectDashboardView: View {
             accessibilityIdentifier: "project.checklistPack.\(pack.rawValue)",
             destination: destination
         )
-    }
-
-    // MARK: - PDF Export
-
-    private func exportPDF(for project: Project) {
-        let service = PDFReportService()
-        let expenses = store.expenses(for: project.id)
-        let stages = project.stages
-
-        do {
-            let url = try service.makeProjectReport(
-                project: project,
-                stages: stages,
-                expenses: expenses
-            )
-            reportURL = url
-            showShareSheet = true
-        } catch {
-            print("❌ PDF report error:", error.localizedDescription)
-        }
     }
 
     // MARK: - Helpers

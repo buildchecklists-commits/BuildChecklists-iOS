@@ -10,6 +10,7 @@ struct ExpensesExportView: View {
     @State private var showShare = false
     @State private var shareURL: URL?
     @State private var lastError: String?
+    @State private var reportLaunch: ReportExportConfiguration?
 
     // Период для PDF-отчёта (используется в "Отчёте для заказчика")
     @State private var useDateFrom: Bool = false
@@ -114,7 +115,7 @@ struct ExpensesExportView: View {
                 }
 
                 Button {
-                    exportPDF()
+                    reportLaunch = .allExpenses
                 } label: {
                     HStack {
                         Image(systemName: "doc.richtext")
@@ -126,9 +127,15 @@ struct ExpensesExportView: View {
                         }
                     }
                 }
+                .accessibilityIdentifier("expenses.export.listPDF")
 
                 Button {
-                    exportCustomerPDF()
+                    var from: Date? = useDateFrom ? dateFrom : nil
+                    var to: Date? = useDateTo ? dateTo : nil
+                    if let start = from, let end = to, start > end {
+                        swap(&from, &to)
+                    }
+                    reportLaunch = .customer(from: from, to: to)
                 } label: {
                     HStack {
                         Image(systemName: "doc.text.magnifyingglass")
@@ -140,6 +147,7 @@ struct ExpensesExportView: View {
                         }
                     }
                 }
+                .accessibilityIdentifier("expenses.export.customerPDF")
             }
 
             // Ошибка
@@ -159,6 +167,13 @@ struct ExpensesExportView: View {
                     dismiss()
                 }
             }
+        }
+        .sheet(item: $reportLaunch) { configuration in
+            NavigationStack {
+                ReportExportView(projectID: projectID, configuration: configuration)
+                    .environmentObject(store)
+            }
+            .id(configuration.id)
         }
         .sheet(isPresented: $showShare, onDismiss: {
             shareURL = nil
@@ -183,39 +198,6 @@ struct ExpensesExportView: View {
         showShare = true
     }
 
-    private func exportPDF() {
-        lastError = nil
-        guard let url = store.exportExpensesPDF(for: projectID) else {
-            lastError = "Не удалось создать PDF. Возможно, ещё нет расходов."
-            return
-        }
-        shareURL = url
-        showShare = true
-    }
-
-    private func exportCustomerPDF() {
-        lastError = nil
-
-        var from: Date? = useDateFrom ? dateFrom : nil
-        var to: Date? = useDateTo ? dateTo : nil
-
-        // Если заданы обе даты, но "от" > "до" — поменяем местами
-        if let f = from, let t = to, f > t {
-            swap(&from, &to)
-        }
-
-        guard let url = store.exportCustomerExpensesPDF(
-            for: projectID,
-            dateFrom: from,
-            dateTo: to
-        ) else {
-            lastError = "Не удалось создать PDF. Возможно, по выбранным фильтрам нет расходов."
-            return
-        }
-
-        shareURL = url
-        showShare = true
-    }
 }
 
 // MARK: - UIKit Share Sheet

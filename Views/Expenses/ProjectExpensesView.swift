@@ -154,6 +154,8 @@ struct ProjectExpensesView: View {
                         } label: {
                             Image(systemName: "square.and.arrow.up")
                         }
+                        .accessibilityIdentifier("project.expenses.export")
+                        .accessibilityLabel("Экспорт расходов")
 
                         Button {
                             showChart = true

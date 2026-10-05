@@ -3,6 +3,33 @@ import PDFKit
 import SwiftUI
 import UIKit
 
+/// Initial variant and expense period for an existing entry point.
+/// Stages, types and list filters are not carried over: every preset starts from all stages.
+struct ReportExportConfiguration: Identifiable, Equatable {
+    enum Preset: Equatable {
+        case standard
+        case ownerSummary
+        case allExpenses
+        case customer(from: Date?, to: Date?)
+    }
+
+    let id: UUID
+    var preset: Preset
+
+    init(preset: Preset, id: UUID = UUID()) {
+        self.id = id
+        self.preset = preset
+    }
+
+    static var standard: ReportExportConfiguration { ReportExportConfiguration(preset: .standard) }
+    static var ownerSummary: ReportExportConfiguration { ReportExportConfiguration(preset: .ownerSummary) }
+    static var allExpenses: ReportExportConfiguration { ReportExportConfiguration(preset: .allExpenses) }
+
+    static func customer(from: Date?, to: Date?) -> ReportExportConfiguration {
+        ReportExportConfiguration(preset: .customer(from: from, to: to))
+    }
+}
+
 /// New report setup. Checklist export stays on `ChecklistReportExportView`.
 struct ReportExportView: View {
     @EnvironmentObject private var store: AppStore
@@ -11,11 +38,11 @@ struct ReportExportView: View {
 
     let projectID: UUID
 
-    @State private var variant: ReportVariant = .ownerSummary
-    @State private var audienceChoice: ReportAudienceChoice = .owner
-    @State private var periodMode: ReportPeriodMode = .off
-    @State private var dateFrom = Date()
-    @State private var dateTo = Date()
+    @State private var variant: ReportVariant
+    @State private var audienceChoice: ReportAudienceChoice
+    @State private var periodMode: ReportPeriodMode
+    @State private var dateFrom: Date
+    @State private var dateTo: Date
     @State private var allStages = true
     @State private var selectedStages = Set(GlobalStageCategory.allCases)
     @State private var includeChecklists = true
@@ -36,6 +63,16 @@ struct ReportExportView: View {
     @State private var task: Task<Void, Never>?
     @State private var cancelFlag = CancelFlag()
     @State private var session = ReportFileSession()
+
+    init(projectID: UUID, configuration: ReportExportConfiguration = .standard) {
+        self.projectID = projectID
+        let resolved = configuration.resolved()
+        _variant = State(initialValue: resolved.variant)
+        _audienceChoice = State(initialValue: resolved.audience)
+        _periodMode = State(initialValue: resolved.period)
+        _dateFrom = State(initialValue: resolved.dateFrom)
+        _dateTo = State(initialValue: resolved.dateTo)
+    }
 
     private var project: Project? {
         store.projects.first { $0.id == projectID }
@@ -1107,6 +1144,35 @@ private nonisolated enum ReportVariant: String, CaseIterable, Identifiable, Hash
         case .checklists: return "Только чек-листы"
         case .expenses: return "Только расходы"
         case .planFact: return "План/факт"
+        }
+    }
+}
+
+extension ReportExportConfiguration {
+    fileprivate func resolved() -> (
+        variant: ReportVariant,
+        audience: ReportAudienceChoice,
+        period: ReportPeriodMode,
+        dateFrom: Date,
+        dateTo: Date
+    ) {
+        let today = Date()
+        switch preset {
+        case .standard, .ownerSummary:
+            return (.ownerSummary, .owner, .off, today, today)
+        case .allExpenses:
+            return (.expenses, .owner, .off, today, today)
+        case .customer(let from, let to):
+            switch (from, to) {
+            case let (from?, to?):
+                return (.customer, .customer, .both, from, to)
+            case let (from?, nil):
+                return (.customer, .customer, .from, from, today)
+            case let (nil, to?):
+                return (.customer, .customer, .to, today, to)
+            case (nil, nil):
+                return (.customer, .customer, .off, today, today)
+            }
         }
     }
 }

@@ -33,6 +33,7 @@ struct BudgetProjectView: View {
 
     // Плановый бюджет — показ редактора
     @State private var showPlanEditor: Bool = false
+    @State private var reportLaunch: ReportExportConfiguration?
 
     // Read-only UX
     @State private var showReadOnlyAlert: Bool = false
@@ -145,6 +146,13 @@ struct BudgetProjectView: View {
         .sheet(isPresented: $showPlanEditor) {
             BudgetPlanEditorView(projectID: projectID)
                 .environmentObject(store)
+        }
+        .sheet(item: $reportLaunch) { configuration in
+            NavigationStack {
+                ReportExportView(projectID: projectID, configuration: configuration)
+                    .environmentObject(store)
+            }
+            .id(configuration.id)
         }
 
         // Paywall
@@ -657,23 +665,24 @@ struct BudgetProjectView: View {
                     }
                 }
 
-                if let pdfURL = store.exportExpensesPDF(for: projectID) {
-                    ShareLink(item: pdfURL) {
-                        Label("PDF (все)", systemImage: "doc.richtext")
-                            .font(.subheadline)
-                    }
+                Button {
+                    reportLaunch = .allExpenses
+                } label: {
+                    Label("PDF (все)", systemImage: "doc.richtext")
+                        .font(.subheadline)
                 }
+                .accessibilityIdentifier("budget.pdf.all")
 
-                if let customerURL = store.exportCustomerExpensesPDF(
-                    for: projectID,
-                    dateFrom: useDateFilter ? dateFrom : nil,
-                    dateTo: useDateFilter ? dateTo : nil
-                ) {
-                    ShareLink(item: customerURL) {
-                        Label("PDF для заказчика", systemImage: "person.text.rectangle")
-                            .font(.subheadline)
-                    }
+                Button {
+                    reportLaunch = .customer(
+                        from: useDateFilter ? dateFrom : nil,
+                        to: useDateFilter ? dateTo : nil
+                    )
+                } label: {
+                    Label("PDF для заказчика", systemImage: "person.text.rectangle")
+                        .font(.subheadline)
                 }
+                .accessibilityIdentifier("budget.pdf.customer")
             }
 
             Text("PDF для заказчика учитывает фильтр по датам, если он включён.")
