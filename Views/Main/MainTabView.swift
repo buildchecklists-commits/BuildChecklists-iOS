@@ -702,6 +702,9 @@ struct ProfilePlaceholderView: View {
         }
     }
 
+    @Environment(\.scenePhase) private var scenePhase
+    @State private var notificationAccess: TaskNotificationAccess?
+
     @State private var activeSheet: ActiveSheet?
 
     @State private var isWorkingAccess = false
@@ -761,6 +764,7 @@ struct ProfilePlaceholderView: View {
 
                     profileHeader
                     accountSection
+                    notificationSection
                     adviceSection
                     feedbackSection
                     deleteAccountSection
@@ -771,6 +775,13 @@ struct ProfilePlaceholderView: View {
                 .padding(.bottom, 24)
             }
             .navigationTitle("Профиль")
+        }
+        .onAppear {
+            Task { await refreshNotificationAccess() }
+        }
+        .onChange(of: scenePhase) { _, phase in
+            guard phase == .active else { return }
+            Task { await refreshNotificationAccess() }
         }
         .sheet(item: $activeSheet) { sheet in
             switch sheet {
@@ -803,6 +814,98 @@ struct ProfilePlaceholderView: View {
         } message: {
             Text("Будет удалён ваш email, профиль и все локальные данные на этом устройстве. Действие необратимо.")
         }
+    }
+
+    // MARK: - Напоминания
+
+    private var notificationSection: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Напоминания")
+                .font(.headline)
+
+            HStack(alignment: .center, spacing: 12) {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(notificationStatusTitle)
+                        .font(.subheadline.weight(.semibold))
+                        .fixedSize(horizontal: false, vertical: true)
+                    if notificationAccess == .notDetermined {
+                        Text("Спросим при сохранении задачи со сроком.")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .accessibilityElement(children: .combine)
+                .accessibilityIdentifier("profile.notifications.status")
+                .accessibilityValue(notificationAccessToken)
+
+                if notificationAccess == .denied {
+                    Button(action: openNotificationSettings) {
+                        Text("Открыть настройки")
+                            .font(.subheadline.weight(.semibold))
+                            .multilineTextAlignment(.center)
+                            .frame(minHeight: 44)
+                    }
+                    .buttonStyle(.bordered)
+                    .accessibilityIdentifier("profile.notifications.openSettings")
+                }
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 10)
+            .background(
+                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    .fill(Color(.systemBackground))
+            )
+        }
+    }
+
+    private var notificationStatusTitle: String {
+        switch notificationAccess {
+        case .none:
+            return "Проверяем состояние…"
+        case .notDetermined:
+            return "Разрешение ещё не запрошено"
+        case .authorized:
+            return "Разрешены"
+        case .provisional:
+            return "Предварительно разрешены"
+        case .ephemeral:
+            return "Разрешены на это использование"
+        case .denied:
+            return "Запрещены"
+        case .unknown:
+            return "Недоступны"
+        }
+    }
+
+    private var notificationAccessToken: String {
+        switch notificationAccess {
+        case .none:
+            return "loading"
+        case .notDetermined:
+            return "notDetermined"
+        case .authorized:
+            return "authorized"
+        case .provisional:
+            return "provisional"
+        case .ephemeral:
+            return "ephemeral"
+        case .denied:
+            return "denied"
+        case .unknown:
+            return "unknown"
+        }
+    }
+
+    private func refreshNotificationAccess() async {
+        let access = await TaskNotificationService.shared.currentAccess()
+        notificationAccess = access
+    }
+
+    private func openNotificationSettings() {
+        guard let url = URL(string: UIApplication.openNotificationSettingsURLString) else { return }
+        UIApplication.shared.open(url)
     }
 
     // MARK: - Аккаунт и тариф (StoreKit)

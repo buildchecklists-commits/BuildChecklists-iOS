@@ -59,6 +59,9 @@ final class AppStore: ObservableObject {
     /// DEMO: всё можно, но данные не сохраняем.
     @Published private(set) var isDemoMode: Bool = false
 
+    /// Task ids created in the current DEMO session. Used only to cancel those notifications on exit.
+    private var demoSessionTaskIDs: Set<UUID> = []
+
     /// Training for the current DEMO session only. A new `enterDemoMode()` starts it again.
     @Published private(set) var demoCoachStep: DemoCoachStep = .openProject
     @Published private(set) var demoCoachDeclined = false
@@ -212,7 +215,12 @@ final class AppStore: ObservableObject {
             debugPrint("❌ Load tasks error:", error.localizedDescription)
         }
 
-        TaskNotificationService.shared.rescheduleAllNotifications(tasks: tasks)
+        if !isDemoMode {
+            TaskNotificationService.shared.rescheduleAllNotifications {
+                guard !self.isDemoMode else { return nil }
+                return self.tasks
+            }
+        }
         BCTiming.log("bootstrap end")
     }
 
@@ -350,6 +358,7 @@ final class AppStore: ObservableObject {
     }
 
     func enterDemoMode() {
+        cancelDemoSessionNotifications()
         beginDemoCoachSession()
         userRole = .demo
         isDemoMode = true
@@ -387,9 +396,12 @@ final class AppStore: ObservableObject {
             UserDefaults.standard.set(newID.uuidString, forKey: lastDemoProjectIDKey)
             sessionDemoProjectID = newID
         }
+        demoSessionTaskIDs.formUnion(tasks.map(\.id))
+        TaskNotificationService.shared.cancelNotifications(for: demoSessionTaskIDs)
     }
 
     func exitDemoMode() {
+        cancelDemoSessionNotifications()
         // Выход из demo: подчистить progress по текущим проектам в памяти и по сохранённому UUID.
         // (register/login выставляют isDemoMode = false до exitDemoMode — проверка isDemoMode здесь не надёжна.)
         for project in projects {
@@ -503,7 +515,7 @@ final class AppStore: ObservableObject {
         selectedTab = .projects
 
         // 7) уведомления по задачам — пересчитать (станет пусто)
-        TaskNotificationService.shared.rescheduleAllNotifications(tasks: [])
+        TaskNotificationService.shared.rescheduleAllNotifications { [] }
     }
 
     // MARK: - Expenses
@@ -912,7 +924,7 @@ final class AppStore: ObservableObject {
         tasks.insert(task, at: 0)
         try persistTasks()
 
-        TaskNotificationService.shared.rescheduleNotification(for: task)
+        syncSavedTaskNotification(task, allowPrompt: true)
     }
 
     func addTask(title: String, details: String?, projectID: UUID?, dueDate: Date?) throws {
@@ -948,7 +960,7 @@ final class AppStore: ObservableObject {
         tasks[index] = updated
         try persistTasks()
 
-        TaskNotificationService.shared.rescheduleNotification(for: updated)
+        syncSavedTaskNotification(updated, allowPrompt: true)
     }
 
     func updateTask(_ task: TaskItem, title: String, details: String?, projectID: UUID?, dueDate: Date?, isCompleted: Bool) throws {
@@ -973,11 +985,7 @@ final class AppStore: ObservableObject {
         tasks[index] = updated
         try persistTasks()
 
-        if updated.isCompleted {
-            TaskNotificationService.shared.cancelNotification(for: updated.id)
-        } else {
-            TaskNotificationService.shared.rescheduleNotification(for: updated)
-        }
+        syncSavedTaskNotification(updated, allowPrompt: false)
     }
 
     func deleteTask(_ task: TaskItem) throws {
@@ -985,6 +993,9 @@ final class AppStore: ObservableObject {
         tasks.removeAll { $0.id == task.id }
         try persistTasks()
 
+        if isDemoMode {
+            demoSessionTaskIDs.remove(task.id)
+        }
         TaskNotificationService.shared.cancelNotification(for: task.id)
     }
 
@@ -993,6 +1004,36 @@ final class AppStore: ObservableObject {
     }
 
     // MARK: - Persistence
+
+    /// Prompts only after a normal-profile save of an incomplete task with a future due date.
+    /// DEMO never prompts and never schedules; it only remembers the task id for a precise cancel later.
+    private func syncSavedTaskNotification(_ task: TaskItem, allowPrompt: Bool) {
+        if isDemoMode {
+            demoSessionTaskIDs.insert(task.id)
+            TaskNotificationService.shared.cancelNotification(for: task.id)
+            return
+        }
+
+        let taskID = task.id
+        let prompt = allowPrompt && TaskNotificationService.canRemind(task)
+        Task { @MainActor in
+            let granted = await TaskNotificationService.shared.accessForScheduling(allowPrompt: prompt)
+            guard !self.isDemoMode else { return }
+            guard let current = self.tasks.first(where: { $0.id == taskID }) else { return }
+            guard granted else { return }
+            if TaskNotificationService.canRemind(current) {
+                TaskNotificationService.shared.replaceNotification(for: current)
+            } else {
+                TaskNotificationService.shared.cancelNotification(for: taskID)
+            }
+        }
+    }
+
+    private func cancelDemoSessionNotifications() {
+        let identifiers = demoSessionTaskIDs
+        demoSessionTaskIDs = []
+        TaskNotificationService.shared.cancelNotifications(for: identifiers)
+    }
 
     private func persistProjects() throws {
         guard !isDemoMode else { return }
