@@ -97,9 +97,6 @@ struct ProjectsListView: View {
 
     // Калькулятор (MVP, без сохранения)
     @State private var showCalculator: Bool = false
-    // DEMO coachmark (только для текущей сессии)
-    @State private var showDemoCoachmark: Bool = false
-    @State private var didDismissDemoCoachmark: Bool = false
 
     /// One column. Wide iPad windows center this column instead of placing two narrow cards side by side.
     private let projectColumnMaxWidth: CGFloat = 640
@@ -158,14 +155,6 @@ struct ProjectsListView: View {
 
     private var completedProjects: [(project: Project, progress: Double)] {
         projectsWithProgress.filter { $0.progress >= 1.0 }
-    }
-
-    private var highlightedDemoProjectID: UUID? {
-        projectsWithProgress.first?.project.id
-    }
-
-    private var shouldShowDemoCoachmark: Bool {
-        showDemoCoachmark && store.isDemoMode && !store.projects.isEmpty
     }
 
     var body: some View {
@@ -260,38 +249,12 @@ struct ProjectsListView: View {
 
         .onAppear {
             recalcAllProjectsProgress()
-            updateDemoCoachmarkVisibility()
         }
         .onChange(of: store.projects) { _, _ in
             recalcAllProjectsProgress()
-            updateDemoCoachmarkVisibility()
-        }
-        .onChange(of: store.isDemoMode) { _, isDemo in
-            if isDemo {
-                updateDemoCoachmarkVisibility()
-            } else {
-                showDemoCoachmark = false
-                didDismissDemoCoachmark = false
-            }
         }
         .onReceive(NotificationCenter.default.publisher(for: .bcProgressDidChange)) { _ in
             recalcAllProjectsProgress()
-        }
-        .overlay {
-            if shouldShowDemoCoachmark {
-                Color.black.opacity(0.2)
-                    .ignoresSafeArea()
-                    .allowsHitTesting(false)
-            }
-        }
-        .overlay(alignment: .top) {
-            if shouldShowDemoCoachmark {
-                demoCoachmark
-                    .padding(.horizontal, 16)
-                    .padding(.top, 10)
-                    .transition(.move(edge: .top).combined(with: .opacity))
-                    .zIndex(5)
-            }
         }
     }
 
@@ -348,11 +311,15 @@ struct ProjectsListView: View {
 
                     LazyVGrid(columns: gridColumns, alignment: .leading, spacing: 16) {
                         ForEach(currentProjects, id: \.project.id) { pair in
-                            projectRow(
-                                pair.project,
-                                progress: pair.progress,
-                                isDemoHighlighted: shouldShowDemoCoachmark && pair.project.id == highlightedDemoProjectID
-                            )
+                            VStack(alignment: .leading, spacing: 8) {
+                                projectRow(pair.project, progress: pair.progress)
+                                if store.showsDemoCoach(.openProject), pair.project.id == store.sessionDemoProjectID {
+                                    DemoCoachNote(
+                                        text: "Начните с примера: откройте этот проект",
+                                        identifier: "demo.coach.openProject"
+                                    )
+                                }
+                            }
                         }
                     }
                 }
@@ -364,11 +331,15 @@ struct ProjectsListView: View {
 
                     LazyVGrid(columns: gridColumns, alignment: .leading, spacing: 16) {
                         ForEach(completedProjects, id: \.project.id) { pair in
-                            projectRow(
-                                pair.project,
-                                progress: pair.progress,
-                                isDemoHighlighted: shouldShowDemoCoachmark && pair.project.id == highlightedDemoProjectID
-                            )
+                            VStack(alignment: .leading, spacing: 8) {
+                                projectRow(pair.project, progress: pair.progress)
+                                if store.showsDemoCoach(.openProject), pair.project.id == store.sessionDemoProjectID {
+                                    DemoCoachNote(
+                                        text: "Начните с примера: откройте этот проект",
+                                        identifier: "demo.coach.openProject"
+                                    )
+                                }
+                            }
                         }
                     }
                 }
@@ -707,58 +678,7 @@ struct ProjectsListView: View {
         )
     }
 
-    private var demoCoachmark: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HStack(spacing: 8) {
-                Image(systemName: "sparkles")
-                    .foregroundStyle(ProjectUXColors.accentAction)
-                Text("Демонстрационный проект")
-                    .font(.subheadline.weight(.semibold))
-                Spacer()
-                Button {
-                    dismissDemoCoachmark()
-                } label: {
-                    Image(systemName: "xmark")
-                        .font(.caption.weight(.bold))
-                        .foregroundStyle(.secondary)
-                        .padding(6)
-                        .background(.ultraThinMaterial)
-                        .clipShape(Circle())
-                }
-                .buttonStyle(.plain)
-            }
-
-            Text("Откройте проект и посмотрите, как приложение помогает контролировать этапы, сроки, расходы и фото. В DEMO его можно редактировать.")
-                .font(.footnote)
-                .foregroundStyle(.secondary)
-                .fixedSize(horizontal: false, vertical: true)
-
-            HStack {
-                Spacer()
-                Button("Понятно") {
-                    dismissDemoCoachmark()
-                }
-                .font(.footnote.weight(.semibold))
-                .buttonStyle(.borderedProminent)
-                .tint(ProjectUXColors.accentAction)
-                .foregroundStyle(ProjectUXColors.onAccent)
-            }
-        }
-        .padding(12)
-        .background(
-            RoundedRectangle(cornerRadius: 14, style: .continuous)
-                .fill(Color(.systemBackground).opacity(0.95))
-        )
-        .overlay(
-            RoundedRectangle(cornerRadius: 14, style: .continuous)
-                .stroke(ProjectUXColors.accentAction.opacity(0.45), lineWidth: 1)
-        )
-        .shadow(color: .black.opacity(0.15), radius: 8, x: 0, y: 4)
-    }
-
-    // MARK: - projectRow
-
-    private func projectRow(_ project: Project, progress: Double, isDemoHighlighted: Bool = false) -> some View {
+    private func projectRow(_ project: Project, progress: Double) -> some View {
         let progressPercent = Int((progress * 100).rounded())
         let isCompleted = progress >= 1.0
 
@@ -851,13 +771,6 @@ struct ProjectsListView: View {
             .padding(.horizontal, 8)
             .padding(.bottom, 6)
         }
-        .overlay {
-            if isDemoHighlighted {
-                RoundedRectangle(cornerRadius: 20, style: .continuous)
-                    .stroke(ProjectUXColors.accentAction, lineWidth: 2)
-                    .shadow(color: ProjectUXColors.accentAction.opacity(0.35), radius: 10, x: 0, y: 0)
-            }
-        }
         .hoverEffect(.lift)
         .swipeActions(edge: .leading) {
             Button {
@@ -906,21 +819,6 @@ struct ProjectsListView: View {
             dict[project.id] = overallProgress(for: project)
         }
         progressCache = dict
-    }
-
-    private func updateDemoCoachmarkVisibility() {
-        guard store.isDemoMode else {
-            showDemoCoachmark = false
-            return
-        }
-        showDemoCoachmark = !didDismissDemoCoachmark && !store.projects.isEmpty
-    }
-
-    private func dismissDemoCoachmark() {
-        didDismissDemoCoachmark = true
-        withAnimation(.easeOut(duration: 0.2)) {
-            showDemoCoachmark = false
-        }
     }
 
     private func editLabel(onCover: Bool, ink: Color) -> some View {

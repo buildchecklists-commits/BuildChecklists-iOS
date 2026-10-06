@@ -20,6 +20,17 @@ enum AppStoreError: Error {
     case subscriptionExpiredReadOnly
 }
 
+/// In-memory steps of the current DEMO session. Not written to UserDefaults.
+enum DemoCoachStep: Equatable {
+    case openProject
+    case openGeology
+    case openFirstGroup
+    case markItem
+    case openReports
+    case generateReport
+    case finished
+}
+
 @MainActor
 final class AppStore: ObservableObject {
 
@@ -47,6 +58,11 @@ final class AppStore: ObservableObject {
 
     /// DEMO: всё можно, но данные не сохраняем.
     @Published private(set) var isDemoMode: Bool = false
+
+    /// Training for the current DEMO session only. A new `enterDemoMode()` starts it again.
+    @Published private(set) var demoCoachStep: DemoCoachStep = .openProject
+    @Published private(set) var demoCoachDeclined = false
+    @Published private(set) var sessionDemoProjectID: UUID?
 
     /// Read-only при истёкшей подписке (USER или PRO).
     @Published private(set) var isReadOnlyMode: Bool = false
@@ -313,7 +329,28 @@ final class AppStore: ObservableObject {
 
     // MARK: - Demo mode
 
+    func showsDemoCoach(_ step: DemoCoachStep) -> Bool {
+        isDemoMode && !demoCoachDeclined && demoCoachStep == step
+    }
+
+    func beginDemoCoachSession() {
+        demoCoachStep = .openProject
+        demoCoachDeclined = false
+        sessionDemoProjectID = nil
+    }
+
+    /// Крестик or «Понятно» stops every remaining hint until the next DEMO entry.
+    func declineDemoCoach() {
+        demoCoachDeclined = true
+    }
+
+    func advanceDemoCoach(from expected: DemoCoachStep, to next: DemoCoachStep) {
+        guard isDemoMode, !demoCoachDeclined, demoCoachStep == expected else { return }
+        demoCoachStep = next
+    }
+
     func enterDemoMode() {
+        beginDemoCoachSession()
         userRole = .demo
         isDemoMode = true
         isReadOnlyMode = false
@@ -348,6 +385,7 @@ final class AppStore: ObservableObject {
 
         if let newID = projects.first?.id {
             UserDefaults.standard.set(newID.uuidString, forKey: lastDemoProjectIDKey)
+            sessionDemoProjectID = newID
         }
     }
 
@@ -364,6 +402,7 @@ final class AppStore: ObservableObject {
         UserDefaults.standard.removeObject(forKey: lastDemoProjectIDKey)
 
         isDemoMode = false
+        sessionDemoProjectID = nil
         mainPrepareStarted = true
         isMainDataReady = false
 

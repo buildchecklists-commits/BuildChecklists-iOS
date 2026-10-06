@@ -44,9 +44,6 @@ struct BudgetProjectsListView: View {
 
     @State private var selectedFilter: BudgetFilter = .all
     @State private var selectedSort: BudgetSort = .manual
-    /// DEMO coachmark (только текущая сессия, без AppStore)
-    @State private var showDemoBudgetCoachmark: Bool = false
-    @State private var didDismissDemoBudgetCoachmark: Bool = false
 
     // MARK: - Helpers: прогресс проекта (та же логика, что в ProjectsListView)
 
@@ -122,18 +119,6 @@ struct BudgetProjectsListView: View {
         }
     }
 
-    /// Первая карточка в списке: сначала «Текущие», затем «Завершённые».
-    private var firstVisibleBudgetProjectID: UUID? {
-        let current = filteredAndSorted.filter { $0.progress < 1.0 }
-        if let p = current.first { return p.project.id }
-        let completed = filteredAndSorted.filter { $0.progress >= 1.0 }
-        return completed.first?.project.id
-    }
-
-    private var shouldShowDemoBudgetCoachmark: Bool {
-        showDemoBudgetCoachmark && store.isDemoMode && !filteredAndSorted.isEmpty
-    }
-
     // MARK: - Body
 
     var body: some View {
@@ -184,19 +169,6 @@ struct BudgetProjectsListView: View {
                                         )
                                     }
                                     .buttonStyle(CardLinkStyle())
-                                    .overlay {
-                                        if shouldShowDemoBudgetCoachmark,
-                                           pair.project.id == firstVisibleBudgetProjectID {
-                                            RoundedRectangle(cornerRadius: 20, style: .continuous)
-                                                .stroke(Color("AccentYellow"), lineWidth: 2)
-                                                .shadow(
-                                                    color: Color("AccentYellow").opacity(0.35),
-                                                    radius: 10,
-                                                    x: 0,
-                                                    y: 0
-                                                )
-                                        }
-                                    }
                                     .padding(.horizontal, 16)
                                 }
                             }
@@ -219,19 +191,6 @@ struct BudgetProjectsListView: View {
                                         )
                                     }
                                     .buttonStyle(CardLinkStyle())
-                                    .overlay {
-                                        if shouldShowDemoBudgetCoachmark,
-                                           pair.project.id == firstVisibleBudgetProjectID {
-                                            RoundedRectangle(cornerRadius: 20, style: .continuous)
-                                                .stroke(Color("AccentYellow"), lineWidth: 2)
-                                                .shadow(
-                                                    color: Color("AccentYellow").opacity(0.35),
-                                                    radius: 10,
-                                                    x: 0,
-                                                    y: 0
-                                                )
-                                        }
-                                    }
                                     .padding(.horizontal, 16)
                                 }
                             }
@@ -302,106 +261,6 @@ struct BudgetProjectsListView: View {
                 )
             }
             .toolbar(.hidden, for: .navigationBar)
-        }
-        .onAppear {
-            updateDemoBudgetCoachmarkVisibility()
-        }
-        .onChange(of: store.projects) { _, _ in
-            updateDemoBudgetCoachmarkVisibility()
-        }
-        .onChange(of: selectedFilter) { _, _ in
-            updateDemoBudgetCoachmarkVisibility()
-        }
-        .onChange(of: selectedSort) { _, _ in
-            updateDemoBudgetCoachmarkVisibility()
-        }
-        .onChange(of: store.isDemoMode) { _, isDemo in
-            if isDemo {
-                updateDemoBudgetCoachmarkVisibility()
-            } else {
-                showDemoBudgetCoachmark = false
-                didDismissDemoBudgetCoachmark = false
-            }
-        }
-        .overlay {
-            if shouldShowDemoBudgetCoachmark {
-                Color.black.opacity(0.2)
-                    .ignoresSafeArea()
-                    .allowsHitTesting(false)
-            }
-        }
-        .overlay(alignment: .top) {
-            if shouldShowDemoBudgetCoachmark {
-                demoBudgetCoachmark
-                    .padding(.horizontal, 16)
-                    .padding(.top, 10)
-                    .transition(.move(edge: .top).combined(with: .opacity))
-                    .zIndex(5)
-            }
-        }
-    }
-
-    private var demoBudgetCoachmark: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HStack(spacing: 8) {
-                Image(systemName: "chart.pie.fill")
-                    .foregroundColor(Color("AccentYellow"))
-                Text("Контроль бюджета")
-                    .font(.subheadline.weight(.semibold))
-                Spacer()
-                Button {
-                    dismissDemoBudgetCoachmark()
-                } label: {
-                    Image(systemName: "xmark")
-                        .font(.caption.weight(.bold))
-                        .foregroundStyle(.secondary)
-                        .padding(6)
-                        .background(.ultraThinMaterial)
-                        .clipShape(Circle())
-                }
-                .buttonStyle(.plain)
-            }
-
-            Text("Здесь видны расходы по проекту: план и факт по этапам, графики, поиск по операциям и экспорт отчёта. Откройте проект, чтобы посмотреть детали.")
-                .font(.footnote)
-                .foregroundStyle(.secondary)
-                .fixedSize(horizontal: false, vertical: true)
-
-            HStack {
-                Spacer()
-                Button("Понятно") {
-                    dismissDemoBudgetCoachmark()
-                }
-                .font(.footnote.weight(.semibold))
-                .buttonStyle(.borderedProminent)
-                .tint(Color("AccentYellow"))
-                .foregroundColor(Color("BrandBlack"))
-            }
-        }
-        .padding(12)
-        .background(
-            RoundedRectangle(cornerRadius: 14, style: .continuous)
-                .fill(Color(.systemBackground).opacity(0.95))
-        )
-        .overlay(
-            RoundedRectangle(cornerRadius: 14, style: .continuous)
-                .stroke(Color("AccentYellow").opacity(0.35), lineWidth: 1)
-        )
-        .shadow(color: .black.opacity(0.15), radius: 8, x: 0, y: 4)
-    }
-
-    private func updateDemoBudgetCoachmarkVisibility() {
-        guard store.isDemoMode else {
-            showDemoBudgetCoachmark = false
-            return
-        }
-        showDemoBudgetCoachmark = !didDismissDemoBudgetCoachmark && !filteredAndSorted.isEmpty
-    }
-
-    private func dismissDemoBudgetCoachmark() {
-        didDismissDemoBudgetCoachmark = true
-        withAnimation(.easeOut(duration: 0.2)) {
-            showDemoBudgetCoachmark = false
         }
     }
 }

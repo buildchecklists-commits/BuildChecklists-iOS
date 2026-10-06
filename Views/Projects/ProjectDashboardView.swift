@@ -52,6 +52,13 @@ struct ProjectDashboardView: View {
 
                         quickActions(project)
 
+                        if store.showsDemoCoach(.openReports), project.id == store.sessionDemoProjectID {
+                            DemoCoachNote(
+                                text: "Посмотрите результат: откройте «Отчёты»",
+                                identifier: "demo.coach.reports"
+                            )
+                        }
+
                         stagesSection(project)
                     }
                     .padding(.horizontal)
@@ -105,6 +112,9 @@ struct ProjectDashboardView: View {
 
                 .onAppear {
                     reloadIssues()
+                    if project.id == store.sessionDemoProjectID {
+                        store.advanceDemoCoach(from: .openProject, to: .openGeology)
+                    }
                 }
 
                 // Любое изменение прогресса этапов перерисовывает дашборд
@@ -721,6 +731,15 @@ struct ProjectDashboardView: View {
                     measurement: packMeasurement(GeologyProgressStore.load, project: project),
                     showsConnector: true
                 ) { GeologyStagesScreen(project: project) }
+
+                if store.showsDemoCoach(.openGeology), project.id == store.sessionDemoProjectID {
+                    DemoCoachNote(
+                        text: "Откройте первый этап, чтобы попробовать проверку",
+                        identifier: "demo.coach.geology"
+                    )
+                    .padding(.top, 8)
+                    .padding(.bottom, 4)
+                }
 
                 stageRow(
                     pack: .foundation,

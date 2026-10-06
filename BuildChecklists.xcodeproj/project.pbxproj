@@ -75,6 +75,7 @@
 		CF5955B12EB9E999006BF803 /* WhatsNewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF5955B02EB9E999006BF803 /* WhatsNewView.swift */; };
 		CF5955C12EB9E999006BF804 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF5955C02EB9E999006BF804 /* OnboardingView.swift */; };
 		A9B8C7D62F10000100AA0002 /* OnboardingFlowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9B8C7D62F10000100AA0001 /* OnboardingFlowView.swift */; };
+		A9B8C7D62F10000100AA0004 /* DemoCoachNote.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9B8C7D62F10000100AA0003 /* DemoCoachNote.swift */; };
 		CF7346842EC453850061E531 /* arbolit in Resources */ = {isa = PBXBuildFile; fileRef = CF7346832EC453840061E531 /* arbolit */; };
 		CF7F15762EC6511E008A1732 /* monolithic in Resources */ = {isa = PBXBuildFile; fileRef = CF7F15752EC6511E008A1732 /* monolithic */; };
 		CF8B2D7C2EDA080E00307209 /* GlobalStageCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF8B2D7B2EDA080600307209 /* GlobalStageCategory.swift */; };
@@ -200,6 +201,7 @@
 		CF5955B02EB9E999006BF803 /* WhatsNewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WhatsNewView.swift; sourceTree = "<group>"; };
 		CF5955C02EB9E999006BF804 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
 		A9B8C7D62F10000100AA0001 /* OnboardingFlowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingFlowView.swift; sourceTree = "<group>"; };
+		A9B8C7D62F10000100AA0003 /* DemoCoachNote.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoCoachNote.swift; sourceTree = "<group>"; };
 		CF7346832EC453840061E531 /* arbolit */ = {isa = PBXFileReference; lastKnownFileType = folder; name = arbolit; path = Resources/InfoTexts/walls/arbolit; sourceTree = "<group>"; };
 		CF7F15752EC6511E008A1732 /* monolithic */ = {isa = PBXFileReference; lastKnownFileType = folder; name = monolithic; path = Resources/InfoTexts/walls/monolithic; sourceTree = "<group>"; };
 		CF8B2D7B2EDA080600307209 /* GlobalStageCategory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobalStageCategory.swift; sourceTree = "<group>"; };
@@ -1288,6 +1290,7 @@
 				CF3226282EBABEF200401DFB /* PickerTile.swift */,
 				CF3226262EBABAF700401DFB /* FoundationPickerView.swift */,
 				CF59556B2EB9EB66006BF803 /* ProjectDashboardView.swift */,
+				A9B8C7D62F10000100AA0003 /* DemoCoachNote.swift */,
 				CF9A111B2E09212600C0FF16 /* ChecklistTimelineViews.swift */,
 				CF9A11202E09212700C0FF18 /* ProjectQuickActions.swift */,
 				CF9A11172E09212600C0FF14 /* ChecklistReportExportView.swift */,
@@ -1475,6 +1478,7 @@
 				CF5955552EB9E3AA006BF803 /* WelcomeView.swift in Sources */,
 				CF5955C12EB9E999006BF804 /* OnboardingView.swift in Sources */,
 				A9B8C7D62F10000100AA0002 /* OnboardingFlowView.swift in Sources */,
+				A9B8C7D62F10000100AA0004 /* DemoCoachNote.swift in Sources */,
 				CF5955B12EB9E999006BF803 /* WhatsNewView.swift in Sources */,
 				CFE7AF962EBD9F8800723E05 /* FoundationProgressStore.swift in Sources */,
 				CF2E8B882EBA700300C93EB0 /* SeedStage.swift in Sources */,

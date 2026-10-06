@@ -64,8 +64,11 @@ struct ReportExportView: View {
     @State private var cancelFlag = CancelFlag()
     @State private var session = ReportFileSession()
 
+    private let tracksDemoReport: Bool
+
     init(projectID: UUID, configuration: ReportExportConfiguration = .standard) {
         self.projectID = projectID
+        self.tracksDemoReport = configuration.preset == .standard
         let resolved = configuration.resolved()
         _variant = State(initialValue: resolved.variant)
         _audienceChoice = State(initialValue: resolved.audience)
@@ -93,6 +96,9 @@ struct ReportExportView: View {
         .onAppear {
             session.reopen()
             refreshEstimate()
+            if tracksDemoReport {
+                store.advanceDemoCoach(from: .openReports, to: .generateReport)
+            }
         }
         .onChange(of: selectionKey) { _, _ in
             errorText = nil
@@ -127,6 +133,12 @@ struct ReportExportView: View {
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .accessibilityIdentifier("project.reports.error")
                             .accessibilityLabel(errorText)
+                    }
+                    if store.showsDemoCoach(.generateReport), tracksDemoReport {
+                        DemoCoachNote(
+                            text: "Нажмите «Сформировать», чтобы получить PDF примера",
+                            identifier: "demo.coach.generate"
+                        )
                     }
                     generationBar
                 }
@@ -390,7 +402,10 @@ struct ReportExportView: View {
             .frame(maxWidth: .infinity)
             .accessibilityIdentifier("project.reports.progress")
         } else {
-            Button(action: startExport) {
+            Button(action: {
+                store.advanceDemoCoach(from: .generateReport, to: .finished)
+                startExport()
+            }) {
                 ViewThatFits(in: .horizontal) {
                     Text("Сформировать")
                         .font(.body.weight(.semibold))

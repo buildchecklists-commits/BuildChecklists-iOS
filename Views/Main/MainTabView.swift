@@ -118,9 +118,6 @@ struct PlanProjectsListView: View {
 
     @State private var selectedFilter: PlanFilter = .all
     @State private var selectedSort: PlanSort = .manual
-    /// DEMO coachmark (только текущая сессия, без AppStore)
-    @State private var showDemoTimelineCoachmark: Bool = false
-    @State private var didDismissDemoTimelineCoachmark: Bool = false
 
     private var filteredAndSorted: [Project] {
         let projects = store.projects.filter { project in
@@ -155,10 +152,6 @@ struct PlanProjectsListView: View {
         }
     }
 
-    private var shouldShowDemoTimelineCoachmark: Bool {
-        showDemoTimelineCoachmark && store.isDemoMode && !filteredAndSorted.isEmpty
-    }
-
     var body: some View {
         NavigationStack {
             ZStack(alignment: .top) {
@@ -185,19 +178,6 @@ struct PlanProjectsListView: View {
                                         PlanProjectRow(project: project)
                                     }
                                     .buttonStyle(.plain)
-                                    .overlay {
-                                        if shouldShowDemoTimelineCoachmark,
-                                           project.id == filteredAndSorted.first?.id {
-                                            RoundedRectangle(cornerRadius: 18, style: .continuous)
-                                                .stroke(Color("AccentYellow"), lineWidth: 2)
-                                                .shadow(
-                                                    color: Color("AccentYellow").opacity(0.35),
-                                                    radius: 10,
-                                                    x: 0,
-                                                    y: 0
-                                                )
-                                        }
-                                    }
                                 }
                             }
                             .padding(.horizontal, 16)
@@ -215,42 +195,6 @@ struct PlanProjectsListView: View {
             }
             .toolbar(.hidden, for: .navigationBar)
         }
-        .onAppear {
-            updateDemoTimelineCoachmarkVisibility()
-        }
-        .onChange(of: store.projects) { _, _ in
-            updateDemoTimelineCoachmarkVisibility()
-        }
-        .onChange(of: selectedFilter) { _, _ in
-            updateDemoTimelineCoachmarkVisibility()
-        }
-        .onChange(of: selectedSort) { _, _ in
-            updateDemoTimelineCoachmarkVisibility()
-        }
-        .onChange(of: store.isDemoMode) { _, isDemo in
-            if isDemo {
-                updateDemoTimelineCoachmarkVisibility()
-            } else {
-                showDemoTimelineCoachmark = false
-                didDismissDemoTimelineCoachmark = false
-            }
-        }
-        .overlay {
-            if shouldShowDemoTimelineCoachmark {
-                Color.black.opacity(0.2)
-                    .ignoresSafeArea()
-                    .allowsHitTesting(false)
-            }
-        }
-        .overlay(alignment: .top) {
-            if shouldShowDemoTimelineCoachmark {
-                demoTimelineCoachmark
-                    .padding(.horizontal, 16)
-                    .padding(.top, 10)
-                    .transition(.move(edge: .top).combined(with: .opacity))
-                    .zIndex(5)
-            }
-        }
     }
 
     private var emptyState: some View {
@@ -263,70 +207,6 @@ struct PlanProjectsListView: View {
         }
         .padding(.vertical, 8)
         .frame(maxWidth: .infinity, alignment: .leading)
-    }
-
-    private var demoTimelineCoachmark: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HStack(spacing: 8) {
-                Image(systemName: "calendar.badge.clock")
-                    .foregroundColor(Color("AccentYellow"))
-                Text("Сроки по проекту")
-                    .font(.subheadline.weight(.semibold))
-                Spacer()
-                Button {
-                    dismissDemoTimelineCoachmark()
-                } label: {
-                    Image(systemName: "xmark")
-                        .font(.caption.weight(.bold))
-                        .foregroundStyle(.secondary)
-                        .padding(6)
-                        .background(.ultraThinMaterial)
-                        .clipShape(Circle())
-                }
-                .buttonStyle(.plain)
-            }
-
-            Text("Здесь видно плановые и фактические сроки по этапам, просрочки и причины задержек. Откройте проект, чтобы посмотреть таймлайн строительства.")
-                .font(.footnote)
-                .foregroundStyle(.secondary)
-                .fixedSize(horizontal: false, vertical: true)
-
-            HStack {
-                Spacer()
-                Button("Понятно") {
-                    dismissDemoTimelineCoachmark()
-                }
-                .font(.footnote.weight(.semibold))
-                .buttonStyle(.borderedProminent)
-                .tint(Color("AccentYellow"))
-                .foregroundColor(Color("BrandBlack"))
-            }
-        }
-        .padding(12)
-        .background(
-            RoundedRectangle(cornerRadius: 14, style: .continuous)
-                .fill(Color(.systemBackground).opacity(0.95))
-        )
-        .overlay(
-            RoundedRectangle(cornerRadius: 14, style: .continuous)
-                .stroke(Color("AccentYellow").opacity(0.35), lineWidth: 1)
-        )
-        .shadow(color: .black.opacity(0.15), radius: 8, x: 0, y: 4)
-    }
-
-    private func updateDemoTimelineCoachmarkVisibility() {
-        guard store.isDemoMode else {
-            showDemoTimelineCoachmark = false
-            return
-        }
-        showDemoTimelineCoachmark = !didDismissDemoTimelineCoachmark && !filteredAndSorted.isEmpty
-    }
-
-    private func dismissDemoTimelineCoachmark() {
-        didDismissDemoTimelineCoachmark = true
-        withAnimation(.easeOut(duration: 0.2)) {
-            showDemoTimelineCoachmark = false
-        }
     }
 }
 
@@ -831,10 +711,6 @@ struct ProfilePlaceholderView: View {
     @State private var isDeletingAccount = false
     @State private var deleteAccountMessage: String?
 
-    /// DEMO coachmark (только текущая сессия, без AppStore)
-    @State private var showDemoProfileCoachmark: Bool = false
-    @State private var didDismissDemoProfileCoachmark: Bool = false
-
     // ✅ Новый текст (структурированный для красивой верстки в карточки)
     private let olegAdviceIntro: String =
     """
@@ -878,10 +754,6 @@ struct ProfilePlaceholderView: View {
         )
     }
 
-    private var shouldShowDemoProfileCoachmark: Bool {
-        showDemoProfileCoachmark && store.isDemoMode
-    }
-
     var body: some View {
         NavigationStack {
             ScrollView {
@@ -889,18 +761,6 @@ struct ProfilePlaceholderView: View {
 
                     profileHeader
                     accountSection
-                        .overlay {
-                            if shouldShowDemoProfileCoachmark {
-                                RoundedRectangle(cornerRadius: 16, style: .continuous)
-                                    .stroke(Color("AccentYellow"), lineWidth: 2)
-                                    .shadow(
-                                        color: Color("AccentYellow").opacity(0.35),
-                                        radius: 10,
-                                        x: 0,
-                                        y: 0
-                                    )
-                            }
-                        }
                     adviceSection
                     feedbackSection
                     deleteAccountSection
@@ -911,33 +771,6 @@ struct ProfilePlaceholderView: View {
                 .padding(.bottom, 24)
             }
             .navigationTitle("Профиль")
-        }
-        .onAppear {
-            updateDemoProfileCoachmarkVisibility()
-        }
-        .onChange(of: store.isDemoMode) { _, isDemo in
-            if isDemo {
-                updateDemoProfileCoachmarkVisibility()
-            } else {
-                showDemoProfileCoachmark = false
-                didDismissDemoProfileCoachmark = false
-            }
-        }
-        .overlay {
-            if shouldShowDemoProfileCoachmark {
-                Color.black.opacity(0.2)
-                    .ignoresSafeArea()
-                    .allowsHitTesting(false)
-            }
-        }
-        .overlay(alignment: .top) {
-            if shouldShowDemoProfileCoachmark {
-                demoProfileCoachmark
-                    .padding(.horizontal, 16)
-                    .padding(.top, 10)
-                    .transition(.move(edge: .top).combined(with: .opacity))
-                    .zIndex(5)
-            }
         }
         .sheet(item: $activeSheet) { sheet in
             switch sheet {
@@ -1496,70 +1329,6 @@ struct ProfilePlaceholderView: View {
             return "Тёмный интерфейс — комфортно вечером и на объектах."
         default:
             return "Следуем за настройкой системы на этом устройстве."
-        }
-    }
-
-    private var demoProfileCoachmark: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HStack(spacing: 8) {
-                Image(systemName: "person.crop.circle")
-                    .foregroundColor(Color("AccentYellow"))
-                Text("Ваш профиль и настройки")
-                    .font(.subheadline.weight(.semibold))
-                Spacer()
-                Button {
-                    dismissDemoProfileCoachmark()
-                } label: {
-                    Image(systemName: "xmark")
-                        .font(.caption.weight(.bold))
-                        .foregroundStyle(.secondary)
-                        .padding(6)
-                        .background(.ultraThinMaterial)
-                        .clipShape(Circle())
-                }
-                .buttonStyle(.plain)
-            }
-
-            Text("Здесь можно оформить подписку, выбрать тему оформления, управлять аккаунтом и при необходимости удалить профиль.")
-                .font(.footnote)
-                .foregroundStyle(.secondary)
-                .fixedSize(horizontal: false, vertical: true)
-
-            HStack {
-                Spacer()
-                Button("Понятно") {
-                    dismissDemoProfileCoachmark()
-                }
-                .font(.footnote.weight(.semibold))
-                .buttonStyle(.borderedProminent)
-                .tint(Color("AccentYellow"))
-                .foregroundColor(Color("BrandBlack"))
-            }
-        }
-        .padding(12)
-        .background(
-            RoundedRectangle(cornerRadius: 14, style: .continuous)
-                .fill(Color(.systemBackground).opacity(0.95))
-        )
-        .overlay(
-            RoundedRectangle(cornerRadius: 14, style: .continuous)
-                .stroke(Color("AccentYellow").opacity(0.35), lineWidth: 1)
-        )
-        .shadow(color: .black.opacity(0.15), radius: 8, x: 0, y: 4)
-    }
-
-    private func updateDemoProfileCoachmarkVisibility() {
-        guard store.isDemoMode else {
-            showDemoProfileCoachmark = false
-            return
-        }
-        showDemoProfileCoachmark = !didDismissDemoProfileCoachmark
-    }
-
-    private func dismissDemoProfileCoachmark() {
-        didDismissDemoProfileCoachmark = true
-        withAnimation(.easeOut(duration: 0.2)) {
-            showDemoProfileCoachmark = false
         }
     }
 }

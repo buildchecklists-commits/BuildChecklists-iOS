@@ -94,10 +94,6 @@ struct GlobalPhotosView: View {
     // Read-only / Paywall
     @State private var showPaywall: Bool = false
 
-    /// DEMO coachmark (только текущая сессия, без AppStore)
-    @State private var showDemoPhotosCoachmark: Bool = false
-    @State private var didDismissDemoPhotosCoachmark: Bool = false
-
     // MARK: - Все фото
     private var allPhotosRaw: [GlobalPhotoItem] {
         var result: [GlobalPhotoItem] = []
@@ -236,15 +232,6 @@ struct GlobalPhotosView: View {
         }
     }
 
-    /// Первая плитка в порядке отображения (первая группа `groupedByTime` → первый элемент).
-    private var firstVisibleGridPhotoID: String? {
-        groupedByTime.first?.1.first?.id
-    }
-
-    private var shouldShowDemoPhotosCoachmark: Bool {
-        showDemoPhotosCoachmark && store.isDemoMode && !filteredPhotos.isEmpty
-    }
-
     // MARK: - Body
     var body: some View {
         NavigationStack {
@@ -289,19 +276,6 @@ struct GlobalPhotosView: View {
                                     ) {
                                         ForEach(items) { item in
                                             photoTile(item: item)
-                                                .overlay {
-                                                    if shouldShowDemoPhotosCoachmark,
-                                                       item.id == firstVisibleGridPhotoID {
-                                                        RoundedRectangle(cornerRadius: 16, style: .continuous)
-                                                            .stroke(Color("AccentYellow"), lineWidth: 2)
-                                                            .shadow(
-                                                                color: Color("AccentYellow").opacity(0.35),
-                                                                radius: 8,
-                                                                x: 0,
-                                                                y: 0
-                                                            )
-                                                    }
-                                                }
                                                 .onTapGesture {
                                                     if let idx = filteredPhotos.firstIndex(where: { $0.id == item.id }) {
                                                         currentIndex = idx
@@ -361,125 +335,6 @@ struct GlobalPhotosView: View {
             )
             .toolbar(.hidden, for: .navigationBar)
             .animation(.default, value: expandedGroups)
-        }
-        .onAppear {
-            updateDemoPhotosCoachmarkVisibility()
-        }
-        .onChange(of: store.isDemoMode) { _, isDemo in
-            if isDemo {
-                updateDemoPhotosCoachmarkVisibility()
-            } else {
-                showDemoPhotosCoachmark = false
-                didDismissDemoPhotosCoachmark = false
-            }
-        }
-        .onChange(of: store.projects) { _, _ in
-            updateDemoPhotosCoachmarkVisibility()
-        }
-        .onChange(of: selectedProjectID) { _, _ in
-            updateDemoPhotosCoachmarkVisibility()
-        }
-        .onChange(of: sourceFilter) { _, _ in
-            updateDemoPhotosCoachmarkVisibility()
-        }
-        .onChange(of: selectedStageCategory) { _, _ in
-            updateDemoPhotosCoachmarkVisibility()
-        }
-        .onChange(of: selectedSort) { _, _ in
-            updateDemoPhotosCoachmarkVisibility()
-        }
-        .overlay {
-            if shouldShowDemoPhotosCoachmark {
-                Color.black.opacity(0.2)
-                    .ignoresSafeArea()
-                    .allowsHitTesting(false)
-            }
-        }
-        .overlay(alignment: .top) {
-            if shouldShowDemoPhotosCoachmark {
-                demoPhotosCoachmark
-                    .padding(.horizontal, 16)
-                    .padding(.top, 10)
-                    .transition(.move(edge: .top).combined(with: .opacity))
-                    .zIndex(5)
-            }
-        }
-    }
-
-    private var demoPhotosCoachmark: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HStack(spacing: 8) {
-                Image(systemName: "photo.on.rectangle")
-                    .foregroundColor(Color("AccentYellow"))
-                Text("Фотографии проекта")
-                    .font(.subheadline.weight(.semibold))
-                Spacer()
-                Button {
-                    dismissDemoPhotosCoachmark()
-                } label: {
-                    Image(systemName: "xmark")
-                        .font(.caption.weight(.bold))
-                        .foregroundStyle(.secondary)
-                        .padding(6)
-                        .background(.ultraThinMaterial)
-                        .clipShape(Circle())
-                }
-                .buttonStyle(.plain)
-            }
-
-            Text("Все фото привязаны к проекту — без хаоса в системной галерее. Фильтры по источнику и этапу помогают быстро найти нужное.")
-                .font(.footnote)
-                .foregroundStyle(.secondary)
-                .fixedSize(horizontal: false, vertical: true)
-
-            HStack {
-                Spacer()
-                Button("Понятно") {
-                    dismissDemoPhotosCoachmark()
-                }
-                .font(.footnote.weight(.semibold))
-                .buttonStyle(.borderedProminent)
-                .tint(Color("AccentYellow"))
-                .foregroundColor(Color("BrandBlack"))
-            }
-        }
-        .padding(12)
-        .background(
-            RoundedRectangle(cornerRadius: 14, style: .continuous)
-                .fill(Color(.systemBackground).opacity(0.95))
-        )
-        .overlay(
-            RoundedRectangle(cornerRadius: 14, style: .continuous)
-                .stroke(Color("AccentYellow").opacity(0.35), lineWidth: 1)
-        )
-        .shadow(color: .black.opacity(0.15), radius: 8, x: 0, y: 4)
-    }
-
-    private func updateDemoPhotosCoachmarkVisibility() {
-        guard store.isDemoMode else {
-            showDemoPhotosCoachmark = false
-            return
-        }
-        guard !didDismissDemoPhotosCoachmark else {
-            showDemoPhotosCoachmark = false
-            return
-        }
-        guard !filteredPhotos.isEmpty else {
-            showDemoPhotosCoachmark = false
-            return
-        }
-        // Раскрываем первую непустую группу только при переходе «coachmark выключен → включён»,
-        // чтобы не переоткрывать её на каждом onChange и не ломать ручное сворачивание.
-        if !showDemoPhotosCoachmark, let firstGroup = groupedByTime.first?.0 {
-            expandedGroups.insert(firstGroup)
-        }
-        showDemoPhotosCoachmark = true
-    }
-
-    private func dismissDemoPhotosCoachmark() {
-        didDismissDemoPhotosCoachmark = true
-        withAnimation(.easeOut(duration: 0.2)) {
-            showDemoPhotosCoachmark = false
         }
     }
 

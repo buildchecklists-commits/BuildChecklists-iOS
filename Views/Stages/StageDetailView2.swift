@@ -8,6 +8,7 @@ struct StageDetailView2: View {
     @Binding var stage: Stage
     let project: Project
     var highlightItemID: UUID? = nil
+    var acceptsDemoMark: Bool = false
     var onStageChanged: () -> Void = {}
 
     // InfoSheet
@@ -34,6 +35,14 @@ struct StageDetailView2: View {
 
     private var isLocked: Bool {
         store.isReadOnlyMode
+    }
+
+    private var showsDemoMarkHint: Bool {
+        acceptsDemoMark && store.showsDemoCoach(.markItem)
+    }
+
+    private var itemStatusSignature: String {
+        stage.items.map { String(describing: $0.status) }.joined(separator: "|")
     }
 
     private var progress: Double {
@@ -139,6 +148,9 @@ struct StageDetailView2: View {
             .disabled(isLocked)
             .onAppear {
                 attemptScroll(using: proxy)
+                if acceptsDemoMark {
+                    store.advanceDemoCoach(from: .openFirstGroup, to: .markItem)
+                }
             }
             }
         }
@@ -148,6 +160,10 @@ struct StageDetailView2: View {
         .onChange(of: stage) { _, _ in
             onStageChanged()
             NotificationCenter.default.post(name: .bcProgressDidChange, object: nil)
+        }
+        .onChange(of: itemStatusSignature) { old, new in
+            guard acceptsDemoMark, old != new else { return }
+            store.advanceDemoCoach(from: .markItem, to: .openReports)
         }
         .onDisappear {
             onStageChanged()
@@ -266,7 +282,16 @@ struct StageDetailView2: View {
 
     @ViewBuilder
     private var gesturesHint: some View {
-        if gesturesHintCollapsed {
+        if showsDemoMarkHint {
+            DemoCoachNote(
+                text: "Нажмите кружок рядом с пунктом, чтобы изменить его статус",
+                identifier: "demo.coach.status"
+            )
+            if gesturesHintCollapsed {
+                collapsedGesturesHint
+                    .padding(.top, 8)
+            }
+        } else if gesturesHintCollapsed {
             collapsedGesturesHint
         } else {
             expandedGesturesHint
