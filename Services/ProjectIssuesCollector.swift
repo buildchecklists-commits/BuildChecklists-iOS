@@ -1,7 +1,7 @@
 import Foundation
 
 /// In-memory pack of a working checklist. Not persisted.
-nonisolated enum ChecklistPack: String, CaseIterable, Equatable, Sendable {
+nonisolated enum ChecklistPack: String, CaseIterable, Equatable, Codable, Sendable {
     case geology
     case foundation
     case walls

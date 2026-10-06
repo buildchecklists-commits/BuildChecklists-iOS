@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		CF0524792EBBCFA4008A66AD /* SeedPackLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF0524782EBBCFA0008A66AD /* SeedPackLoader.swift */; };
 		CF9A11002E09212600C0FF01 /* ProjectIssuesCollector.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF9A11001E09212600C0FF01 /* ProjectIssuesCollector.swift */; };
+		BC1A5E022F6A100100AA0001 /* IssueHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC1A5E012F6A100100AA0001 /* IssueHistory.swift */; };
+		BC1A5E042F6A100100AA0001 /* IssueHistoryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC1A5E032F6A100100AA0001 /* IssueHistoryStore.swift */; };
 		CF9A11122E09212600C0FF11 /* ChecklistReportSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF9A11112E09212600C0FF11 /* ChecklistReportSnapshot.swift */; };
 		CF9A11142E09212600C0FF12 /* ChecklistReportPDFRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF9A11132E09212600C0FF12 /* ChecklistReportPDFRenderer.swift */; };
 		A1B2C3D42E25000100C0FF03 /* ReportPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D42E25000100C0FF02 /* ReportPage.swift */; };
@@ -133,6 +135,8 @@
 /* Begin PBXFileReference section */
 		CF0524782EBBCFA0008A66AD /* SeedPackLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeedPackLoader.swift; sourceTree = "<group>"; };
 		CF9A11001E09212600C0FF01 /* ProjectIssuesCollector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectIssuesCollector.swift; sourceTree = "<group>"; };
+		BC1A5E012F6A100100AA0001 /* IssueHistory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IssueHistory.swift; sourceTree = "<group>"; };
+		BC1A5E032F6A100100AA0001 /* IssueHistoryStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IssueHistoryStore.swift; sourceTree = "<group>"; };
 		CF9A11112E09212600C0FF11 /* ChecklistReportSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChecklistReportSnapshot.swift; sourceTree = "<group>"; };
 		CF9A11132E09212600C0FF12 /* ChecklistReportPDFRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChecklistReportPDFRenderer.swift; sourceTree = "<group>"; };
 		A1B2C3D42E25000100C0FF02 /* ReportPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportPage.swift; sourceTree = "<group>"; };
@@ -1174,6 +1178,7 @@
 				CF2E8B892EBA70F800C93EB0 /* SeedStage+Materialize.swift */,
 				CF2E8B872EBA6FF400C93EB0 /* SeedStage.swift */,
 				CF59555D2EB9E8E1006BF803 /* StageItem.swift */,
+				BC1A5E012F6A100100AA0001 /* IssueHistory.swift */,
 				CF59555B2EB9E8BB006BF803 /* Stage.swift */,
 				CF5955592EB9E87A006BF803 /* Project.swift */,
 				CF5955572EB9E835006BF803 /* Enums.swift */,
@@ -1212,6 +1217,7 @@
 				CFE7AF952EBD9F8500723E05 /* FoundationProgressStore.swift */,
 				CF0524782EBBCFA0008A66AD /* SeedPackLoader.swift */,
 				CF9A11001E09212600C0FF01 /* ProjectIssuesCollector.swift */,
+				BC1A5E032F6A100100AA0001 /* IssueHistoryStore.swift */,
 				CF9A11112E09212600C0FF11 /* ChecklistReportSnapshot.swift */,
 				CF9A11132E09212600C0FF12 /* ChecklistReportPDFRenderer.swift */,
 				CF9A11152E09212600C0FF13 /* ChecklistReportExportFile.swift */,
@@ -1547,6 +1553,8 @@
 				CF3226312EBABFA900401DFB /* RoofCoverPickerView.swift in Sources */,
 				CF0524792EBBCFA4008A66AD /* SeedPackLoader.swift in Sources */,
 				CF9A11002E09212600C0FF01 /* ProjectIssuesCollector.swift in Sources */,
+				BC1A5E022F6A100100AA0001 /* IssueHistory.swift in Sources */,
+				BC1A5E042F6A100100AA0001 /* IssueHistoryStore.swift in Sources */,
 				CF9A11122E09212600C0FF11 /* ChecklistReportSnapshot.swift in Sources */,
 				CF9A11142E09212600C0FF12 /* ChecklistReportPDFRenderer.swift in Sources */,
 				A1B2C3D42E25000100C0FF03 /* ReportPage.swift in Sources */,
