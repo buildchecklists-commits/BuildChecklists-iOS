@@ -98,7 +98,7 @@ struct MainTabView: View {
             : (appColorScheme == "dark" ? .dark : .light)
         )
         .onAppear {
-            guard store.isRegistered || store.isDemoMode else { return }
+            guard store.isRegistered, !store.isDemoMode else { return }
             let current = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.0"
             let lastSeen = UserDefaults.standard.string(forKey: bcLastSeenWhatsNewVersionKey)
             if lastSeen != current {

@@ -38,32 +38,44 @@ struct BuildChecklistsApp: App {
 
 /// Корневой экран.
 ///
-/// Логика:
-/// - Если онбординг ещё не пройден → OnboardingView.
-/// - Если пользователь зарегистрирован ИЛИ он в демо-режиме → показываем основное приложение (MainTabView).
-/// - Если не зарегистрирован и не демо → показываем Welcome.
+/// Слайды не зависят от ключа прохождения: запись ключа не подменяет текущее представление.
+/// Зарегистрированный пользователь читается с диска до онбординга. Полный bootstrap во время слайдов не идёт.
 private struct RootView: View {
     @EnvironmentObject var store: AppStore
-    @AppStorage("bc_has_seen_onboarding") private var hasSeenOnboarding: Bool = false
+    @AppStorage("bc_has_seen_onboarding") private var hasSeenOnboarding = false
+    @State private var showRegister = false
+
+    private var showsOnboarding: Bool {
+        if store.isDemoMode { return false }
+        if showRegister { return true }
+        if store.isRegistered || store.persistedRegistrationFlag() { return false }
+        return true
+    }
 
     var body: some View {
         Group {
-            if !hasSeenOnboarding {
-                OnboardingView()
-            } else {
+            if store.isDemoMode || (store.isMainDataReady && !showsOnboarding) {
                 NavigationStack {
-                    Group {
-                        if store.isRegistered || store.isDemoMode {
-                            MainTabView()
-                        } else {
-                            WelcomeView()
-                        }
-                    }
+                    MainTabView()
                 }
-                .task {
-                    await store.bootstrap()
-                }
+            } else if showsOnboarding {
+                OnboardingFlowView(
+                    initialPage: hasSeenOnboarding ? 3 : 0,
+                    showRegister: $showRegister
+                )
+            } else {
+                Color(.systemBackground)
+                    .ignoresSafeArea()
             }
+        }
+        .task(id: "root-launch") {
+            guard !store.isDemoMode else { return }
+            guard store.isRegistered || store.persistedRegistrationFlag() else { return }
+            await store.prepareMainDataIfNeeded()
+        }
+        .sheet(isPresented: $showRegister) {
+            RegisterView()
+                .environmentObject(store)
         }
         .onAppear {
             BCTiming.log("RootView onAppear (первый UI показан)")

@@ -54,6 +54,10 @@ final class AppStore: ObservableObject {
     @Published private(set) var seeds: [SeedStage] = []
     @Published private(set) var selectedTab: MainTab = .projects
 
+    /// Данные основного интерфейса уже загружены в этой сессии.
+    @Published private(set) var isMainDataReady = false
+    private var mainPrepareStarted = false
+
     /// Совместимость со старым UI: раньше это был “накопительный” счётчик.
     /// Теперь логика правильная: это текущее количество активных проектов.
     var createdProjectsCount: Int { projects.count }
@@ -95,7 +99,19 @@ final class AppStore: ObservableObject {
 
     // MARK: - Bootstrap
 
+    func persistedRegistrationFlag() -> Bool {
+        auth.loadRegistrationFlag()
+    }
+
+    /// Один проход bootstrap на сессию. Повторный вызов после регистрации или смены темы не грузит данные заново.
+    func prepareMainDataIfNeeded() async {
+        guard !mainPrepareStarted else { return }
+        mainPrepareStarted = true
+        await bootstrap()
+    }
+
     func bootstrap() async {
+        defer { isMainDataReady = true }
         BCTiming.log("bootstrap start")
         // 1) регистрация
         isRegistered = auth.loadRegistrationFlag()
@@ -348,6 +364,8 @@ final class AppStore: ObservableObject {
         UserDefaults.standard.removeObject(forKey: lastDemoProjectIDKey)
 
         isDemoMode = false
+        mainPrepareStarted = true
+        isMainDataReady = false
 
         // после демо мы НЕ даём автоматом доступ — роль определит подписка
         Task { [weak self] in
@@ -358,6 +376,7 @@ final class AppStore: ObservableObject {
             do { self.projects = try self.storage.loadProjects() } catch { self.projects = [] }
             do { self.expenses = try self.storage.loadExpenses() } catch { self.expenses = [] }
             do { self.tasks = try self.storage.loadTasks() } catch { self.tasks = [] }
+            self.isMainDataReady = true
         }
     }
 

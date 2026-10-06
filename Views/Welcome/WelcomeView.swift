@@ -125,9 +125,7 @@ struct WelcomeView: View {
     private var bottomButtons: some View {
         VStack(spacing: 12) {
             Button {
-                // Включаем демо и сразу просим уведомления (один раз)
                 store.enterDemoMode()
-                TaskNotificationService.shared.requestAuthorizationOnce()
             } label: {
                 Text("Попробовать демо")
             }
