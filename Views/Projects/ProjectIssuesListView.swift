@@ -41,34 +41,21 @@ enum ProjectIssuesFormatting {
 struct ProjectIssuesListView: View {
     let projectID: UUID
 
+    @State private var section: IssueRemarksSection = .active
     @State private var issues: [ChecklistIssueRef] = []
     @State private var loadGeneration = 0
     @Environment(\.scenePhase) private var scenePhase
 
     var body: some View {
         Group {
-            if issues.isEmpty {
-                emptyState
-            } else {
-                List {
-                    Section {
-                        ForEach(issues) { issue in
-                            NavigationLink {
-                                IssueStageDetailHost(
-                                    projectID: issue.projectID,
-                                    pack: issue.pack,
-                                    stageID: issue.stageID,
-                                    itemID: issue.itemID
-                                )
-                            } label: {
-                                issueRow(issue)
-                            }
-                            .accessibilityHint("Открывает пункт чек-листа")
-                        }
-                    }
-                }
-                .listStyle(.insetGrouped)
-                .accessibilityIdentifier("project.issues.list")
+            switch section {
+            case .active:
+                activeContent
+            case .history:
+                IssueHistoryListContent(
+                    projectID: projectID,
+                    section: $section
+                )
             }
         }
         .navigationTitle("Замечания")
@@ -84,21 +71,59 @@ struct ProjectIssuesListView: View {
         }
     }
 
-    private var emptyState: some View {
+    @ViewBuilder
+    private var activeContent: some View {
+        if issues.isEmpty {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 12) {
+                    IssueRemarksSectionPicker(section: $section)
+                    emptyStateBody
+                }
+            }
+        } else {
+            List {
+                Section {
+                    IssueRemarksSectionPicker(section: $section)
+                        .listRowInsets(EdgeInsets())
+                        .listRowBackground(Color.clear)
+                }
+                Section {
+                    ForEach(issues) { issue in
+                        NavigationLink {
+                            IssueStageDetailHost(
+                                projectID: issue.projectID,
+                                pack: issue.pack,
+                                stageID: issue.stageID,
+                                itemID: issue.itemID
+                            )
+                        } label: {
+                            issueRow(issue)
+                        }
+                        .accessibilityHint("Открывает пункт чек-листа")
+                    }
+                }
+            }
+            .listStyle(.insetGrouped)
+            .accessibilityIdentifier("project.issues.list")
+        }
+    }
+
+    private var emptyStateBody: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Spacer(minLength: 0)
             Text("Замечаний нет")
                 .font(.title3.weight(.semibold))
                 .foregroundStyle(.primary)
+                .multilineTextAlignment(.leading)
                 .fixedSize(horizontal: false, vertical: true)
             Text("Пункты, отмеченные как проблема, появятся здесь.")
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
+                .multilineTextAlignment(.leading)
                 .fixedSize(horizontal: false, vertical: true)
-            Spacer(minLength: 0)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+        .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.horizontal, 20)
+        .padding(.bottom, 24)
         .accessibilityElement(children: .combine)
         .accessibilityIdentifier("project.issues.empty")
         .accessibilityLabel("Замечаний нет. Пункты, отмеченные как проблема, появятся здесь.")

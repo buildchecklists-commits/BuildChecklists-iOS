@@ -44,9 +44,7 @@ struct ProjectDashboardView: View {
 
                         headerCard(project)
 
-                        if !issues.isEmpty {
-                            issuesSection(project)
-                        }
+                        issuesSection(project)
 
                         tasksSection(project)
 

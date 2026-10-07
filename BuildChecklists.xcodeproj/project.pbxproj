@@ -26,6 +26,7 @@
 		CF9A11162E09212600C0FF13 /* ChecklistReportExportFile.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF9A11152E09212600C0FF13 /* ChecklistReportExportFile.swift */; };
 		CF9A11182E09212600C0FF14 /* ChecklistReportExportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF9A11172E09212600C0FF14 /* ChecklistReportExportView.swift */; };
 		CF9A11004E09212600C0FF01 /* ProjectIssuesListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF9A11003E09212600C0FF01 /* ProjectIssuesListView.swift */; };
+		BC1A5E0A2F6A100100AA0003 /* IssueHistoryViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC1A5E092F6A100100AA0003 /* IssueHistoryViews.swift */; };
 		CF9A11006E09212600C0FF01 /* IssueEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF9A11005E09212600C0FF01 /* IssueEditorView.swift */; };
 		CF9A11008E09212600C0FF01 /* IssueStageDetailHost.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF9A11007E09212600C0FF01 /* IssueStageDetailHost.swift */; };
 		CF9A1100AE09212600C0FF01 /* IssuePhotoThumbnail.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF9A11009E09212600C0FF01 /* IssuePhotoThumbnail.swift */; };
@@ -154,6 +155,7 @@
 		CF9A11152E09212600C0FF13 /* ChecklistReportExportFile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChecklistReportExportFile.swift; sourceTree = "<group>"; };
 		CF9A11172E09212600C0FF14 /* ChecklistReportExportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChecklistReportExportView.swift; sourceTree = "<group>"; };
 		CF9A11003E09212600C0FF01 /* ProjectIssuesListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectIssuesListView.swift; sourceTree = "<group>"; };
+		BC1A5E092F6A100100AA0003 /* IssueHistoryViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IssueHistoryViews.swift; sourceTree = "<group>"; };
 		CF9A11005E09212600C0FF01 /* IssueEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IssueEditorView.swift; sourceTree = "<group>"; };
 		CF9A11007E09212600C0FF01 /* IssueStageDetailHost.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IssueStageDetailHost.swift; sourceTree = "<group>"; };
 		CF9A11009E09212600C0FF01 /* IssuePhotoThumbnail.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IssuePhotoThumbnail.swift; sourceTree = "<group>"; };
@@ -1305,6 +1307,7 @@
 				CF9A11202E09212700C0FF18 /* ProjectQuickActions.swift */,
 				CF9A11172E09212600C0FF14 /* ChecklistReportExportView.swift */,
 				CF9A11003E09212600C0FF01 /* ProjectIssuesListView.swift */,
+				BC1A5E092F6A100100AA0003 /* IssueHistoryViews.swift */,
 				CF9A11005E09212600C0FF01 /* IssueEditorView.swift */,
 				CF9A11007E09212600C0FF01 /* IssueStageDetailHost.swift */,
 				CF5955692EB9EB3E006BF803 /* ProjectFormView.swift */,
@@ -1546,6 +1549,7 @@
 				CF9A111C2E09212600C0FF16 /* ChecklistTimelineViews.swift in Sources */,
 				CF9A11212E09212700C0FF18 /* ProjectQuickActions.swift in Sources */,
 				CF9A11004E09212600C0FF01 /* ProjectIssuesListView.swift in Sources */,
+				BC1A5E0A2F6A100100AA0003 /* IssueHistoryViews.swift in Sources */,
 				CF9A11006E09212600C0FF01 /* IssueEditorView.swift in Sources */,
 				CF9A11008E09212600C0FF01 /* IssueStageDetailHost.swift in Sources */,
 				CF9A1100AE09212600C0FF01 /* IssuePhotoThumbnail.swift in Sources */,
