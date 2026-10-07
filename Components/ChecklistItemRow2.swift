@@ -9,6 +9,12 @@ struct ChecklistItemRow2: View {
     @EnvironmentObject private var store: AppStore
 
     @Binding var item: StageItem
+    var projectID: UUID = UUID()
+    var pack: ChecklistPack = .foundation
+    var stageID: UUID = UUID()
+    var stageTitle: String = ""
+    @Binding var progressEpoch: Int
+    var screenStages: () -> [Stage] = { [] }
 
     // Визуальные опции (на будущее, пока не используются)
     var showStatusControls: Bool = true
@@ -32,6 +38,8 @@ struct ChecklistItemRow2: View {
     @State private var showIssueEditor = false
     @State private var issueEditorIsCreate = true
     @State private var showIssueActions = false
+    @State private var issueErrorMessage = ""
+    @State private var showIssueError = false
 
     // Check bounce
     @State private var checkBounce = false
@@ -91,7 +99,18 @@ struct ChecklistItemRow2: View {
         .sheet(isPresented: $showNote) { noteEditor() }
 
         .sheet(isPresented: $showIssueEditor) {
-            IssueEditorView(item: $item, isCreate: issueEditorIsCreate)
+            IssueEditorView(
+                item: $item,
+                isCreate: issueEditorIsCreate,
+                identity: historyIdentity(),
+                screenStages: screenStages,
+                progressEpoch: $progressEpoch
+            )
+        }
+        .alert("Не удалось сохранить", isPresented: $showIssueError) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text(issueErrorMessage)
         }
 
         // Полноэкранная галерея
@@ -169,6 +188,7 @@ struct ChecklistItemRow2: View {
             UIImpactFeedbackGenerator(style: .light).impactOccurred()
             return
         }
+        progressEpoch = IssueProgressEpoch.current
         withAnimation(.spring(response: 0.25, dampingFraction: 0.6)) {
             item.status = (resolvedStatus == .ok) ? .na : .ok
             checkBounce.toggle()
@@ -254,6 +274,20 @@ struct ChecklistItemRow2: View {
     private func setStatus(_ status: ItemStatus) {
         guard !isLocked else { return }
         guard item.status != status else { return }
+        if resolvedStatus == .issue, status == .ok || status == .na {
+            let change = IssueHistoryChange(
+                eventID: UUID(),
+                caseID: UUID(),
+                adoptionEventID: UUID(),
+                kind: status == .ok ? .resolve : .withdraw,
+                note: ChecklistWorkingNote.readRawText(itemID: item.id),
+                keptPhotoPaths: item.photoPaths,
+                newPhotoJPEG: []
+            )
+            applyHistory(change)
+            return
+        }
+        progressEpoch = IssueProgressEpoch.current
         withAnimation(.easeInOut(duration: 0.2)) {
             item.status = status
         }
@@ -312,6 +346,7 @@ struct ChecklistItemRow2: View {
         }
         .buttonStyle(.plain)
         .accessibilityLabel("Заметка")
+        .accessibilityIdentifier("checklist.item.note")
         .accessibilityHint("Открывает текстовую заметку пункта.")
     }
 
@@ -330,9 +365,11 @@ struct ChecklistItemRow2: View {
                     }
                     ToolbarItem(placement: .confirmationAction) {
                         Button("Сохранить") {
-                            saveNote(draftNote, for: item)
-                            showNote = false
+                            if saveNote(draftNote, for: item) {
+                                showNote = false
+                            }
                         }
+                        .accessibilityIdentifier("checklist.item.note.save")
                     }
                 }
         }
@@ -421,22 +458,56 @@ struct ChecklistItemRow2: View {
     private func importPickedPhotos(_ items: [PhotosPickerItem]) async {
         guard !items.isEmpty else { return }
         guard !isLocked else { return }
-
+        var images: [UIImage] = []
         for it in items {
-            do {
-                if let data = try await it.loadTransferable(type: Data.self),
-                   let ui = UIImage(data: data) {
-                    let path = try media.save(image: ui)
-                    item.photoPaths.append(path)
+            if let data = try? await it.loadTransferable(type: Data.self),
+               let image = UIImage(data: data) {
+                images.append(image)
+            }
+        }
+        guard !images.isEmpty else { return }
+        await MainActor.run {
+            if resolvedStatus == .issue {
+                let change = IssueHistoryChange(
+                    eventID: UUID(),
+                    caseID: UUID(),
+                    adoptionEventID: UUID(),
+                    kind: .update,
+                    note: ChecklistWorkingNote.readRawText(itemID: item.id),
+                    keptPhotoPaths: item.photoPaths,
+                    newPhotoJPEG: images.compactMap { $0.jpegData(compressionQuality: 0.9) }
+                )
+                applyHistory(change)
+            } else {
+                progressEpoch = IssueProgressEpoch.current
+                for image in images {
+                    do {
+                        let path = try media.save(image: image)
+                        item.photoPaths.append(path)
+                    } catch {
+                        print("❌ Load or save photo error:", error.localizedDescription)
+                    }
                 }
-            } catch {
-                print("❌ Load or save photo error:", error.localizedDescription)
             }
         }
     }
 
     private func deleteAllPhotos() {
         guard !isLocked else { return }
+        if resolvedStatus == .issue {
+            let change = IssueHistoryChange(
+                eventID: UUID(),
+                caseID: UUID(),
+                adoptionEventID: UUID(),
+                kind: .update,
+                note: ChecklistWorkingNote.readRawText(itemID: item.id),
+                keptPhotoPaths: [],
+                newPhotoJPEG: []
+            )
+            applyHistory(change)
+            return
+        }
+        progressEpoch = IssueProgressEpoch.current
         for p in item.photoPaths {
             do {
                 try media.deleteFile(at: p)
@@ -450,6 +521,22 @@ struct ChecklistItemRow2: View {
     private func deletePhoto(at index: Int) {
         guard !isLocked else { return }
         guard item.photoPaths.indices.contains(index) else { return }
+        if resolvedStatus == .issue {
+            var kept = item.photoPaths
+            kept.remove(at: index)
+            let change = IssueHistoryChange(
+                eventID: UUID(),
+                caseID: UUID(),
+                adoptionEventID: UUID(),
+                kind: .update,
+                note: ChecklistWorkingNote.readRawText(itemID: item.id),
+                keptPhotoPaths: kept,
+                newPhotoJPEG: []
+            )
+            applyHistory(change)
+            return
+        }
+        progressEpoch = IssueProgressEpoch.current
         let path = item.photoPaths.remove(at: index)
         do {
             try media.deleteFile(at: path)
@@ -472,9 +559,65 @@ struct ChecklistItemRow2: View {
         ChecklistWorkingNote.readRawText(itemID: item.id)
     }
 
-    private func saveNote(_ text: String, for item: StageItem) {
-        guard !isLocked else { return }
-        try? ChecklistWorkingNote.write(text, itemID: item.id)
+    @discardableResult
+    private func saveNote(_ text: String, for item: StageItem) -> Bool {
+        guard !isLocked else { return false }
+        if resolvedStatus == .issue {
+            let change = IssueHistoryChange(
+                eventID: UUID(),
+                caseID: UUID(),
+                adoptionEventID: UUID(),
+                kind: .update,
+                note: text,
+                keptPhotoPaths: item.photoPaths,
+                newPhotoJPEG: []
+            )
+            return applyHistory(change)
+        }
+        progressEpoch = IssueProgressEpoch.current
+        do {
+            try ChecklistWorkingNote.write(text, itemID: item.id)
+            return true
+        } catch {
+            issueErrorMessage = "Не удалось сохранить заметку."
+            showIssueError = true
+            return false
+        }
+    }
+
+    @discardableResult
+    private func applyHistory(_ change: IssueHistoryChange) -> Bool {
+        do {
+            let snapshot = try IssueHistoryCoordinator.live().perform(
+                identity: historyIdentity(),
+                screenStages: screenStages(),
+                change: change
+            )
+            progressEpoch = IssueProgressEpoch.current
+            item.status = snapshot.status
+            item.photoPaths = snapshot.photoPaths
+            return true
+        } catch let error as IssueHistoryError {
+            issueErrorMessage = error.message
+            showIssueError = true
+            return false
+        } catch {
+            issueErrorMessage = "Не удалось сохранить замечание. Существующие данные не изменены."
+            showIssueError = true
+            return false
+        }
+    }
+
+    private func historyIdentity() -> IssueHistoryIdentity {
+        IssueHistoryIdentity(
+            projectID: projectID,
+            pack: pack,
+            stageID: stageID,
+            itemID: item.id,
+            packTitle: pack.title,
+            stageTitle: stageTitle,
+            itemTitle: item.title
+        )
     }
 }
 

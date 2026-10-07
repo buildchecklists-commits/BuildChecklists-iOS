@@ -19,6 +19,7 @@ struct WindowsStagesScreen: View {
     let project: Project
 
     @State private var stages: [Stage] = []
+    @State private var progressEpoch = IssueProgressEpoch.current
     @State private var typeID: String = "default"
 
     var body: some View {
@@ -37,6 +38,8 @@ struct WindowsStagesScreen: View {
                     StageDetailView2(
                         stage: binding(at: i),
                         project: project,
+                        pack: .windows,
+                        progressEpoch: $progressEpoch,
                         onStageChanged: {}
                     )
                 } label: {
@@ -121,8 +124,16 @@ struct WindowsStagesScreen: View {
     }
 
     private func saveProgressAndNotify(_ newStages: [Stage]) {
-        WindowsProgressStore.save(projectID: project.id, stages: newStages)
-        NotificationCenter.default.post(name: .bcProgressDidChange, object: nil)
+        let result = IssueProgressSaveFeedback.apply(
+            outcome: WindowsProgressStore.save(projectID: project.id, stages: newStages, epoch: progressEpoch),
+            stages: newStages,
+            epoch: progressEpoch,
+            reload: { WindowsProgressStore.load(projectID: project.id) ?? [] }
+        )
+        progressEpoch = result.epoch
+        if result.stages != stages {
+            stages = result.stages
+        }
     }
 
     // MARK: - Bindings

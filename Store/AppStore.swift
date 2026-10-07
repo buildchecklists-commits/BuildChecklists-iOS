@@ -362,6 +362,7 @@ final class AppStore: ObservableObject {
         beginDemoCoachSession()
         userRole = .demo
         isDemoMode = true
+        IssueHistoryRuntime.beginDemoSession()
         isReadOnlyMode = false
         didPrefillDemoProgressInSession = false
         didPrefillDemoProgressStoresInSession = false
@@ -414,6 +415,7 @@ final class AppStore: ObservableObject {
         UserDefaults.standard.removeObject(forKey: lastDemoProjectIDKey)
 
         isDemoMode = false
+        IssueHistoryRuntime.endDemoSession()
         sessionDemoProjectID = nil
         mainPrepareStarted = true
         isMainDataReady = false
@@ -1420,28 +1422,28 @@ final class AppStore: ObservableObject {
         var geology = GeologyStagesProvider.loadStages()
         applyAllOK(to: &geology)
         if !geology.isEmpty {
-            GeologyProgressStore.save(projectID: pid, stages: geology)
+            GeologyProgressStore.save(projectID: pid, stages: geology, epoch: IssueProgressEpoch.current)
         }
 
         let foundationPackName = demoFoundationPackID(project.foundationType)
         var foundation = FoundationStagesProvider.loadStages(named: foundationPackName)
         applyAllOK(to: &foundation)
         if !foundation.isEmpty {
-            FoundationProgressStore.save(projectID: pid, stages: foundation)
+            FoundationProgressStore.save(projectID: pid, stages: foundation, epoch: IssueProgressEpoch.current)
         }
 
         let wallsTypeID = demoWallsPackTypeID(project)
         var walls = WallsStagesProvider.loadStages(for: wallsTypeID)
         applyPartialOK(to: &walls, fraction: 0.55)
         if !walls.isEmpty {
-            WallsProgressStore.save(projectID: pid, stages: walls)
+            WallsProgressStore.save(projectID: pid, stages: walls, epoch: IssueProgressEpoch.current)
         }
 
         let slabTypeID = demoSlabPackTypeID(project.slabType)
         var slabs = SlabStagesProvider.loadStages(for: slabTypeID)
         applyPartialOK(to: &slabs, fraction: 0.32)
         if !slabs.isEmpty {
-            SlabProgressStore.save(projectID: pid, stages: slabs)
+            SlabProgressStore.save(projectID: pid, stages: slabs, epoch: IssueProgressEpoch.current)
         }
 
         NotificationCenter.default.post(name: .bcProgressDidChange, object: nil)
@@ -1465,7 +1467,7 @@ final class AppStore: ObservableObject {
                 if !stages[0].items[0].photoPaths.contains(savedPath) {
                     stages[0].items[0].photoPaths.append(savedPath)
                 }
-                FoundationProgressStore.save(projectID: projectID, stages: stages)
+                FoundationProgressStore.save(projectID: projectID, stages: stages, epoch: IssueProgressEpoch.current)
                 didSaveAtLeastOnePhoto = true
             } catch {
                 debugPrint("❌ Demo foundation photo save error:", error.localizedDescription)
@@ -1481,7 +1483,7 @@ final class AppStore: ObservableObject {
                 if !stages[0].items[0].photoPaths.contains(savedPath) {
                     stages[0].items[0].photoPaths.append(savedPath)
                 }
-                WallsProgressStore.save(projectID: projectID, stages: stages)
+                WallsProgressStore.save(projectID: projectID, stages: stages, epoch: IssueProgressEpoch.current)
                 didSaveAtLeastOnePhoto = true
             } catch {
                 debugPrint("❌ Demo walls photo save error:", error.localizedDescription)
@@ -1497,7 +1499,7 @@ final class AppStore: ObservableObject {
                 if !stages[0].items[0].photoPaths.contains(savedPath) {
                     stages[0].items[0].photoPaths.append(savedPath)
                 }
-                SlabProgressStore.save(projectID: projectID, stages: stages)
+                SlabProgressStore.save(projectID: projectID, stages: stages, epoch: IssueProgressEpoch.current)
                 didSaveAtLeastOnePhoto = true
             } catch {
                 debugPrint("❌ Demo slab photo save error:", error.localizedDescription)

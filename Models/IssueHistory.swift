@@ -41,6 +41,10 @@ nonisolated enum IssueHistoryErrorCode: Equatable, Sendable {
     case openCaseAlreadyExists
     case noOpenCase
     case caseNotFound
+    case commandMismatch
+    case pendingBlocks
+    case notConfirmed
+    case conflict
 }
 
 nonisolated struct IssueHistoryError: Error, Equatable {
@@ -57,7 +61,7 @@ nonisolated struct IssueHistoryItemKey: Hashable, Equatable, Sendable {
 }
 
 /// Names and identifiers copied onto an event. The store does not look up live checklist rows.
-nonisolated struct IssueHistoryIdentity: Equatable, Sendable {
+nonisolated struct IssueHistoryIdentity: Codable, Equatable, Sendable {
     var projectID: UUID
     var pack: ChecklistPack
     var stageID: UUID
@@ -115,21 +119,83 @@ nonisolated struct IssueHistoryCase: Codable, Equatable, Identifiable, Sendable 
     var isOpen: Bool { closeKind == nil }
 }
 
+/// Saved checklist item as the coordinator compares it. Status alone is not the whole value.
+nonisolated struct IssueHistorySnapshot: Codable, Equatable, Sendable {
+    var status: ItemStatus
+    var note: String?
+    var photoPaths: [String]
+    /// Content of `photoPaths` in order. Status equality does not compare this.
+    var photoHashes: [String]
+}
+
+/// One unfinished user action. The case is not closed until `commit`.
+nonisolated struct IssueHistoryPendingOperation: Codable, Equatable, Identifiable, Sendable {
+    var id: UUID { eventID }
+    var eventID: UUID
+    var adoptionEventID: UUID?
+    var caseID: UUID
+    var fingerprint: String
+    var identity: IssueHistoryIdentity
+    var actionKind: IssueHistoryEventKind
+    var closeKind: IssueHistoryCloseKind?
+    var actionAt: Date
+    var adoptionAt: Date?
+    var source: IssueHistorySnapshot
+    var target: IssueHistorySnapshot
+    var actionNote: String?
+    var adoptionPhotoFileNames: [String]
+    var actionPhotoFileNames: [String]
+}
+
+nonisolated struct IssueHistoryCompletion: Codable, Equatable, Sendable {
+    var eventID: UUID
+    var fingerprint: String
+}
+
 nonisolated struct IssueHistoryDocument: Codable, Equatable, Sendable {
     var schemaVersion: Int
     var projectID: UUID
     var cases: [IssueHistoryCase]
+    var pending: [IssueHistoryPendingOperation]
+    var completed: [IssueHistoryCompletion]
 
     static func empty(projectID: UUID) -> IssueHistoryDocument {
         IssueHistoryDocument(
             schemaVersion: IssueHistorySchema.current,
             projectID: projectID,
-            cases: []
+            cases: [],
+            pending: [],
+            completed: []
         )
     }
 
     func caseContaining(eventID: UUID) -> IssueHistoryCase? {
         cases.first { item in item.events.contains { $0.id == eventID } }
+    }
+
+    func pendingOperation(eventID: UUID) -> IssueHistoryPendingOperation? {
+        pending.first { $0.eventID == eventID }
+    }
+
+    enum CodingKeys: String, CodingKey {
+        case schemaVersion, projectID, cases, pending, completed
+    }
+
+    init(schemaVersion: Int, projectID: UUID, cases: [IssueHistoryCase], pending: [IssueHistoryPendingOperation], completed: [IssueHistoryCompletion]) {
+        self.schemaVersion = schemaVersion
+        self.projectID = projectID
+        self.cases = cases
+        self.pending = pending
+        self.completed = completed
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        schemaVersion = try container.decode(Int.self, forKey: .schemaVersion)
+        projectID = try container.decode(UUID.self, forKey: .projectID)
+        cases = try container.decodeIfPresent([IssueHistoryCase].self, forKey: .cases) ?? []
+        pending = try container.decodeIfPresent([IssueHistoryPendingOperation].self, forKey: .pending) ?? []
+        completed = try container.decodeIfPresent([IssueHistoryCompletion].self, forKey: .completed) ?? []
     }
 }
 

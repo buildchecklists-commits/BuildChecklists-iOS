@@ -189,6 +189,10 @@ nonisolated enum ChecklistIssuesReducer {
 // MARK: - Pack ProgressStore adapter (same files/keys as the 11 stores)
 
 nonisolated enum ChecklistPackStore {
+    /// Tests point this at a temporary directory. The app leaves it nil and uses Documents.
+    static var storageRootOverride: URL?
+    static var defaultsOverride: UserDefaults?
+
     static func load(pack: ChecklistPack, projectID: UUID) -> [Stage] {
         switch pack {
         case .doors:
@@ -216,7 +220,21 @@ nonisolated enum ChecklistPackStore {
         }
     }
 
-    static func save(pack: ChecklistPack, projectID: UUID, stages: [Stage]) {
+    @discardableResult
+    static func save(pack: ChecklistPack, projectID: UUID, stages: [Stage], epoch: Int) -> IssueProgressSaveOutcome {
+        switch IssueProgressAutosaveGuard.adjusting(pack: pack, projectID: projectID, memory: stages, epoch: epoch) {
+        case .stale:
+            return .stale
+        case .refused:
+            return .refused
+        case .write(let stages, let bumpEpoch):
+            writePack(pack, projectID: projectID, stages: stages)
+            if bumpEpoch { IssueProgressEpoch.bump() }
+            return .saved(epoch: IssueProgressEpoch.current)
+        }
+    }
+
+    private static func writePack(_ pack: ChecklistPack, projectID: UUID, stages: [Stage]) {
         switch pack {
         case .doors:
             encodeDefaults(key: "doors_progress_\(projectID.uuidString)", stages: stages)
@@ -243,9 +261,45 @@ nonisolated enum ChecklistPackStore {
         }
     }
 
+    /// Writes the progress file or UserDefaults key and reads it back. A swallowed `try?` is not success.
+    static func saveConfirmed(pack: ChecklistPack, projectID: UUID, stages: [Stage]) throws {
+        let data = try JSONEncoder().encode(stages)
+        switch pack {
+        case .doors:
+            try writeDefaults(key: "doors_progress_\(projectID.uuidString)", data: data)
+        case .roofCover:
+            try writeDefaults(key: "roofcover_progress_\(projectID.uuidString)", data: data)
+        case .geology:
+            try writeFile(folderName: "BC_Geology", projectID: projectID, data: data)
+        case .foundation:
+            try writeFile(folderName: "BC_Foundation", projectID: projectID, data: data)
+        case .walls:
+            try writeFile(folderName: "BC_Walls", projectID: projectID, data: data)
+        case .slab:
+            try writeFile(folderName: "BC_Slab", projectID: projectID, data: data)
+        case .roof:
+            try writeFile(folderName: "BC_Roof", projectID: projectID, data: data)
+        case .engineering:
+            try writeFile(folderName: "BC_Engineering", projectID: projectID, data: data)
+        case .windows:
+            try writeFile(folderName: "BC_Windows", projectID: projectID, data: data)
+        case .finishing:
+            try writeFile(folderName: "BC_Finishing", projectID: projectID, data: data)
+        case .landscaping:
+            try writeFile(folderName: "BC_Landscaping", projectID: projectID, data: data)
+        }
+        let recorded = try JSONDecoder().decode([Stage].self, from: data)
+        let loaded = load(pack: pack, projectID: projectID)
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.sortedKeys]
+        guard try encoder.encode(loaded) == encoder.encode(recorded) else {
+            throw IssueHistoryError(code: .notConfirmed, message: "Прогресс не подтвердился после записи")
+        }
+    }
+
     /// Reads JSON if present. Does not create folders and does not write.
     private static func decodeFile(folderName: String, projectID: UUID) -> [Stage] {
-        guard let root = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else {
+        guard let root = storageRoot() else {
             return []
         }
         let url = root
@@ -257,21 +311,50 @@ nonisolated enum ChecklistPackStore {
     }
 
     private static func decodeDefaults(key: String) -> [Stage] {
-        guard let data = UserDefaults.standard.data(forKey: key) else { return [] }
+        guard let data = defaults().data(forKey: key) else { return [] }
         return (try? JSONDecoder().decode([Stage].self, from: data)) ?? []
     }
 
     private static func encodeFile(folderName: String, projectID: UUID, stages: [Stage]) {
-        guard let root = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else { return }
-        let dir = root.appendingPathComponent(folderName, isDirectory: true)
-        try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
-        let url = dir.appendingPathComponent("\(projectID.uuidString).json")
         guard let data = try? JSONEncoder().encode(stages) else { return }
-        try? data.write(to: url, options: .atomic)
+        try? writeFile(folderName: folderName, projectID: projectID, data: data)
     }
 
     private static func encodeDefaults(key: String, stages: [Stage]) {
         guard let data = try? JSONEncoder().encode(stages) else { return }
-        UserDefaults.standard.set(data, forKey: key)
+        try? writeDefaults(key: key, data: data)
+    }
+
+    private static func storageRoot() -> URL? {
+        storageRootOverride ?? FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first
+    }
+
+    private static func defaults() -> UserDefaults {
+        defaultsOverride ?? .standard
+    }
+
+    private static func fileURL(folderName: String, projectID: UUID) throws -> URL {
+        guard let root = storageRoot() else {
+            throw IssueHistoryError(code: .notConfirmed, message: "Нет каталога документов для прогресса")
+        }
+        let directory = root.appendingPathComponent(folderName, isDirectory: true)
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        return directory.appendingPathComponent("\(projectID.uuidString).json")
+    }
+
+    private static func writeFile(folderName: String, projectID: UUID, data: Data) throws {
+        let url = try fileURL(folderName: folderName, projectID: projectID)
+        try data.write(to: url, options: .atomic)
+        let readBack = try Data(contentsOf: url)
+        guard readBack == data else {
+            throw IssueHistoryError(code: .notConfirmed, message: "Файл прогресса не совпал после записи")
+        }
+    }
+
+    private static func writeDefaults(key: String, data: Data) throws {
+        defaults().set(data, forKey: key)
+        guard defaults().data(forKey: key) == data else {
+            throw IssueHistoryError(code: .notConfirmed, message: "Ключ прогресса не совпал после записи")
+        }
     }
 }

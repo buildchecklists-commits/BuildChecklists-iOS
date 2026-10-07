@@ -11,6 +11,7 @@ struct IssueStageDetailHost: View {
     let itemID: UUID
 
     @State private var stages: [Stage] = []
+    @State private var progressEpoch = IssueProgressEpoch.current
     @State private var didLoad = false
 
     private var project: Project? {
@@ -29,9 +30,25 @@ struct IssueStageDetailHost: View {
                 StageDetailView2(
                     stage: binding(at: index),
                     project: project,
+                    pack: pack,
+                    progressEpoch: $progressEpoch,
                     highlightItemID: itemID,
                     onStageChanged: {
-                        ChecklistPackStore.save(pack: pack, projectID: projectID, stages: stages)
+                        let result = IssueProgressSaveFeedback.apply(
+                            outcome: ChecklistPackStore.save(
+                                pack: pack,
+                                projectID: projectID,
+                                stages: stages,
+                                epoch: progressEpoch
+                            ),
+                            stages: stages,
+                            epoch: progressEpoch,
+                            reload: { ChecklistPackStore.load(pack: pack, projectID: projectID) }
+                        )
+                        progressEpoch = result.epoch
+                        if result.stages != stages {
+                            stages = result.stages
+                        }
                     }
                 )
             } else if didLoad {

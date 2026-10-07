@@ -7,6 +7,8 @@ struct StageDetailView2: View {
 
     @Binding var stage: Stage
     let project: Project
+    let pack: ChecklistPack
+    @Binding var progressEpoch: Int
     var highlightItemID: UUID? = nil
     var acceptsDemoMark: Bool = false
     var onStageChanged: () -> Void = {}
@@ -22,6 +24,8 @@ struct StageDetailView2: View {
     @State private var showResetWithIssuesConfirm = false
     @State private var showMarkAllResult = false
     @State private var markAllResultMessage = ""
+    @State private var historyErrorMessage = ""
+    @State private var showHistoryError = false
 
     // Paywall
     @State private var showPaywall: Bool = false
@@ -133,7 +137,15 @@ struct StageDetailView2: View {
                 // Пункты
                 Section {
                     ForEach(stage.items.indices, id: \.self) { j in
-                        ChecklistItemRow2(item: $stage.items[j]) { slug in
+                        ChecklistItemRow2(
+                            item: $stage.items[j],
+                            projectID: project.id,
+                            pack: pack,
+                            stageID: stage.id,
+                            stageTitle: stage.title,
+                            progressEpoch: $progressEpoch,
+                            screenStages: { () -> [Stage] in [stage] }
+                        ) { slug in
                             infoSlugToShow = slug
                             showInfo = true
                         }
@@ -168,6 +180,10 @@ struct StageDetailView2: View {
         .onDisappear {
             onStageChanged()
             NotificationCenter.default.post(name: .bcProgressDidChange, object: nil)
+        }
+        .onReceive(NotificationCenter.default.publisher(for: IssueProgressSaveFeedback.refusedNotification)) { _ in
+            historyErrorMessage = IssueProgressSaveFeedback.message
+            showHistoryError = true
         }
 
         // Toolbar
@@ -275,6 +291,12 @@ struct StageDetailView2: View {
             Button("Удалить", role: .destructive) {
                 deleteAllStagePhotos()
             }
+        }
+
+        .alert("Не удалось сохранить", isPresented: $showHistoryError) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text(historyErrorMessage)
         }
     }
 
@@ -431,6 +453,7 @@ struct StageDetailView2: View {
 
     private func applyMarkAllDone() {
         guard !isLocked else { return }
+        progressEpoch = IssueProgressEpoch.current
         let result = ChecklistStageBulkActions.markAllDone(items: &stage.items)
         markAllResultMessage = result.userMessage
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
@@ -440,18 +463,96 @@ struct StageDetailView2: View {
 
     private func resetStageProgress() {
         guard !isLocked else { return }
-        ChecklistStageBulkActions.resetAllToNA(items: &stage.items)
+        let coordinator = IssueHistoryCoordinator.live()
+        var updated = stage.items
+        var failed = 0
+        for index in updated.indices where updated[index].status == .issue {
+            let item = updated[index]
+            let change = IssueHistoryChange(
+                eventID: UUID(),
+                caseID: UUID(),
+                adoptionEventID: UUID(),
+                kind: .withdraw,
+                note: ChecklistWorkingNote.readRawText(itemID: item.id),
+                keptPhotoPaths: item.photoPaths,
+                newPhotoJPEG: []
+            )
+            do {
+                let snapshot = try coordinator.perform(
+                    identity: historyIdentity(for: item),
+                    screenStages: [stage],
+                    change: change
+                )
+                updated[index].status = snapshot.status
+                updated[index].photoPaths = snapshot.photoPaths
+            } catch {
+                failed += 1
+            }
+        }
+        for index in updated.indices where updated[index].status != .issue {
+            updated[index].status = .na
+        }
+        progressEpoch = IssueProgressEpoch.current
+        stage.items = updated
+        if failed > 0 {
+            historyErrorMessage = "Сброс записан не целиком. Замечания без подтверждённой записи остались открытыми."
+            showHistoryError = true
+        }
     }
 
     private func deleteAllStagePhotos() {
         guard !isLocked else { return }
-        for idx in stage.items.indices {
-            let paths = stage.items[idx].photoPaths
-            for path in paths {
-                try? media.deleteFile(at: path)
+        let coordinator = IssueHistoryCoordinator.live()
+        var updated = stage.items
+        var failed = 0
+        for index in updated.indices {
+            if updated[index].status == .issue {
+                let item = updated[index]
+                let change = IssueHistoryChange(
+                    eventID: UUID(),
+                    caseID: UUID(),
+                    adoptionEventID: UUID(),
+                    kind: .update,
+                    note: ChecklistWorkingNote.readRawText(itemID: item.id),
+                    keptPhotoPaths: [],
+                    newPhotoJPEG: []
+                )
+                do {
+                    let snapshot = try coordinator.perform(
+                        identity: historyIdentity(for: item),
+                        screenStages: [stage],
+                        change: change
+                    )
+                    updated[index].status = snapshot.status
+                    updated[index].photoPaths = snapshot.photoPaths
+                } catch {
+                    failed += 1
+                }
+            } else {
+                for path in updated[index].photoPaths {
+                    try? media.deleteFile(at: path)
+                }
+                updated[index].photoPaths.removeAll()
             }
-            stage.items[idx].photoPaths.removeAll()
         }
+        progressEpoch = IssueProgressEpoch.current
+        stage.items = updated
+        if failed > 0 {
+            historyErrorMessage = "Фотографии замечаний удалены не полностью. Неподтверждённые пункты не изменены."
+            showHistoryError = true
+        }
+    }
+
+    private func historyIdentity(for item: StageItem) -> IssueHistoryIdentity {
+        IssueHistoryIdentity(
+            projectID: project.id,
+            pack: pack,
+            stageID: stage.id,
+            itemID: item.id,
+            packTitle: pack.title,
+            stageTitle: stage.title,
+            itemTitle: item.title
+        )
     }
 }
 

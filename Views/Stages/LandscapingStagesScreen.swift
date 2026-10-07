@@ -25,6 +25,7 @@ struct LandscapingStagesScreen: View {
     let project: Project
 
     @State private var stages: [Stage] = []
+    @State private var progressEpoch = IssueProgressEpoch.current
     @State private var typeID: String = "default"
 
     var body: some View {
@@ -112,6 +113,8 @@ struct LandscapingStagesScreen: View {
                     StageDetailView2(
                         stage: binding(at: index),
                         project: project,
+                        pack: .landscaping,
+                        progressEpoch: $progressEpoch,
                         onStageChanged: {
                             // Сохранение и нотификация централизованы в onChange(of: stages)
                         }
@@ -201,8 +204,16 @@ struct LandscapingStagesScreen: View {
     }
 
     private func saveProgressAndNotify(_ newStages: [Stage]) {
-        LandscapingProgressStore.save(projectID: project.id, stages: newStages)
-        NotificationCenter.default.post(name: .bcProgressDidChange, object: nil)
+        let result = IssueProgressSaveFeedback.apply(
+            outcome: LandscapingProgressStore.save(projectID: project.id, stages: newStages, epoch: progressEpoch),
+            stages: newStages,
+            epoch: progressEpoch,
+            reload: { LandscapingProgressStore.load(projectID: project.id) ?? [] }
+        )
+        progressEpoch = result.epoch
+        if result.stages != stages {
+            stages = result.stages
+        }
     }
 
     // MARK: - BINDING

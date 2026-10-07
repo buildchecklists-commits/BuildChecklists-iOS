@@ -34,10 +34,20 @@ enum GeologyProgressStore {
         return merge(saved: savedStages, template: templateStages)
     }
 
-    static func save(projectID: UUID, stages: [Stage]) {
-        let url = fileURL(projectID: projectID)
-        if let data = try? JSONEncoder().encode(stages) {
-            try? data.write(to: url, options: .atomic)
+    @discardableResult
+    static func save(projectID: UUID, stages: [Stage], epoch: Int) -> IssueProgressSaveOutcome {
+        switch IssueProgressAutosaveGuard.adjusting(pack: .geology, projectID: projectID, memory: stages, epoch: epoch) {
+        case .stale:
+            return .stale
+        case .refused:
+            return .refused
+        case .write(let stages, let bumpEpoch):
+            let url = fileURL(projectID: projectID)
+            if let data = try? JSONEncoder().encode(stages) {
+                try? data.write(to: url, options: .atomic)
+                if bumpEpoch { IssueProgressEpoch.bump() }
+            }
+            return .saved(epoch: IssueProgressEpoch.current)
         }
     }
 

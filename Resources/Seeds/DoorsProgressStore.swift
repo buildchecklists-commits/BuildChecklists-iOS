@@ -19,13 +19,23 @@ enum DoorsProgressStore {
         }
     }
 
-    static func save(projectID: UUID, stages: [Stage]) {
-        let k = key(for: projectID)
-        do {
-            let data = try JSONEncoder().encode(stages)
-            UserDefaults.standard.set(data, forKey: k)
-        } catch {
-            print("❌ DoorsProgressStore save error:", error)
+    @discardableResult
+    static func save(projectID: UUID, stages: [Stage], epoch: Int) -> IssueProgressSaveOutcome {
+        switch IssueProgressAutosaveGuard.adjusting(pack: .doors, projectID: projectID, memory: stages, epoch: epoch) {
+        case .stale:
+            return .stale
+        case .refused:
+            return .refused
+        case .write(let stages, let bumpEpoch):
+            let k = key(for: projectID)
+            do {
+                let data = try JSONEncoder().encode(stages)
+                UserDefaults.standard.set(data, forKey: k)
+                if bumpEpoch { IssueProgressEpoch.bump() }
+            } catch {
+                print("❌ DoorsProgressStore save error:", error)
+            }
+            return .saved(epoch: IssueProgressEpoch.current)
         }
     }
 }

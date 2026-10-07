@@ -7,6 +7,9 @@ import UIKit
 struct IssueEditorView: View {
     @Binding var item: StageItem
     let isCreate: Bool
+    var identity: IssueHistoryIdentity
+    var screenStages: () -> [Stage] = { [] }
+    @Binding var progressEpoch: Int
 
     @Environment(\.dismiss) private var dismiss
 
@@ -163,31 +166,35 @@ struct IssueEditorView: View {
     private func save() {
         guard canSave, !isSaving else { return }
         isSaving = true
-        let originalPaths = item.photoPaths
         let keptExisting = draftPhotos.compactMap(\.existingPath)
-        let newImages = draftPhotos.compactMap(\.incomingImage)
-        let removedExisting = originalPaths.filter { path in
-            !keptExisting.contains(path)
-        }
+        let newImages = draftPhotos.compactMap { $0.incomingImage?.jpegData(compressionQuality: 0.9) }
+        let change = IssueHistoryChange(
+            eventID: UUID(),
+            caseID: UUID(),
+            adoptionEventID: UUID(),
+            kind: isCreate ? .create : .update,
+            note: draftNote,
+            keptPhotoPaths: keptExisting,
+            newPhotoJPEG: newImages
+        )
         do {
-            let paths = try IssueContentSaver.persist(
-                itemID: item.id,
-                note: draftNote,
-                keptExistingPaths: keptExisting,
-                newImages: newImages
+            let snapshot = try IssueHistoryCoordinator.live().perform(
+                identity: identity,
+                screenStages: screenStages(),
+                change: change
             )
-            item.photoPaths = paths
-            item.status = .issue
-            let media = MediaService()
-            for path in removedExisting {
-                try? media.deleteFile(at: path)
-            }
+            progressEpoch = IssueProgressEpoch.current
+            item.photoPaths = snapshot.photoPaths
+            item.status = snapshot.status
             NotificationCenter.default.post(name: .bcProgressDidChange, object: nil)
             isSaving = false
             dismiss()
+        } catch let error as IssueHistoryError {
+            errorMessage = error.message
+            showError = true
+            isSaving = false
         } catch {
-            errorMessage = (error as? LocalizedError)?.errorDescription
-                ?? "Не удалось сохранить замечание. Существующие данные не изменены."
+            errorMessage = "Не удалось сохранить замечание. Существующие данные не изменены."
             showError = true
             isSaving = false
         }
@@ -213,67 +220,5 @@ private enum IssueDraftPhoto: Identifiable {
     var incomingImage: UIImage? {
         if case .incoming(_, let image) = self { return image }
         return nil
-    }
-}
-
-enum IssueSaveError: LocalizedError {
-    case photo
-    case note
-
-    var errorDescription: String? {
-        switch self {
-        case .photo:
-            return "Не удалось сохранить фотографию. Замечание не изменено."
-        case .note:
-            return "Не удалось сохранить описание. Замечание не изменено."
-        }
-    }
-}
-
-/// Persist note and new photos before the caller sets `issue`.
-///
-/// Order:
-/// 1. Write new JPEGs to `BC_Media/Images`.
-/// 2. Write or delete `BCNotes/<itemUUID>.txt`.
-/// 3. On any error, delete files created in step 1 and leave the existing note/photos untouched.
-/// 4. Caller then updates `photoPaths`, sets `status = .issue`, and lets ProgressStore save.
-/// 5. Caller deletes existing files that were removed in the draft (best-effort, after JSON is updated).
-enum IssueContentSaver {
-    static func persist(
-        itemID: UUID,
-        note: String,
-        keptExistingPaths: [String],
-        newImages: [UIImage]
-    ) throws -> [String] {
-        let media = MediaService()
-        var created: [String] = []
-        do {
-            for image in newImages {
-                let path = try media.save(image: image)
-                created.append(path)
-            }
-            let trimmed = note.trimmingCharacters(in: .whitespacesAndNewlines)
-            if trimmed.isEmpty {
-                try ChecklistWorkingNote.deleteIfExists(itemID: itemID)
-            } else {
-                try ChecklistWorkingNote.write(trimmed, itemID: itemID)
-            }
-        } catch let error as IssueSaveError {
-            rollback(created, media: media)
-            throw error
-        } catch {
-            rollback(created, media: media)
-            if created.count < newImages.count {
-                throw IssueSaveError.photo
-            }
-            throw IssueSaveError.note
-        }
-        return keptExistingPaths + created
-    }
-
-    private static func rollback(_ created: [String], media: MediaService) {
-        for path in created {
-            try? media.deleteFile(at: path)
-        }
     }
 }

@@ -36,6 +36,7 @@ struct SlabStagesScreen: View {
     let project: Project
 
     @State private var stages: [Stage] = []
+    @State private var progressEpoch = IssueProgressEpoch.current
     @State private var typeID: String = "monolithic"
 
     var body: some View {
@@ -53,6 +54,8 @@ struct SlabStagesScreen: View {
                     StageDetailView2(
                         stage: binding(at: i),
                         project: project,
+                        pack: .slab,
+                        progressEpoch: $progressEpoch,
                         onStageChanged: {
                             // сохранение и уведомление централизованы в onChange(of: stages)
                         }
@@ -141,8 +144,16 @@ struct SlabStagesScreen: View {
     }
 
     private func saveProgressAndNotify(_ newStages: [Stage]) {
-        SlabProgressStore.save(projectID: project.id, stages: newStages)
-        NotificationCenter.default.post(name: .bcProgressDidChange, object: nil)
+        let result = IssueProgressSaveFeedback.apply(
+            outcome: SlabProgressStore.save(projectID: project.id, stages: newStages, epoch: progressEpoch),
+            stages: newStages,
+            epoch: progressEpoch,
+            reload: { SlabProgressStore.load(projectID: project.id) ?? [] }
+        )
+        progressEpoch = result.epoch
+        if result.stages != stages {
+            stages = result.stages
+        }
     }
 
     private func binding(at i: Int) -> Binding<Stage> {

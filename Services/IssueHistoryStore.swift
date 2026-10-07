@@ -82,6 +82,181 @@ nonisolated final class IssueHistoryStore: @unchecked Sendable {
         return drafted.document
     }
 
+    /// Writes the pending operation and photo copies. Does not close the case and does not touch progress.
+    @discardableResult
+    func prepare(
+        _ operation: IssueHistoryPendingOperation,
+        adoptionPhotos: [Data],
+        actionPhotos: [Data]
+    ) throws -> IssueHistoryDocument {
+        lock.lock()
+        defer { lock.unlock() }
+        let current = try loadUnlocked(projectID: operation.identity.projectID)
+        if let done = current.completed.first(where: { $0.eventID == operation.eventID }) {
+            guard done.fingerprint == operation.fingerprint else {
+                throw IssueHistoryError(code: .commandMismatch, message: "Тот же идентификатор относится к другой команде")
+            }
+            return current
+        }
+        if let existing = current.pendingOperation(eventID: operation.eventID) {
+            guard existing.fingerprint == operation.fingerprint else {
+                throw IssueHistoryError(code: .commandMismatch, message: "Повтор не совпал с незавершённой командой")
+            }
+            return current
+        }
+        if current.pending.contains(where: { $0.identity.itemKey == operation.identity.itemKey }) {
+            throw IssueHistoryError(code: .pendingBlocks, message: "У пункта уже есть незавершённая операция")
+        }
+        var photosByEvent: [(UUID, [Data])] = []
+        if let adoptionEventID = operation.adoptionEventID {
+            photosByEvent.append((adoptionEventID, adoptionPhotos))
+        }
+        photosByEvent.append((operation.eventID, actionPhotos))
+        var staged: [(eventID: UUID, photos: [(name: String, data: Data)])] = []
+        for (eventID, datas) in photosByEvent {
+            let named = datas.enumerated().map { (Self.photoFileName(index: $0.offset, source: URL(fileURLWithPath: "photo.jpg")), $0.element) }
+            staged.append((eventID, named))
+        }
+        var stamped = operation
+        if let adoptionEventID = stamped.adoptionEventID {
+            stamped.adoptionPhotoFileNames = staged.first { $0.eventID == adoptionEventID }?.photos.map(\.name) ?? []
+        }
+        stamped.actionPhotoFileNames = staged.first { $0.eventID == stamped.eventID }?.photos.map(\.name) ?? []
+        var next = current
+        next.pending.append(stamped)
+        try persistPending(document: next, staged: staged)
+        return next
+    }
+
+    /// Moves a pending operation into the case log. Does not copy photos again and does not write progress.
+    @discardableResult
+    func commit(projectID: UUID, eventID: UUID, fingerprint: String) throws -> IssueHistoryDocument {
+        lock.lock()
+        defer { lock.unlock() }
+        let current = try loadUnlocked(projectID: projectID)
+        if let done = current.completed.first(where: { $0.eventID == eventID }) {
+            guard done.fingerprint == fingerprint else {
+                throw IssueHistoryError(code: .commandMismatch, message: "Завершение относится к другой команде")
+            }
+            return current
+        }
+        guard let operation = current.pendingOperation(eventID: eventID) else {
+            throw IssueHistoryError(code: .caseNotFound, message: "Нет незавершённой операции для завершения")
+        }
+        guard operation.fingerprint == fingerprint else {
+            throw IssueHistoryError(code: .commandMismatch, message: "Завершение не совпало с командой")
+        }
+        var next = try applying(operation, to: current)
+        next.pending.removeAll { $0.eventID == eventID }
+        next.completed.append(IssueHistoryCompletion(eventID: eventID, fingerprint: fingerprint))
+        try persist(document: next, eventID: eventID, photos: [])
+        return next
+    }
+
+    private func applying(_ operation: IssueHistoryPendingOperation, to document: IssueHistoryDocument) throws -> IssueHistoryDocument {
+        var next = document
+        let action = IssueHistoryEvent(
+            id: operation.eventID,
+            kind: operation.actionKind,
+            at: operation.actionAt,
+            packTitle: operation.identity.packTitle,
+            stageTitle: operation.identity.stageTitle,
+            itemTitle: operation.identity.itemTitle,
+            note: operation.actionNote,
+            photoFileNames: operation.actionPhotoFileNames
+        )
+        if let index = next.cases.firstIndex(where: { $0.id == operation.caseID }) {
+            guard next.cases[index].isOpen else {
+                throw IssueHistoryError(code: .noOpenCase, message: "Случай уже закрыт")
+            }
+            guard next.cases[index].itemKey == operation.identity.itemKey else {
+                throw IssueHistoryError(code: .caseNotFound, message: "Операция относится к другому пункту")
+            }
+            next.cases[index].events.append(action)
+            if operation.actionKind == .closed {
+                next.cases[index].closedAt = operation.actionAt
+                next.cases[index].closeKind = operation.closeKind
+            }
+            return next
+        }
+        guard !next.cases.contains(where: { $0.id == operation.caseID }) else {
+            throw IssueHistoryError(code: .caseNotFound, message: "Идентификатор случая занят")
+        }
+        var events: [IssueHistoryEvent] = []
+        if let adoptionEventID = operation.adoptionEventID, let adoptionAt = operation.adoptionAt {
+            events.append(IssueHistoryEvent(
+                id: adoptionEventID,
+                kind: .transferred,
+                at: adoptionAt,
+                packTitle: operation.identity.packTitle,
+                stageTitle: operation.identity.stageTitle,
+                itemTitle: operation.identity.itemTitle,
+                note: operation.source.note,
+                photoFileNames: operation.adoptionPhotoFileNames
+            ))
+        }
+        events.append(action)
+        var item = baseCase(id: operation.caseID, identity: operation.identity, events: events)
+        item.previousCaseID = latestClosedCaseID(next, key: operation.identity.itemKey)
+        if operation.adoptionAt != nil {
+            item.openedAt = nil
+            item.transferredAt = operation.adoptionAt
+        } else if operation.actionKind == .opened {
+            item.openedAt = operation.actionAt
+        }
+        if operation.actionKind == .closed {
+            item.closedAt = operation.actionAt
+            item.closeKind = operation.closeKind
+        }
+        next.cases.append(item)
+        return next
+    }
+
+    private func persistPending(
+        document: IssueHistoryDocument,
+        staged: [(eventID: UUID, photos: [(name: String, data: Data)])]
+    ) throws {
+        var written: [UUID] = []
+        do {
+            for entry in staged where !entry.photos.isEmpty {
+                if let memory {
+                    var keyed: [IssueHistoryMemorySession.PhotoKey: Data] = [:]
+                    for photo in entry.photos {
+                        keyed[IssueHistoryMemorySession.PhotoKey(
+                            projectID: document.projectID,
+                            eventID: entry.eventID,
+                            fileName: photo.name
+                        )] = photo.data
+                    }
+                    memory.save(document: document, newPhotos: keyed)
+                } else if let fileRoot {
+                    _ = try writePhotoCopies(
+                        root: fileRoot,
+                        projectID: document.projectID,
+                        eventID: entry.eventID,
+                        photos: entry.photos
+                    )
+                    written.append(entry.eventID)
+                }
+            }
+            if memory != nil {
+                memory?.save(document: document, newPhotos: [:])
+                return
+            }
+            guard let fileRoot else {
+                throw IssueHistoryError(code: .writeFailed, message: "Каталог истории не задан")
+            }
+            try writeJSON(document, root: fileRoot)
+        } catch {
+            if let fileRoot {
+                for eventID in written {
+                    removeEventMedia(root: fileRoot, projectID: document.projectID, eventID: eventID)
+                }
+            }
+            throw error
+        }
+    }
+
     func photoData(projectID: UUID, eventID: UUID, fileName: String) throws -> Data {
         lock.lock()
         defer { lock.unlock() }
@@ -174,6 +349,25 @@ nonisolated final class IssueHistoryStore: @unchecked Sendable {
                 for name in event.photoFileNames where !Self.isSafeFileName(name) {
                     throw IssueHistoryError(code: .corruptFile, message: "Имя фото истории содержит путь")
                 }
+            }
+        }
+        var pendingIDs = Set<UUID>()
+        var pendingKeys = Set<IssueHistoryItemKey>()
+        for operation in document.pending {
+            guard operation.identity.projectID == expectedProjectID else {
+                throw IssueHistoryError(code: .corruptFile, message: "Незавершённая операция другого проекта")
+            }
+            guard pendingIDs.insert(operation.eventID).inserted else {
+                throw IssueHistoryError(code: .corruptFile, message: "Две незавершённые операции с одним событием")
+            }
+            guard pendingKeys.insert(operation.identity.itemKey).inserted else {
+                throw IssueHistoryError(code: .corruptFile, message: "Две незавершённые операции одного пункта")
+            }
+            guard !operation.fingerprint.isEmpty else {
+                throw IssueHistoryError(code: .corruptFile, message: "У операции нет содержимого команды")
+            }
+            if eventIDs.contains(operation.eventID) {
+                throw IssueHistoryError(code: .corruptFile, message: "Событие уже завершено и всё ещё ожидает")
             }
         }
     }

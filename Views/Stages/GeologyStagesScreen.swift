@@ -18,6 +18,7 @@ struct GeologyStagesScreen: View {
     let project: Project
     @EnvironmentObject private var store: AppStore
     @State private var stages: [Stage] = []
+    @State private var progressEpoch = IssueProgressEpoch.current
 
     var body: some View {
         List {
@@ -45,8 +46,16 @@ struct GeologyStagesScreen: View {
             }
         }
         .onChange(of: stages) { _, newValue in
-            GeologyProgressStore.save(projectID: project.id, stages: newValue)
-            NotificationCenter.default.post(name: .bcProgressDidChange, object: nil)
+            let result = IssueProgressSaveFeedback.apply(
+                outcome: GeologyProgressStore.save(projectID: project.id, stages: newValue, epoch: progressEpoch),
+                stages: newValue,
+                epoch: progressEpoch,
+                reload: { GeologyProgressStore.load(projectID: project.id) ?? [] }
+            )
+            progressEpoch = result.epoch
+            if result.stages != stages {
+                stages = result.stages
+            }
         }
     }
 
@@ -61,6 +70,8 @@ struct GeologyStagesScreen: View {
             StageDetailView2(
                 stage: binding(at: i),
                 project: project,
+                pack: .geology,
+                progressEpoch: $progressEpoch,
                 acceptsDemoMark: i == 0 && project.id == store.sessionDemoProjectID,
                 onStageChanged: {
                     // Сохранение и уведомление теперь централизованы в onChange(of: stages)
