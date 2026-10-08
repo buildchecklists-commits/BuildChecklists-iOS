@@ -21,9 +21,6 @@ struct ProjectDashboardView: View {
     /// Shared tasks calendar (same `TasksCenterView` as the projects list entry).
     @State private var showTasksCenter = false
 
-    // sheet для быстрой формы задачи
-    @State private var showQuickTaskForm = false
-
     // Триггер для перерисовки прогресса по нотификации
     @State private var progressVersion: Int = 0
 
@@ -49,10 +46,11 @@ struct ProjectDashboardView: View {
 
                         issuesSection(project)
 
-                        tasksSection(project)
-
-                        quickActions(project)
-                            .demoTrainingAnchor(.projectsQuickActions)
+                        // TimelineView refreshes the tasks badge across midnight while the app stays open.
+                        TimelineView(.periodic(from: .now, by: 60)) { context in
+                            quickActions(project, now: context.date)
+                        }
+                        .demoTrainingAnchor(.projectsQuickActions)
 
                         if store.showsDemoCoach(.openReports), project.id == store.sessionDemoProjectID {
                             DemoCoachNote(
@@ -108,13 +106,6 @@ struct ProjectDashboardView: View {
                 .sheet(isPresented: $showTasksCenter) {
                     TasksCenterView()
                         .environmentObject(store)
-                }
-                // Быстрая форма задачи, привязанная к этому проекту
-                .sheet(isPresented: $showQuickTaskForm) {
-                    NavigationStack {
-                        ProjectQuickTaskForm(projectID: project.id)
-                            .environmentObject(store)
-                    }
                 }
 
                 .onAppear {
@@ -459,13 +450,17 @@ struct ProjectDashboardView: View {
         return vals.reduce(0, +) / Double(vals.count)
     }
 
-    private func quickActions(_ project: Project) -> some View {
+    private func quickActions(_ project: Project, now: Date) -> some View {
         ProjectQuickActions(
             openFiles: { showProjectFilesSheet = true },
             openContacts: { showContactsList = true },
             openTasks: { showTasksCenter = true },
             openChecklistReport: { showChecklistReport = true },
             openReports: { reportLaunch = .standard },
+            tasksBadge: ProjectTasksBadgeSummary.make(
+                tasks: store.tasks(for: project.id),
+                now: now
+            ),
             planDestination: {
                 ProjectPlanView(projectID: project.id)
                     .environmentObject(store)
@@ -478,128 +473,6 @@ struct ProjectDashboardView: View {
                 ProjectIssuesListView(projectID: project.id)
             }
         )
-    }
-
-    // MARK: - Секция задач проекта
-
-    private func tasksSection(_ project: Project) -> some View {
-
-        let allTasks = store.tasks(for: project.id)
-        let activeTasks = allTasks.filter { !$0.isCompleted }
-
-        let nearest = activeTasks.sorted { lhs, rhs in
-            switch (lhs.dueDate, rhs.dueDate) {
-            case let (l?, r?):
-                return l < r
-            case (nil, _?):
-                return false
-            case (_?, nil):
-                return true
-            case (nil, nil):
-                return lhs.title.localizedCaseInsensitiveCompare(rhs.title) == .orderedAscending
-            }
-        }.first
-
-        return dashboardGlass(title: "Задачи проекта") {
-            ViewThatFits(in: .horizontal) {
-                HStack(alignment: .center, spacing: 12) {
-                    taskSummary(nearest, hasAnyTasks: !allTasks.isEmpty)
-                        .fixedSize(horizontal: true, vertical: false)
-                    Spacer(minLength: 8)
-                    newTaskButton
-                        .fixedSize(horizontal: true, vertical: false)
-                }
-                VStack(alignment: .leading, spacing: 8) {
-                    taskSummary(nearest, hasAnyTasks: !allTasks.isEmpty)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                    newTaskButton
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-            }
-        }
-    }
-
-    @ViewBuilder
-    private func taskSummary(_ task: TaskItem?, hasAnyTasks: Bool) -> some View {
-        if let task {
-            VStack(alignment: .leading, spacing: 2) {
-                UnbrokenText(
-                    text: task.title,
-                    textStyle: .subheadline,
-                    weight: .medium,
-                    color: ProjectUXColors.primaryText,
-                    maxLines: 3
-                )
-                if let date = task.dueDate {
-                    UnbrokenText(
-                        text: taskDateState(date),
-                        textStyle: .caption1,
-                        color: taskDateColor(date),
-                        maxLines: 2
-                    )
-                }
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-        } else {
-            Text(hasAnyTasks ? "Нет активных задач" : "Задач пока нет")
-                .font(.subheadline.weight(.medium))
-                .foregroundStyle(ProjectUXColors.primaryText)
-                .lineLimit(2)
-                .minimumScaleFactor(0.6)
-                .frame(maxWidth: .infinity, alignment: .leading)
-        }
-    }
-
-    private var newTaskButton: some View {
-        HStack(spacing: 6) {
-            Image(systemName: "plus.circle.fill")
-                .accessibilityHidden(true)
-            Text("Новая задача")
-                .lineLimit(1)
-                .minimumScaleFactor(0.55)
-        }
-        .font(.caption.weight(.semibold))
-        .padding(.horizontal, 12)
-        .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
-        .background(ProjectUXColors.accentAction.opacity(0.16))
-        .foregroundStyle(ProjectUXColors.accentAction)
-        .clipShape(Capsule())
-        .accessibilityHidden(true)
-        .overlay {
-            Button {
-                showQuickTaskForm = true
-            } label: {
-                Color.clear
-                    .contentShape(Capsule())
-            }
-            .buttonStyle(.plain)
-            .accessibilityElement(children: .ignore)
-            .accessibilityLabel("Новая задача")
-            .accessibilityAddTraits(.isButton)
-        }
-    }
-
-    private func taskDateState(_ date: Date) -> String {
-        let cal = Calendar.current
-        let today = cal.startOfDay(for: Date())
-        let due = cal.startOfDay(for: date)
-        if due < today {
-            return "Просрочена · \(dateString(date))"
-        }
-        if due == today {
-            return "Сегодня · \(dateString(date))"
-        }
-        return dateString(date)
-    }
-
-    private func taskDateColor(_ date: Date) -> Color {
-        let cal = Calendar.current
-        let today = cal.startOfDay(for: Date())
-        let due = cal.startOfDay(for: date)
-        if due < today {
-            return ProjectUXColors.overdue
-        }
-        return ProjectUXColors.secondaryText
     }
 
     // MARK: - Замечания
@@ -879,110 +752,6 @@ struct ProjectDashboardView: View {
         formatter.dateStyle = .medium
         formatter.timeStyle = .none
         return formatter.string(from: date)
-    }
-}
-
-// MARK: - Быстрая форма задачи для конкретного проекта
-
-struct ProjectQuickTaskForm: View {
-
-    @EnvironmentObject var store: AppStore
-    @Environment(\.dismiss) private var dismiss
-
-    let projectID: UUID
-
-    @State private var title: String = ""
-    @State private var details: String = ""
-    @State private var hasDueDate: Bool = true
-    @State private var dueDate: Date = Date()
-    @State private var errorText: String?
-
-    var body: some View {
-        Form {
-            Section("Задача") {
-                TextField("Что нужно сделать", text: $title)
-
-                TextField("Подробности (необязательно)", text: $details, axis: .vertical)
-                    .lineLimit(1...4)
-            }
-
-            Section("Срок") {
-                Toggle("Указать срок", isOn: $hasDueDate)
-
-                if hasDueDate {
-                    DatePicker(
-                        "Дата",
-                        selection: $dueDate,
-                        displayedComponents: [.date]
-                    )
-                }
-            }
-
-            if let errorText {
-                Section("Ошибка") {
-                    Text(errorText)
-                        .foregroundStyle(.red)
-                        .font(.footnote)
-                }
-            }
-        }
-        .navigationTitle("Новая задача")
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .cancellationAction) {
-                Button("Отмена") { dismiss() }
-            }
-            ToolbarItem(placement: .confirmationAction) {
-                Button("Сохранить") { save() }
-                    .disabled(title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
-            }
-        }
-    }
-
-    private func save() {
-        let trimmedTitle = title.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmedTitle.isEmpty else {
-            errorText = "Введите название задачи."
-            return
-        }
-
-        do {
-            try store.addTask(
-                title: trimmedTitle,
-                details: details.isEmpty ? nil : details,
-                projectID: projectID,
-                dueDate: hasDueDate ? dueDate : nil
-            )
-            dismiss()
-        } catch {
-            errorText = "Не удалось сохранить задачу: \(error.localizedDescription)"
-        }
-    }
-}
-
-// MARK: - Glass Card Wrapper
-
-private func dashboardGlass<Content: View>(
-    title: String,
-    @ViewBuilder content: () -> Content
-) -> some View {
-
-    VStack(alignment: .leading, spacing: 14) {
-
-        Text(title)
-            .font(.headline)
-            .accessibilityAddTraits(.isHeader)
-
-        VStack(spacing: 0) {
-            content()
-        }
-        .padding()
-        .background(.ultraThinMaterial)
-        .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
-        .overlay {
-            RoundedRectangle(cornerRadius: 20, style: .continuous)
-                .strokeBorder(ProjectUXColors.readableBorder, lineWidth: 1)
-        }
     }
 }
 
