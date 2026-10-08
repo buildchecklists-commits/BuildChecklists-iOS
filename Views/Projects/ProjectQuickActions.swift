@@ -15,7 +15,6 @@ struct ProjectQuickActions<PlanDestination: View, ExpensesDestination: View, Iss
     @ViewBuilder var issuesDestination: () -> IssuesDestination
 
     private let actionSlots = Array(QuickActionSlot.allCases)
-    @State private var gridHeight: CGFloat = 44
     @State private var gridWidth: CGFloat = 0
     @State private var cellsInsideGrid = true
 
@@ -32,6 +31,7 @@ struct ProjectQuickActions<PlanDestination: View, ExpensesDestination: View, Iss
 
             // Width is the grid's own geometry after the card padding,
             // not the window and not the text's ideal width.
+            // Height comes only from content — never from a measured preference loop.
             // Row order is the VoiceOver order.
             actionRows(width: gridWidth)
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -46,7 +46,6 @@ struct ProjectQuickActions<PlanDestination: View, ExpensesDestination: View, Iss
                 .accessibilityValue(gridAccessibilityValue)
         }
         .onPreferenceChange(QuickActionWidthKey.self) { gridWidth = max($0, 0) }
-        .onPreferenceChange(QuickActionHeightKey.self) { gridHeight = max($0, 44) }
         .onPreferenceChange(QuickActionFramesKey.self) { frames in
             guard gridWidth > 1, frames.count == actionSlots.count else { return }
             cellsInsideGrid = frames.allSatisfy { span in
@@ -80,13 +79,13 @@ struct ProjectQuickActions<PlanDestination: View, ExpensesDestination: View, Iss
             ForEach(0..<rowCount, id: \.self) { row in
                 let start = row * columns
                 let count = min(columns, actionSlots.count - start)
-                HStack(spacing: spacing) {
+                HStack(alignment: .top, spacing: spacing) {
                     if count < columns { Spacer(minLength: 0) }
                     ForEach(0..<count, id: \.self) { offset in
                         actionSlot(actionSlots[start + offset])
                             .frame(width: itemWidth, alignment: .top)
-                            .frame(minHeight: 44)
-                            .clipped()
+                            .frame(minWidth: 44, minHeight: 44)
+                            .fixedSize(horizontal: false, vertical: true)
                             .background {
                                 GeometryReader { cell in
                                     let frame = cell.frame(in: .named("quickActionGrid"))
@@ -99,15 +98,9 @@ struct ProjectQuickActions<PlanDestination: View, ExpensesDestination: View, Iss
                     }
                     if count < columns { Spacer(minLength: 0) }
                 }
-                .frame(maxWidth: .infinity)
+                .frame(maxWidth: .infinity, alignment: .top)
             }
         }
-        .background {
-            GeometryReader { grid in
-                Color.clear.preference(key: QuickActionHeightKey.self, value: grid.size.height)
-            }
-        }
-        .frame(height: width > 1 ? gridHeight : 44)
     }
 
     @ViewBuilder
@@ -187,22 +180,14 @@ struct ProjectQuickActions<PlanDestination: View, ExpensesDestination: View, Iss
         identifier: String,
         destination: () -> Destination
     ) -> some View {
-        ZStack {
-            NavigationLink(destination: destination) {
-                Color.clear
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .contentShape(Rectangle())
-            }
-            .buttonStyle(ProjectQuickActionButtonStyle())
-            .accessibilityElement(children: .ignore)
-            .accessibilityLabel(accessibilityLabel)
-            .accessibilityAddTraits(.isButton)
-            .accessibilityIdentifier(identifier)
-
+        NavigationLink(destination: destination) {
             actionFace(title: title, systemImage: systemImage)
-                .accessibilityHidden(true)
-                .allowsHitTesting(false)
         }
+        .buttonStyle(ProjectQuickActionButtonStyle())
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(accessibilityLabel)
+        .accessibilityAddTraits(.isButton)
+        .accessibilityIdentifier(identifier)
     }
 
     private func actionButton(
@@ -212,22 +197,14 @@ struct ProjectQuickActions<PlanDestination: View, ExpensesDestination: View, Iss
         identifier: String,
         action: @escaping () -> Void
     ) -> some View {
-        ZStack {
-            Button(action: action) {
-                Color.clear
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .contentShape(Rectangle())
-            }
-            .buttonStyle(ProjectQuickActionButtonStyle())
-            .accessibilityElement(children: .ignore)
-            .accessibilityLabel(accessibilityLabel)
-            .accessibilityAddTraits(.isButton)
-            .accessibilityIdentifier(identifier)
-
+        Button(action: action) {
             actionFace(title: title, systemImage: systemImage)
-                .accessibilityHidden(true)
-                .allowsHitTesting(false)
         }
+        .buttonStyle(ProjectQuickActionButtonStyle())
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(accessibilityLabel)
+        .accessibilityAddTraits(.isButton)
+        .accessibilityIdentifier(identifier)
     }
 
     private func actionFace(title: String, systemImage: String) -> some View {
@@ -247,7 +224,8 @@ struct ProjectQuickActions<PlanDestination: View, ExpensesDestination: View, Iss
                 .accessibilityHidden(true)
         }
         .accessibilityHidden(true)
-        .frame(maxWidth: .infinity, minHeight: 44)
+        .frame(maxWidth: .infinity)
+        .frame(minHeight: 44)
         .padding(.horizontal, 4)
         .padding(.vertical, 8)
         .contentShape(Rectangle())
@@ -256,13 +234,6 @@ struct ProjectQuickActions<PlanDestination: View, ExpensesDestination: View, Iss
 
 private enum QuickActionSlot: Int, CaseIterable {
     case plan, expenses, files, contacts, issues, projectPDF, checklistPDF, reports
-}
-
-private struct QuickActionHeightKey: PreferenceKey {
-    static var defaultValue: CGFloat = 44
-    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
-        value = max(value, nextValue())
-    }
 }
 
 private struct QuickActionWidthKey: PreferenceKey {
