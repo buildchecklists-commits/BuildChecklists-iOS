@@ -538,7 +538,7 @@ final class DemoTrainingController: ObservableObject {
                     id: "b5",
                     anchor: .budgetOperations,
                     title: "Операции",
-                    body: "Здесь список расходов проекта с поиском и фильтрами. Тур расходов не добавляет — новые вы вносите сами в «Расходах» проекта.",
+                    body: "Здесь список операций с поиском и фильтрами. Новые расходы — кнопка «Расходы» справа сверху на этом экране. Тур ничего не добавляет.",
                     arriveAction: .openDemoBudgetDetail
                 )
             ]

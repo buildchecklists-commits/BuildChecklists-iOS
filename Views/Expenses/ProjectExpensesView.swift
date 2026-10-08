@@ -141,28 +141,39 @@ struct ProjectExpensesView: View {
                 .listStyle(.insetGrouped)
                 .navigationTitle("Расходы")
                 .navigationBarTitleDisplayMode(.inline)
+                // Opaque bar avoids soft liquid-glass morph on the trailing icons after push.
+                .toolbarBackground(.visible, for: .navigationBar)
+                .toolbarBackground(.bar, for: .navigationBar)
                 .toolbar {
-                    ToolbarItemGroup(placement: .navigationBarTrailing) {
+                    ToolbarItem(placement: .topBarTrailing) {
                         Button {
                             showFilters = true
                         } label: {
                             Image(systemName: filters.isEmpty ? "line.3.horizontal.decrease.circle" : "line.3.horizontal.decrease.circle.fill")
+                                .symbolRenderingMode(.monochrome)
                         }
-
+                        .accessibilityLabel("Фильтры расходов")
+                    }
+                    ToolbarItem(placement: .topBarTrailing) {
                         Button {
                             showExport = true
                         } label: {
                             Image(systemName: "square.and.arrow.up")
+                                .symbolRenderingMode(.monochrome)
                         }
                         .accessibilityIdentifier("project.expenses.export")
                         .accessibilityLabel("Экспорт расходов")
-
+                    }
+                    ToolbarItem(placement: .topBarTrailing) {
                         Button {
                             showChart = true
                         } label: {
                             Image(systemName: "chart.bar.doc.horizontal")
+                                .symbolRenderingMode(.monochrome)
                         }
-
+                        .accessibilityLabel("Диаграмма расходов")
+                    }
+                    ToolbarItem(placement: .topBarTrailing) {
                         Button {
                             // Read-only: вместо открытия формы — ошибка
                             if isReadOnlyBlocked {
@@ -172,7 +183,9 @@ struct ProjectExpensesView: View {
                             }
                         } label: {
                             Image(systemName: "plus")
+                                .symbolRenderingMode(.monochrome)
                         }
+                        .accessibilityLabel("Добавить расход")
                     }
                 }
                 .sheet(isPresented: $showAddSheet) {

@@ -9,6 +9,7 @@ import Charts
 struct BudgetProjectView: View {
     @EnvironmentObject var store: AppStore
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     let projectID: UUID
 
@@ -38,6 +39,10 @@ struct BudgetProjectView: View {
     // Read-only UX
     @State private var showReadOnlyAlert: Bool = false
     @State private var showPaywall: Bool = false
+    /// Push existing project expenses (toolbar «Расходы»; same screen as dashboard quick actions).
+    @State private var showProjectExpenses: Bool = false
+    /// Laid-out width of this screen (not `UIScreen` / other scenes).
+    @State private var containerWidth: CGFloat = 0
 
     // MARK: - Computed
 
@@ -141,6 +146,17 @@ struct BudgetProjectView: View {
         }
         .navigationTitle(project?.name ?? "Бюджет")
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                expensesToolbarButton
+                    // Toolbar can cache the first label; refresh when width/type flips mode.
+                    .id(showsExpensesToolbarTitle)
+            }
+        }
+        .navigationDestination(isPresented: $showProjectExpenses) {
+            ProjectExpensesView(projectID: projectID)
+                .environmentObject(store)
+        }
 
         // Плановый бюджет — редактор
         .sheet(isPresented: $showPlanEditor) {
@@ -176,6 +192,15 @@ struct BudgetProjectView: View {
             Text("Сейчас активен режим просмотра. Для редактирования бюджета и планов по этапам нужна подписка USER или PRO.")
         }
 
+        .background {
+            GeometryReader { geo in
+                Color.clear
+                    .onAppear { updateContainerWidth(geo.size.width) }
+                    .onChange(of: geo.size.width) { _, width in
+                        updateContainerWidth(width)
+                    }
+            }
+        }
         .onAppear {
             if !didSetInitialSummaryState {
                 isSummaryExpanded = summaryShouldBeExpanded
@@ -184,6 +209,47 @@ struct BudgetProjectView: View {
         }
         // DEMO training: UI-only expansion of «План / факт по этапам».
         .demoTrainingBudgetPlanBridge($isPlanExpanded)
+    }
+
+    // MARK: - Expenses entry (same ProjectExpensesView as dashboard quick actions)
+
+    /// Icon+title when this view’s laid-out width has room; icon-only if tight or large Dynamic Type.
+    private var showsExpensesToolbarTitle: Bool {
+        guard !dynamicTypeSize.isAccessibilitySize else { return false }
+        guard dynamicTypeSize < .xxxLarge else { return false }
+        // Until the first layout pass, stay icon-only (safe for narrow).
+        guard containerWidth > 1 else { return false }
+        return containerWidth >= 390
+    }
+
+    private func updateContainerWidth(_ width: CGFloat) {
+        guard width > 1, abs(width - containerWidth) > 0.5 else { return }
+        containerWidth = width
+    }
+
+    private var expensesToolbarButton: some View {
+        Button {
+            showProjectExpenses = true
+        } label: {
+            Group {
+                if showsExpensesToolbarTitle {
+                    // Explicit HStack — toolbar `Label` often collapses to icon-only.
+                    HStack(spacing: 5) {
+                        Image(systemName: "creditcard")
+                        Text("Расходы")
+                    }
+                    .font(.subheadline.weight(.semibold))
+                } else {
+                    Image(systemName: "creditcard")
+                        .font(.body.weight(.semibold))
+                }
+            }
+            .frame(minWidth: 44, minHeight: 44)
+            .contentShape(Rectangle())
+        }
+        .accessibilityLabel("Расходы проекта")
+        .accessibilityHint("Открывает итог, суммы по этапам и историю расходов этого объекта")
+        .accessibilityIdentifier("budget.project.expenses")
     }
 
     // MARK: - Content
