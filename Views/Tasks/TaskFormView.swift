@@ -42,6 +42,7 @@ struct TaskFormView: View {
             // MARK: - Описание
             Section("Описание") {
                 TextField("Что нужно сделать?", text: $title)
+                    .demoTrainingAnchor(.taskCalendarFormDescription)
 
                 TextField("Детали (необязательно)", text: $details, axis: .vertical)
                     .lineLimit(3, reservesSpace: true)

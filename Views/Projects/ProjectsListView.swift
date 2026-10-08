@@ -235,8 +235,11 @@ struct ProjectsListView: View {
         .sheet(isPresented: $showCalculator) {
             NavigationStack {
                 CalculatorHomeView()
+                    .demoTrainingCalculatorNavigation()
             }
+            .demoTrainingSheetOverlay()
         }
+        .demoTrainingCalculatorBridge($showCalculator)
 
         // ✅ ИСПРАВЛЕНО: был "Ошибка" + .constant (алерт не управляемый)
         // Теперь заголовок бизнес-логики: "Доступ ограничен"
@@ -451,6 +454,7 @@ struct ProjectsListView: View {
         }
         .buttonStyle(.plain)
         .frame(minWidth: 44, minHeight: 44)
+        .demoTrainingAnchor(.calculatorEntryButton)
         .accessibilityLabel("Калькулятор")
         .accessibilityAddTraits(.isButton)
         .accessibilityIdentifier("project.list.calculator")
@@ -497,6 +501,10 @@ struct ProjectsListView: View {
                 filterMenu
             }
             .frame(maxWidth: .infinity, alignment: .leading)
+            .demoTrainingAnchor(.projectsListHeader)
+
+            // Own row (DEMO only): does not compete with sort / calculator titles in listTools.
+            DemoTrainingEntryRow()
 
             ViewThatFits(in: .horizontal) {
                 listTools(showsTitles: true)
@@ -526,6 +534,7 @@ struct ProjectsListView: View {
                 )
             }
             .buttonStyle(.plain)
+            .demoTrainingAnchor(.taskCalendarEntryBanner)
             .accessibilityElement(children: .ignore)
             .accessibilityLabel("Календарь задач. Напоминания: купить материалы, заказать бетон и т.д.")
             .accessibilityAddTraits(.isButton)
@@ -707,6 +716,7 @@ struct ProjectsListView: View {
             RoundedRectangle(cornerRadius: 18, style: .continuous)
                 .stroke(ProjectUXColors.accentAction.opacity(0.45), lineWidth: 1)
         )
+        .demoTrainingAnchor(.profileCreateProfileHint)
     }
 
     private func projectRow(_ project: Project, progress: Double) -> some View {
@@ -748,6 +758,7 @@ struct ProjectsListView: View {
             .accessibilityAddTraits(.isButton)
             .accessibilitySortPriority(5)
             .accessibilityIdentifier("project.card.open")
+            .modifier(DemoTrainingDemoCardAnchorModifier(isDemoCard: project.id == store.sessionDemoProjectID))
 
             Button {
                 startEdit(project)

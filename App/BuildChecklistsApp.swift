@@ -54,10 +54,16 @@ private struct RootView: View {
 
     var body: some View {
         Group {
-            if store.isDemoMode || (store.isMainDataReady && !showsOnboarding) {
+            if DemoTrainingPrototypeGate.showsPreviewGallery {
+                #if DEBUG
+                DemoTrainingPreviewGallery()
+                #endif
+            } else if store.isDemoMode || (store.isMainDataReady && !showsOnboarding) {
                 NavigationStack {
                     MainTabView()
+                        .demoTrainingNavigation()
                 }
+                .demoTrainingChrome()
             } else if showsOnboarding {
                 OnboardingFlowView(
                     initialPage: hasSeenOnboarding ? 3 : 0,
@@ -72,6 +78,11 @@ private struct RootView: View {
             guard !store.isDemoMode else { return }
             guard store.isRegistered || store.persistedRegistrationFlag() else { return }
             await store.prepareMainDataIfNeeded()
+        }
+        .task(id: "demo-training-capture") {
+            #if DEBUG
+            await DemoTrainingCaptureDriver.runIfNeeded(store: store)
+            #endif
         }
         .sheet(isPresented: $showRegister) {
             RegisterView()

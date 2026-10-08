@@ -169,6 +169,10 @@ struct BudgetProjectsListView: View {
                                         )
                                     }
                                     .buttonStyle(CardLinkStyle())
+                                    .demoTrainingAnchor(
+                                        .budgetDemoCard,
+                                        when: pair.project.id == store.sessionDemoProjectID
+                                    )
                                     .padding(.horizontal, 16)
                                 }
                             }
@@ -191,6 +195,10 @@ struct BudgetProjectsListView: View {
                                         )
                                     }
                                     .buttonStyle(CardLinkStyle())
+                                    .demoTrainingAnchor(
+                                        .budgetDemoCard,
+                                        when: pair.project.id == store.sessionDemoProjectID
+                                    )
                                     .padding(.horizontal, 16)
                                 }
                             }
@@ -244,8 +252,12 @@ struct BudgetProjectsListView: View {
 
                     // Заголовок + текст
                     VStack(alignment: .leading, spacing: 2) {
-                        Text("Бюджет")
-                            .font(.title2.weight(.bold))
+                        HStack(alignment: .center, spacing: 8) {
+                            Text("Бюджет")
+                                .font(.title2.weight(.bold))
+                            Spacer(minLength: 8)
+                            DemoTrainingEntryCapsule()
+                        }
 
                         Text("План/факт по этапам и детализация расходов по каждому проекту.")
                             .font(.footnote)
@@ -259,8 +271,10 @@ struct BudgetProjectsListView: View {
                     Divider().opacity(0.3),
                     alignment: .bottom
                 )
+                .demoTrainingAnchor(.budgetListHeader)
             }
             .toolbar(.hidden, for: .navigationBar)
+            .demoTrainingBudgetTabNavigation()
         }
     }
 }

@@ -182,6 +182,8 @@ struct BudgetProjectView: View {
                 didSetInitialSummaryState = true
             }
         }
+        // DEMO training: UI-only expansion of «План / факт по этапам».
+        .demoTrainingBudgetPlanBridge($isPlanExpanded)
     }
 
     // MARK: - Content
@@ -201,13 +203,17 @@ struct BudgetProjectView: View {
                     project: project,
                     totalSpent: totalSpent
                 )
+                .demoTrainingAnchor(.budgetDetailHeader)
 
                 // План / факт по этапам (сворачиваемый блок)
-                if !planFactRowsFiltered.isEmpty {
-                    planFactBlock
-                } else {
-                    planEmptyBlock
+                Group {
+                    if !planFactRowsFiltered.isEmpty {
+                        planFactBlock
+                    } else {
+                        planEmptyBlock
+                    }
                 }
+                .demoTrainingAnchor(.budgetPlanFact)
 
                 // Диаграммы по этапам (Pie + Bar)
                 if !totalsByStageFiltered.isEmpty {
@@ -232,6 +238,7 @@ struct BudgetProjectView: View {
 
                 // Список расходов + поиск
                 expensesListBlock
+                    .demoTrainingAnchor(.budgetOperations)
 
                 Spacer(minLength: 0)
             }

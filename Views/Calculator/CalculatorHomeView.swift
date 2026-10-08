@@ -12,6 +12,7 @@ struct CalculatorHomeView: View {
                 } label: {
                     Label("Бетон", systemImage: "cube.fill")
                 }
+                .demoTrainingAnchor(.calculatorHomeList)
 
                 NavigationLink {
                     RebarCalculatorView()

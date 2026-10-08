@@ -7,6 +7,17 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		BCDE0A012F70000100AA0001 /* DemoTrainingScrollPassView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCDE0A002F70000100AA0001 /* DemoTrainingScrollPassView.swift */; };
+		BCDE0B012F70000100AA0001 /* DemoTrainingCaptureDriver.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCDE0B002F70000100AA0001 /* DemoTrainingCaptureDriver.swift */; };
+		BCDE01012F70000100AA0001 /* DemoTrainingPrototypeGate.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCDE01002F70000100AA0001 /* DemoTrainingPrototypeGate.swift */; };
+		BCDE02012F70000100AA0001 /* DemoTrainingModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCDE02002F70000100AA0001 /* DemoTrainingModels.swift */; };
+		BCDE03012F70000100AA0001 /* DemoTrainingController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCDE03002F70000100AA0001 /* DemoTrainingController.swift */; };
+		BCDE04012F70000100AA0001 /* DemoTrainingAnchor.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCDE04002F70000100AA0001 /* DemoTrainingAnchor.swift */; };
+		BCDE05012F70000100AA0001 /* DemoTrainingOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCDE05002F70000100AA0001 /* DemoTrainingOverlay.swift */; };
+		BCDE06012F70000100AA0001 /* DemoTrainingMenuView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCDE06002F70000100AA0001 /* DemoTrainingMenuView.swift */; };
+		BCDE07012F70000100AA0001 /* DemoTrainingEntryButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCDE07002F70000100AA0001 /* DemoTrainingEntryButton.swift */; };
+		BCDE08012F70000100AA0001 /* DemoTrainingHost.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCDE08002F70000100AA0001 /* DemoTrainingHost.swift */; };
+		BCDE09012F70000100AA0001 /* DemoTrainingPreviewGallery.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCDE09002F70000100AA0001 /* DemoTrainingPreviewGallery.swift */; };
 		CF0524792EBBCFA4008A66AD /* SeedPackLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF0524782EBBCFA0008A66AD /* SeedPackLoader.swift */; };
 		CF9A11002E09212600C0FF01 /* ProjectIssuesCollector.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF9A11001E09212600C0FF01 /* ProjectIssuesCollector.swift */; };
 		BC1A5E022F6A100100AA0001 /* IssueHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC1A5E012F6A100100AA0001 /* IssueHistory.swift */; };
@@ -137,6 +148,17 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		BCDE0A002F70000100AA0001 /* DemoTrainingScrollPassView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoTrainingScrollPassView.swift; sourceTree = "<group>"; };
+		BCDE0B002F70000100AA0001 /* DemoTrainingCaptureDriver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoTrainingCaptureDriver.swift; sourceTree = "<group>"; };
+		BCDE01002F70000100AA0001 /* DemoTrainingPrototypeGate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoTrainingPrototypeGate.swift; sourceTree = "<group>"; };
+		BCDE02002F70000100AA0001 /* DemoTrainingModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoTrainingModels.swift; sourceTree = "<group>"; };
+		BCDE03002F70000100AA0001 /* DemoTrainingController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoTrainingController.swift; sourceTree = "<group>"; };
+		BCDE04002F70000100AA0001 /* DemoTrainingAnchor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoTrainingAnchor.swift; sourceTree = "<group>"; };
+		BCDE05002F70000100AA0001 /* DemoTrainingOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoTrainingOverlay.swift; sourceTree = "<group>"; };
+		BCDE06002F70000100AA0001 /* DemoTrainingMenuView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoTrainingMenuView.swift; sourceTree = "<group>"; };
+		BCDE07002F70000100AA0001 /* DemoTrainingEntryButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoTrainingEntryButton.swift; sourceTree = "<group>"; };
+		BCDE08002F70000100AA0001 /* DemoTrainingHost.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoTrainingHost.swift; sourceTree = "<group>"; };
+		BCDE09002F70000100AA0001 /* DemoTrainingPreviewGallery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoTrainingPreviewGallery.swift; sourceTree = "<group>"; };
 		CF0524782EBBCFA0008A66AD /* SeedPackLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeedPackLoader.swift; sourceTree = "<group>"; };
 		CF9A11001E09212600C0FF01 /* ProjectIssuesCollector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectIssuesCollector.swift; sourceTree = "<group>"; };
 		BC1A5E012F6A100100AA0001 /* IssueHistory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IssueHistory.swift; sourceTree = "<group>"; };
@@ -1248,6 +1270,24 @@
 			path = Reports;
 			sourceTree = "<group>";
 		};
+		BCDE00002F70000100AA0000 /* DemoTraining */ = {
+			isa = PBXGroup;
+			children = (
+				BCDE01002F70000100AA0001 /* DemoTrainingPrototypeGate.swift */,
+				BCDE02002F70000100AA0001 /* DemoTrainingModels.swift */,
+				BCDE03002F70000100AA0001 /* DemoTrainingController.swift */,
+				BCDE04002F70000100AA0001 /* DemoTrainingAnchor.swift */,
+				BCDE05002F70000100AA0001 /* DemoTrainingOverlay.swift */,
+				BCDE06002F70000100AA0001 /* DemoTrainingMenuView.swift */,
+				BCDE07002F70000100AA0001 /* DemoTrainingEntryButton.swift */,
+				BCDE08002F70000100AA0001 /* DemoTrainingHost.swift */,
+				BCDE09002F70000100AA0001 /* DemoTrainingPreviewGallery.swift */,
+				BCDE0A002F70000100AA0001 /* DemoTrainingScrollPassView.swift */,
+				BCDE0B002F70000100AA0001 /* DemoTrainingCaptureDriver.swift */,
+			);
+			path = DemoTraining;
+			sourceTree = "<group>";
+		};
 		CF5955442EB9DB06006BF803 /* Views */ = {
 			isa = PBXGroup;
 			children = (
@@ -1257,6 +1297,7 @@
 				CF7D813C2EE1F5AD0034E149 /* Tasks */,
 				CFBDCE092EDA1A6300A94EA4 /* Budget */,
 				CFC3A38A2ED488F2001D9A2C /* Expenses */,
+				BCDE00002F70000100AA0000 /* DemoTraining */,
 				CFC3A3842ED466CA001D9A2C /* Main */,
 				CF5955C32EB9E999006BF804 /* Onboarding */,
 				CF59554A2EB9DC63006BF803 /* Stages */,
@@ -1493,6 +1534,17 @@
 				CF5955552EB9E3AA006BF803 /* WelcomeView.swift in Sources */,
 				A9B8C7D62F10000100AA0002 /* OnboardingFlowView.swift in Sources */,
 				A9B8C7D62F10000100AA0004 /* DemoCoachNote.swift in Sources */,
+				BCDE01012F70000100AA0001 /* DemoTrainingPrototypeGate.swift in Sources */,
+				BCDE02012F70000100AA0001 /* DemoTrainingModels.swift in Sources */,
+				BCDE03012F70000100AA0001 /* DemoTrainingController.swift in Sources */,
+				BCDE04012F70000100AA0001 /* DemoTrainingAnchor.swift in Sources */,
+				BCDE05012F70000100AA0001 /* DemoTrainingOverlay.swift in Sources */,
+				BCDE06012F70000100AA0001 /* DemoTrainingMenuView.swift in Sources */,
+				BCDE07012F70000100AA0001 /* DemoTrainingEntryButton.swift in Sources */,
+				BCDE08012F70000100AA0001 /* DemoTrainingHost.swift in Sources */,
+				BCDE09012F70000100AA0001 /* DemoTrainingPreviewGallery.swift in Sources */,
+				BCDE0A012F70000100AA0001 /* DemoTrainingScrollPassView.swift in Sources */,
+				BCDE0B012F70000100AA0001 /* DemoTrainingCaptureDriver.swift in Sources */,
 				CF5955B12EB9E999006BF803 /* WhatsNewView.swift in Sources */,
 				CFE7AF962EBD9F8800723E05 /* FoundationProgressStore.swift in Sources */,
 				CF2E8B882EBA700300C93EB0 /* SeedStage.swift in Sources */,

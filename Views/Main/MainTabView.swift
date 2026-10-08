@@ -178,6 +178,10 @@ struct PlanProjectsListView: View {
                                         PlanProjectRow(project: project)
                                     }
                                     .buttonStyle(.plain)
+                                    .demoTrainingAnchor(
+                                        .deadlinesDemoCard,
+                                        when: project.id == store.sessionDemoProjectID
+                                    )
                                 }
                             }
                             .padding(.horizontal, 16)
@@ -192,8 +196,10 @@ struct PlanProjectsListView: View {
                     selectedFilter: $selectedFilter,
                     selectedSort: $selectedSort
                 )
+                .demoTrainingAnchor(.deadlinesListHeader)
             }
             .toolbar(.hidden, for: .navigationBar)
+            .demoTrainingPlanTabNavigation()
         }
     }
 
@@ -256,8 +262,12 @@ private struct PlanHeaderView: View {
             .padding(.horizontal, 16)
 
             VStack(alignment: .leading, spacing: 2) {
-                Text("Сроки")
-                    .font(.title2.weight(.bold))
+                HStack(alignment: .center, spacing: 8) {
+                    Text("Сроки")
+                        .font(.title2.weight(.bold))
+                    Spacer(minLength: 8)
+                    DemoTrainingEntryCapsule()
+                }
 
                 Text("Следите за прогрессом, дедлайнами и фактическими сроками по каждому проекту.")
                     .font(.footnote)
@@ -762,13 +772,17 @@ struct ProfilePlaceholderView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 24) {
 
+                    DemoTrainingEntryRow()
+
                     profileHeader
                     accountSection
+                        .demoTrainingAnchor(.profileAccountDemo)
                     notificationSection
                     adviceSection
                     feedbackSection
                     deleteAccountSection
                     themeSection
+                        .demoTrainingAnchor(.profileTheme)
                 }
                 .padding(.horizontal, 16)
                 .padding(.top, 16)

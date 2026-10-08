@@ -75,6 +75,7 @@ struct ProjectPlanView: View {
 
                 // Шапка проекта
                 projectHeader(project)
+                    .demoTrainingAnchor(.deadlinesPlanHeader)
 
                 // Таймлайн этапов
                 VStack(alignment: .leading, spacing: 12) {
@@ -201,6 +202,7 @@ struct ProjectPlanView: View {
                     .font(.footnote)
                     .foregroundStyle(.secondary)
             }
+            .demoTrainingAnchor(.deadlinesTimelineIntro)
 
             VStack(spacing: 10) {
                 ForEach(project.stages) { stage in
@@ -210,6 +212,7 @@ struct ProjectPlanView: View {
                         onComplete: { requestComplete(stage) },
                         onDelay: { requestDelayReason(stage) }
                     )
+                    .demoTrainingAnchor(.deadlinesFirstStage, when: stage.id == project.stages.first?.id)
                 }
             }
             .padding(.top, 4)

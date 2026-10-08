@@ -168,13 +168,18 @@ final class AppStore: ObservableObject {
             debugPrint("❌ Seeds load error:", error.localizedDescription)
         }
 
-        // DEMO → не грузим и не сохраняем
+        // DEMO → не грузим и не сохраняем.
+        // If enterDemoMode() already ran while we awaited StoreKit, keep its in-memory
+        // session — clearing here left «Нет проектов» / «Проект не найден».
         guard !isDemoMode else {
             BCTiming.log("bootstrap end (demo, skip storage)")
             debugPrint("🔸 Demo mode active — skip loading projects/expenses/tasks")
-            projects = []
-            expenses = []
-            tasks = []
+            if projects.isEmpty {
+                createDemoProjectIfNeeded()
+                if let id = projects.first?.id {
+                    sessionDemoProjectID = id
+                }
+            }
             return
         }
 
@@ -353,7 +358,9 @@ final class AppStore: ObservableObject {
     // MARK: - Demo mode
 
     func showsDemoCoach(_ step: DemoCoachStep) -> Bool {
-        isDemoMode && !demoCoachDeclined && demoCoachStep == step
+        // DEMO training (Обучение) replaces the old inline coach notes: they are always hidden in DEMO.
+        // Outside DEMO the old coach never applied either, so this is always `false`.
+        return false
     }
 
     func beginDemoCoachSession() {
@@ -434,6 +441,7 @@ final class AppStore: ObservableObject {
         sessionDemoProjectID = nil
         mainPrepareStarted = true
         isMainDataReady = false
+        DemoTrainingController.shared.handleDemoEnded()
 
         // после демо мы НЕ даём автоматом доступ — роль определит подписка
         Task { [weak self] in

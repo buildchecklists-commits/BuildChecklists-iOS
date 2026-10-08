@@ -243,6 +243,13 @@ struct GlobalPhotosView: View {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 16) {
 
+                        if groupedByTime.isEmpty {
+                            photosEmptyState
+                                .padding(.horizontal, 16)
+                                .padding(.top, 12)
+                                .demoTrainingAnchor(.photosFirstGroupOrEmpty)
+                        }
+
                         ForEach(groupedByTime, id: \.0.id) { group, items in
                             VStack(alignment: .leading, spacing: 8) {
 
@@ -287,6 +294,10 @@ struct GlobalPhotosView: View {
                                     .padding(.horizontal, 12)
                                 }
                             }
+                            .demoTrainingAnchor(
+                                .photosFirstGroupOrEmpty,
+                                when: group == groupedByTime.first?.0
+                            )
                         }
 
                         Spacer(minLength: 20)
@@ -320,6 +331,16 @@ struct GlobalPhotosView: View {
                             navigateToStage = true
                         }
                     )
+                    .demoTrainingSheetOverlay()
+                }
+            }
+            .demoTrainingPhotoViewerBridge($showFullScreen)
+            .onChange(of: showFullScreen) { _, show in
+                // Tour opens the existing viewer on the first available photo.
+                if show,
+                   DemoTrainingController.shared.requestPresentPhotoViewer,
+                   !filteredPhotos.isEmpty {
+                    currentIndex = 0
                 }
             }
             .sheet(isPresented: $showPaywall) {
@@ -336,6 +357,19 @@ struct GlobalPhotosView: View {
             .toolbar(.hidden, for: .navigationBar)
             .animation(.default, value: expandedGroups)
         }
+    }
+
+    // MARK: - Пустое состояние
+
+    private var photosEmptyState: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text("Фото пока нет")
+                .font(.headline)
+            Text("Снимки проекта и чек-листов появятся здесь.")
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     // MARK: - Навигация по этапам
@@ -455,6 +489,7 @@ private struct GlobalPhotosHeaderView: View {
             .pickerStyle(.segmented)
             .padding(.horizontal, 16)
             .padding(.top, 8)
+            .demoTrainingAnchor(.photosSourceFilter)
 
             // Read-only баннер (как единый премиальный UX)
             if store.isReadOnlyMode {
@@ -535,11 +570,16 @@ private struct GlobalPhotosHeaderView: View {
                 Spacer()
             }
             .padding(.horizontal, 16)
+            .demoTrainingAnchor(.photosFilterSort)
 
             // Заголовок + подзаголовок
             VStack(alignment: .leading, spacing: 2) {
-                Text("Фото")
-                    .font(.title2.weight(.bold))
+                HStack(alignment: .center, spacing: 8) {
+                    Text("Фото")
+                        .font(.title2.weight(.bold))
+                    Spacer(minLength: 8)
+                    DemoTrainingEntryCapsule()
+                }
 
                 Text("Просматривайте фото по проектам, этапам и датам, чтобы контролировать ход стройки.")
                     .font(.footnote)
@@ -621,10 +661,14 @@ private struct FullScreenPhotoGallery: View {
                             if let ui = loadImage(item.path) {
                                 GeometryReader { proxy in
                                     let size = proxy.size
+                                    let fitted = aspectFitSize(
+                                        imageSize: displayPixelSize(ui),
+                                        in: size
+                                    )
                                     Image(uiImage: ui)
                                         .resizable()
                                         .scaledToFit()
-                                        .frame(width: size.width, height: size.height)
+                                        .frame(width: fitted.width, height: fitted.height)
                                         .scaleEffect(scale)
                                         .gesture(
                                             MagnificationGesture()
@@ -635,6 +679,12 @@ private struct FullScreenPhotoGallery: View {
                                                     withAnimation(.spring()) { scale = 1.0 }
                                                 }
                                         )
+                                        // Anchor is on the tight fitted frame (not the letterbox).
+                                        .demoTrainingAnchor(
+                                            .photosViewer,
+                                            when: index == currentIndex
+                                        )
+                                        .frame(width: size.width, height: size.height, alignment: .center)
                                 }
                             } else {
                                 Text("Не удалось загрузить фото")
@@ -718,6 +768,26 @@ private struct FullScreenPhotoGallery: View {
                     .padding(.bottom, 20)
                 }
             }
+        }
+    }
+
+    /// Aspect-fit size for a `scaledToFit` image inside `container`.
+    private func aspectFitSize(imageSize: CGSize, in container: CGSize) -> CGSize {
+        guard imageSize.width > 1, imageSize.height > 1,
+              container.width > 1, container.height > 1 else {
+            return container
+        }
+        let scale = min(container.width / imageSize.width, container.height / imageSize.height)
+        return CGSize(width: imageSize.width * scale, height: imageSize.height * scale)
+    }
+
+    /// UIImage.size ignoring orientation can disagree with what `scaledToFit` draws.
+    private func displayPixelSize(_ image: UIImage) -> CGSize {
+        switch image.imageOrientation {
+        case .left, .leftMirrored, .right, .rightMirrored:
+            return CGSize(width: image.size.height, height: image.size.width)
+        default:
+            return image.size
         }
     }
 }

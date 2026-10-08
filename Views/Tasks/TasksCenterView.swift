@@ -42,8 +42,10 @@ struct TasksCenterView: View {
                     currentMonthOffset: $currentMonthOffset,
                     onSelectDate: handleDateTap(_:)
                 )
+                .demoTrainingAnchor(.taskCalendarHeader)
 
                 contentList
+                    .demoTrainingAnchor(.taskCalendarListOrEmpty)
             }
             .background(Color("softBackground").ignoresSafeArea())
             .navigationTitle("Календарь и задачи")
@@ -61,6 +63,7 @@ struct TasksCenterView: View {
                         showNewTaskForm = true
                     } label: {
                         Image(systemName: "plus")
+                            .demoTrainingAnchor(.taskCalendarAddButton)
                     }
                 }
             }
@@ -72,7 +75,10 @@ struct TasksCenterView: View {
                     TaskFormView(mode: .create)
                         .environmentObject(store)
                 }
+                .demoTrainingSheetOverlay()
             }
+            // DEMO training: shows the empty create form (no save) as a tour step.
+            .demoTrainingTaskFormBridge($showNewTaskForm)
 
             // Edit Task
             .sheet(item: $editingTask) { (task: TaskItem) in

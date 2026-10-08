@@ -43,12 +43,14 @@ struct ProjectDashboardView: View {
                     VStack(spacing: 26) {
 
                         headerCard(project)
+                            .demoTrainingAnchor(.projectsDashboardProgress)
 
                         issuesSection(project)
 
                         tasksSection(project)
 
                         quickActions(project)
+                            .demoTrainingAnchor(.projectsQuickActions)
 
                         if store.showsDemoCoach(.openReports), project.id == store.sessionDemoProjectID {
                             DemoCoachNote(
@@ -144,33 +146,10 @@ struct ProjectDashboardView: View {
         let clamped = min(max(projectProgress, 0), 1)
 
         return VStack(alignment: .leading, spacing: 12) {
-            if dynamicTypeSize.isAccessibilitySize {
-                VStack(alignment: .leading, spacing: 6) {
-                    progressNumber(percentage, color: progressColor)
-                    if let end = project.dateEnd {
-                        UnbrokenText(
-                            text: deadlineStatus(end, isComplete: isComplete).text,
-                            textStyle: .subheadline,
-                            weight: .semibold,
-                            color: deadlineStatus(end, isComplete: isComplete).color,
-                            maxLines: 2
-                        )
-                    }
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-            } else {
-                ViewThatFits(in: .horizontal) {
-                    HStack(alignment: .firstTextBaseline, spacing: 12) {
-                        progressNumber(percentage, color: progressColor)
-                            .fixedSize(horizontal: true, vertical: false)
-                        Spacer(minLength: 12)
-                        if let end = project.dateEnd {
-                            deadlineLabel(deadlineStatus(end, isComplete: isComplete), alignment: .trailing)
-                                .lineLimit(1)
-                                .fixedSize(horizontal: true, vertical: false)
-                        }
-                    }
-                    VStack(alignment: .leading, spacing: 4) {
+            // Tour focus: progress + bar only (full summary is too tall on SE + XXXL).
+            VStack(alignment: .leading, spacing: 12) {
+                if dynamicTypeSize.isAccessibilitySize {
+                    VStack(alignment: .leading, spacing: 6) {
                         progressNumber(percentage, color: progressColor)
                         if let end = project.dateEnd {
                             UnbrokenText(
@@ -183,10 +162,37 @@ struct ProjectDashboardView: View {
                         }
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
+                } else {
+                    ViewThatFits(in: .horizontal) {
+                        HStack(alignment: .firstTextBaseline, spacing: 12) {
+                            progressNumber(percentage, color: progressColor)
+                                .fixedSize(horizontal: true, vertical: false)
+                            Spacer(minLength: 12)
+                            if let end = project.dateEnd {
+                                deadlineLabel(deadlineStatus(end, isComplete: isComplete), alignment: .trailing)
+                                    .lineLimit(1)
+                                    .fixedSize(horizontal: true, vertical: false)
+                            }
+                        }
+                        VStack(alignment: .leading, spacing: 4) {
+                            progressNumber(percentage, color: progressColor)
+                            if let end = project.dateEnd {
+                                UnbrokenText(
+                                    text: deadlineStatus(end, isComplete: isComplete).text,
+                                    textStyle: .subheadline,
+                                    weight: .semibold,
+                                    color: deadlineStatus(end, isComplete: isComplete).color,
+                                    maxLines: 2
+                                )
+                            }
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    }
                 }
-            }
 
-            summaryProgressBar(fraction: clamped, color: progressColor)
+                summaryProgressBar(fraction: clamped, color: progressColor)
+            }
+            .demoTrainingAnchor(.projectsDashboardProgressFocus)
 
             if !project.address.isEmpty {
                 UnbrokenText(
@@ -715,12 +721,12 @@ struct ProjectDashboardView: View {
 
         _ = progressVersion // триггер перерисовки
 
-        return VStack(alignment: .leading, spacing: 16) {
-            Text("Ход строительства")
-                .font(.headline)
-                .accessibilityAddTraits(.isHeader)
-
-            VStack(spacing: 0) {
+        return VStack(alignment: .leading, spacing: 0) {
+            // Compact tour target: title + first stage only (full stage list is too tall for scrollHint).
+            VStack(alignment: .leading, spacing: 16) {
+                Text("Ход строительства")
+                    .font(.headline)
+                    .accessibilityAddTraits(.isHeader)
 
                 stageRow(
                     pack: .geology,
@@ -729,6 +735,10 @@ struct ProjectDashboardView: View {
                     measurement: packMeasurement(GeologyProgressStore.load, project: project),
                     showsConnector: true
                 ) { GeologyStagesScreen(project: project) }
+            }
+            .demoTrainingAnchor(.projectsDashboardStages)
+
+            VStack(spacing: 0) {
 
                 if store.showsDemoCoach(.openGeology), project.id == store.sessionDemoProjectID {
                     DemoCoachNote(

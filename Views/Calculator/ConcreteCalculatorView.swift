@@ -2,20 +2,43 @@ import SwiftUI
 
 /// MVP: калькулятор бетона (прямоугольный объём)
 /// Всё в метрах. Запас: редактируемый + быстрый пресет 5%.
+///
+/// `trainingExample`: temporary DEMO-tour seed (10×6×0.2 м → 12 м³ / 12,6 м³ с 5%).
+/// Only the tour-pushed instance uses it; the normal calculator entry stays empty.
 struct ConcreteCalculatorView: View {
     @Environment(\.dismiss) private var dismiss
 
-    @State private var lengthText: String = ""
-    @State private var widthText: String = ""
-    @State private var heightText: String = ""
+    /// Isolated to the calculator instance opened by the DEMO training tour.
+    private let trainingExample: Bool
 
-    @State private var includeReserve: Bool = true
-    @State private var reservePercentText: String = "5"
+    @State private var lengthText: String
+    @State private var widthText: String
+    @State private var heightText: String
+
+    @State private var includeReserve: Bool
+    @State private var reservePercentText: String
 
     @FocusState private var focusedField: Field?
 
     private enum Field {
         case length, width, height, reserve
+    }
+
+    init(trainingExample: Bool = false) {
+        self.trainingExample = trainingExample
+        if trainingExample {
+            _lengthText = State(initialValue: "10")
+            _widthText = State(initialValue: "6")
+            _heightText = State(initialValue: "0.2")
+            _includeReserve = State(initialValue: true)
+            _reservePercentText = State(initialValue: "5")
+        } else {
+            _lengthText = State(initialValue: "")
+            _widthText = State(initialValue: "")
+            _heightText = State(initialValue: "")
+            _includeReserve = State(initialValue: true)
+            _reservePercentText = State(initialValue: "5")
+        }
     }
 
     private var length: Double { parseDouble(lengthText) }
@@ -46,6 +69,7 @@ struct ConcreteCalculatorView: View {
             Form {
                 Section {
                     metricRow(title: "Длина", placeholder: "например 10", text: $lengthText, focused: .length)
+                        .demoTrainingAnchor(.calculatorConcreteParams)
                     metricRow(title: "Ширина", placeholder: "например 6", text: $widthText, focused: .width)
                     metricRow(title: "Толщина / высота", placeholder: "например 0.2", text: $heightText, focused: .height)
                 } header: {
@@ -98,7 +122,11 @@ struct ConcreteCalculatorView: View {
                             resultRow(title: "С запасом", value: format(volumeWithReserve), unit: "м³")
                         }
 
-                        if !isValid {
+                        if trainingExample {
+                            Text("Учебный пример тура. В обычном калькуляторе поля остаются вашими.")
+                                .font(.footnote)
+                                .foregroundStyle(.secondary)
+                        } else if !isValid {
                             Text("Введите длину, ширину и толщину (в метрах), чтобы увидеть расчёт.")
                                 .font(.footnote)
                                 .foregroundStyle(.secondary)
@@ -109,6 +137,7 @@ struct ConcreteCalculatorView: View {
                         }
                     }
                     .padding(.vertical, 4)
+                    .demoTrainingAnchor(.calculatorConcreteResult)
                 } header: {
                     Text("Результат")
                 }
