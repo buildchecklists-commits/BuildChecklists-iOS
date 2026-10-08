@@ -180,18 +180,33 @@ final class AppStore: ObservableObject {
 
         // 6) load projects/expenses/tasks (даже если read-only — загрузка разрешена)
         BCTiming.log("bootstrap: loadProjects start")
-        do {
-            projects = try storage.loadProjects()
+        let projectsOutcome = storage.loadProjectsOutcome()
+        switch projectsOutcome {
+        case .missingFile:
+            projects = []
+            BCTiming.log("bootstrap: loadProjects end (missing file)")
+        case .loaded(let loaded):
+            projects = loaded
             BCTiming.log("bootstrap: loadProjects end (\(projects.count))")
             debugPrint("📁 Projects loaded:", projects.count)
             BCTiming.log("bootstrap: migrateStagesIfNeeded start")
             migrateStagesIfNeededAfterSeedUpdate()
             BCTiming.log("bootstrap: migrateStagesIfNeeded end")
-        } catch {
+        case .partiallyLoaded(let partial):
+            // Show what we could recover. Writes to projects.json stay blocked (StorageService gate).
+            projects = partial
+            BCTiming.log("bootstrap: loadProjects end (partial \(partial.count))")
+            debugPrint("⚠️ Projects partially loaded (disk writes blocked):", partial.count)
+        case .unreadable(let message):
             projects = []
             BCTiming.log("bootstrap: loadProjects error")
-            debugPrint("❌ Load projects error:", error.localizedDescription)
+            debugPrint("❌ Load projects error (disk writes blocked):", message)
         }
+
+        IssueHistoryProjectDeletion.reconcileAfterLoad(
+            projectsOutcome: projectsOutcome,
+            fileRoot: FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first
+        )
 
         BCTiming.log("bootstrap: loadExpenses start")
         do {
@@ -426,7 +441,17 @@ final class AppStore: ObservableObject {
             await self.subscription.refreshEntitlements()
             self.applySubscriptionToRoleAndAccess()
 
-            do { self.projects = try self.storage.loadProjects() } catch { self.projects = [] }
+            let projectsOutcome = self.storage.loadProjectsOutcome()
+            switch projectsOutcome {
+            case .missingFile, .unreadable:
+                self.projects = []
+            case .loaded(let loaded), .partiallyLoaded(let loaded):
+                self.projects = loaded
+            }
+            IssueHistoryProjectDeletion.reconcileAfterLoad(
+                projectsOutcome: projectsOutcome,
+                fileRoot: FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first
+            )
             do { self.expenses = try self.storage.loadExpenses() } catch { self.expenses = [] }
             do { self.tasks = try self.storage.loadTasks() } catch { self.tasks = [] }
             self.isMainDataReady = true
@@ -765,10 +790,67 @@ final class AppStore: ObservableObject {
         try persistProjects()
     }
 
-    func deleteProject(_ project: Project) throws {
+    @discardableResult
+    func deleteProject(_ project: Project) throws -> ProjectDeleteResult {
         try ensureCanMutate()
-        guard let existing = projects.first(where: { $0.id == project.id }) else { return }
+        guard let existing = projects.first(where: { $0.id == project.id }) else {
+            return ProjectDeleteResult(
+                projectRemoved: true,
+                historyCleanupFinished: !IssueHistoryRuntime.store().ownedHistoryExists(projectID: project.id),
+                message: nil
+            )
+        }
 
+        if isDemoMode {
+            return try deleteDemoProject(existing)
+        }
+
+        // Refuse before staging when the last load was partial/unreadable.
+        guard storage.isProjectsDiskWriteAllowed else {
+            throw ProjectsDiskWriteBlockedError()
+        }
+
+        guard let fileRoot = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else {
+            throw IssueHistoryError(code: .writeFailed, message: "Каталог документов недоступен")
+        }
+
+        let engine = ProjectDeleteEngine(
+            fileRoot: fileRoot,
+            loadProjects: { self.storage.loadProjectsOutcome() },
+            saveProjects: { try self.storage.saveProjects($0) },
+            saveExpenses: { try self.storage.saveExpenses($0) },
+            saveTasks: { try self.storage.saveTasks($0) },
+            removeAttachments: { self.removeProjectOwnedAttachments($0) }
+        )
+
+        let outcome = try engine.delete(
+            existing: existing,
+            allProjects: projects,
+            allExpenses: expenses,
+            allTasks: tasks
+        )
+        projects = outcome.projects
+        expenses = outcome.expenses
+        tasks = outcome.tasks
+        return outcome.result
+    }
+
+    /// DEMO: memory-only. History discarded only after in-memory lists no longer contain the project.
+    private func deleteDemoProject(_ existing: Project) throws -> ProjectDeleteResult {
+        let projectID = existing.id
+        IssueDeletedProjectGate.blockSession(projectID)
+        projects.removeAll { $0.id == projectID }
+        expenses.removeAll { $0.projectID == projectID }
+        tasks.removeAll { $0.projectID == projectID }
+        removeProjectOwnedAttachments(existing)
+        let historyStore = IssueHistoryRuntime.store()
+        _ = try IssueHistoryProjectDeletion.stage(projectID: projectID, store: historyStore)
+        try IssueHistoryProjectDeletion.finalize(projectID: projectID, store: historyStore)
+        return .success
+    }
+
+    /// Existing attachment and cover cleanup only — does not expand the deleted-file set.
+    private func removeProjectOwnedAttachments(_ existing: Project) {
         var allPaths: [String] = []
         allPaths.append(contentsOf: existing.photoPaths)
         allPaths.append(contentsOf: existing.documentPaths)
@@ -790,11 +872,6 @@ final class AppStore: ObservableObject {
         }
 
         CoverImageStore.shared.deleteCover(for: existing.id)
-
-        projects.removeAll { $0.id == project.id }
-        expenses.removeAll { $0.projectID == project.id }
-
-        try persistAll()
     }
 
     func project(by id: UUID) -> Project? { projects.first { $0.id == id } }
@@ -1039,6 +1116,7 @@ final class AppStore: ObservableObject {
 
     private func persistProjects() throws {
         guard !isDemoMode else { return }
+        // Gate set by loadProjectsOutcome: partial/unreadable loads must not overwrite projects.json.
         try storage.saveProjects(projects)
     }
 

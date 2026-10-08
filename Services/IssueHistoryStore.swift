@@ -33,6 +33,13 @@ nonisolated final class IssueHistoryMemorySession: @unchecked Sendable {
             photos[key] = data
         }
     }
+
+    func discard(projectID: UUID) {
+        lock.lock()
+        defer { lock.unlock() }
+        documents[projectID] = nil
+        photos = photos.filter { $0.key.projectID != projectID }
+    }
 }
 
 /// History file and its own photo copies. Does not read or write checklist progress, notes, or live photos.
@@ -62,7 +69,165 @@ nonisolated final class IssueHistoryStore: @unchecked Sendable {
     func load(projectID: UUID) throws -> IssueHistoryDocument {
         lock.lock()
         defer { lock.unlock() }
+        if IssueDeletedProjectGate.isBlocked(projectID) {
+            throw IssueHistoryError(
+                code: .projectDeleted,
+                message: "Проект удалён. История замечаний больше не записывается."
+            )
+        }
         return try loadUnlocked(projectID: projectID)
+    }
+
+    /// True when live JSON or media for this UUID still exist (not counting pending-removal trash).
+    func ownedHistoryExists(projectID: UUID) -> Bool {
+        lock.lock()
+        defer { lock.unlock() }
+        if memory != nil {
+            return memory?.document(for: projectID) != nil
+        }
+        guard let fileRoot else { return false }
+        if liveHistoryExistsUnlocked(projectID: projectID, root: fileRoot) { return true }
+        let pending = IssueHistoryProjectDeletion.pendingProjectDir(fileRoot: fileRoot, projectID: projectID)
+        return fileManager.fileExists(atPath: pending.path)
+    }
+
+    /// Moves JSON and media for `projectID` into `BC_IssueHistoryPendingRemoval/<P>/`.
+    /// Idempotent: does not wipe an already-staged partial pending dir.
+    /// Corrupt JSON is moved as an opaque file. Neighbor UUIDs are not touched.
+    @discardableResult
+    func stageOwnedHistoryForDeletion(projectID: UUID) throws -> IssueHistoryProjectDeletion.StageOutcome {
+        lock.lock()
+        defer { lock.unlock() }
+        if let memory {
+            // DEMO memory discard is irreversible — callers must only reach here after committed removal.
+            let had = memory.document(for: projectID) != nil
+            memory.discard(projectID: projectID)
+            return had ? .staged : .nothingToStage
+        }
+        guard let fileRoot else {
+            throw IssueHistoryError(code: .writeFailed, message: "Каталог истории не задан")
+        }
+        let json = Self.jsonURL(root: fileRoot, projectID: projectID)
+        let media = Self.projectMediaURL(root: fileRoot, projectID: projectID)
+        let pending = IssueHistoryProjectDeletion.pendingProjectDir(fileRoot: fileRoot, projectID: projectID)
+        let stagedJSON = pending.appendingPathComponent("document.json")
+        let stagedMedia = pending.appendingPathComponent("media", isDirectory: true)
+        let hasJSON = fileManager.fileExists(atPath: json.path)
+        let hasMedia = fileManager.fileExists(atPath: media.path)
+        let alreadyStaged =
+            fileManager.fileExists(atPath: stagedJSON.path)
+            || fileManager.fileExists(atPath: stagedMedia.path)
+
+        guard hasJSON || hasMedia || alreadyStaged else { return .nothingToStage }
+
+        try fileManager.createDirectory(at: pending, withIntermediateDirectories: true)
+        if hasJSON {
+            try moveItemReplacing(at: json, to: stagedJSON)
+        }
+        if hasMedia {
+            // If this fails after JSON was moved, leave pending as-is for restore.
+            try moveItemReplacing(at: media, to: stagedMedia)
+        }
+        return .staged
+    }
+
+    /// Restores staged history to live paths. Throws if a staged item cannot be moved back.
+    /// Does not invent an empty history file when there is nothing to restore.
+    func restoreOwnedHistoryAfterFailedDeletion(projectID: UUID) throws {
+        lock.lock()
+        defer { lock.unlock() }
+        if memory != nil { return }
+        guard let fileRoot else {
+            throw IssueHistoryError(code: .writeFailed, message: "Каталог истории не задан")
+        }
+        let pending = IssueHistoryProjectDeletion.pendingProjectDir(fileRoot: fileRoot, projectID: projectID)
+        guard fileManager.fileExists(atPath: pending.path) else { return }
+        let stagedJSON = pending.appendingPathComponent("document.json")
+        let stagedMedia = pending.appendingPathComponent("media", isDirectory: true)
+        if fileManager.fileExists(atPath: stagedJSON.path) {
+            let live = Self.jsonURL(root: fileRoot, projectID: projectID)
+            try fileManager.createDirectory(at: live.deletingLastPathComponent(), withIntermediateDirectories: true)
+            try moveItemReplacing(at: stagedJSON, to: live)
+        }
+        if fileManager.fileExists(atPath: stagedMedia.path) {
+            let live = Self.projectMediaURL(root: fileRoot, projectID: projectID)
+            try moveItemReplacing(at: stagedMedia, to: live)
+        }
+        // Pending must be empty of staged content before removal.
+        if fileManager.fileExists(atPath: stagedJSON.path) || fileManager.fileExists(atPath: stagedMedia.path) {
+            throw IssueHistoryError(
+                code: .writeFailed,
+                message: "Не удалось полностью вернуть историю замечаний после отмены удаления."
+            )
+        }
+        if fileManager.fileExists(atPath: pending.path) {
+            try fileManager.removeItem(at: pending)
+        }
+        removeEmptyDirectory(pending.deletingLastPathComponent())
+    }
+
+    /// Deletes pending-removal trash and any leftover live JSON/media for this UUID only.
+    func finalizeOwnedHistoryDeletion(projectID: UUID) throws {
+        lock.lock()
+        defer { lock.unlock() }
+        if let memory {
+            memory.discard(projectID: projectID)
+            return
+        }
+        guard let fileRoot else {
+            throw IssueHistoryError(code: .writeFailed, message: "Каталог истории не задан")
+        }
+        var failures: [String] = []
+        let pending = IssueHistoryProjectDeletion.pendingProjectDir(fileRoot: fileRoot, projectID: projectID)
+        if fileManager.fileExists(atPath: pending.path) {
+            do { try fileManager.removeItem(at: pending) }
+            catch { failures.append("отложенная история") }
+        }
+        let json = Self.jsonURL(root: fileRoot, projectID: projectID)
+        if fileManager.fileExists(atPath: json.path) {
+            do { try fileManager.removeItem(at: json) }
+            catch { failures.append("файл истории") }
+        }
+        let media = Self.projectMediaURL(root: fileRoot, projectID: projectID)
+        if fileManager.fileExists(atPath: media.path) {
+            do { try fileManager.removeItem(at: media) }
+            catch { failures.append("фотографии истории") }
+        }
+        removeEmptyDirectory(json.deletingLastPathComponent())
+        removeEmptyDirectory(media.deletingLastPathComponent())
+        removeEmptyDirectory(pending.deletingLastPathComponent())
+        if liveHistoryExistsUnlocked(projectID: projectID, root: fileRoot)
+            || fileManager.fileExists(atPath: pending.path) {
+            throw IssueHistoryError(
+                code: .writeFailed,
+                message: "Не удалось полностью удалить историю замечаний (\(failures.joined(separator: ", ")))."
+            )
+        }
+    }
+
+    private func liveHistoryExistsUnlocked(projectID: UUID, root: URL) -> Bool {
+        let json = Self.jsonURL(root: root, projectID: projectID)
+        let media = Self.projectMediaURL(root: root, projectID: projectID)
+        return fileManager.fileExists(atPath: json.path) || fileManager.fileExists(atPath: media.path)
+    }
+
+    private func moveItemReplacing(at source: URL, to destination: URL) throws {
+        if fileManager.fileExists(atPath: destination.path) {
+            try fileManager.removeItem(at: destination)
+        }
+        let parent = destination.deletingLastPathComponent()
+        try fileManager.createDirectory(at: parent, withIntermediateDirectories: true)
+        do {
+            try fileManager.moveItem(at: source, to: destination)
+        } catch {
+            throw IssueHistoryError(code: .writeFailed, message: "Не удалось переместить файлы истории")
+        }
+    }
+
+    private func removeEmptyDirectory(_ url: URL) {
+        if Self.directoryIsEmpty(url, fileManager: fileManager) {
+            try? fileManager.removeItem(at: url)
+        }
     }
 
     /// Inserts the command's event. The same `eventID` is a no-op and does not write again.
@@ -71,6 +236,7 @@ nonisolated final class IssueHistoryStore: @unchecked Sendable {
         lock.lock()
         defer { lock.unlock() }
         let projectID = command.projectID
+        try ensureWritableUnlocked(projectID)
         let current = try loadUnlocked(projectID: projectID)
         if current.caseContaining(eventID: command.eventID) != nil {
             return current
@@ -91,6 +257,7 @@ nonisolated final class IssueHistoryStore: @unchecked Sendable {
     ) throws -> IssueHistoryDocument {
         lock.lock()
         defer { lock.unlock() }
+        try ensureWritableUnlocked(operation.identity.projectID)
         let current = try loadUnlocked(projectID: operation.identity.projectID)
         if let done = current.completed.first(where: { $0.eventID == operation.eventID }) {
             guard done.fingerprint == operation.fingerprint else {
@@ -133,6 +300,7 @@ nonisolated final class IssueHistoryStore: @unchecked Sendable {
     func commit(projectID: UUID, eventID: UUID, fingerprint: String) throws -> IssueHistoryDocument {
         lock.lock()
         defer { lock.unlock() }
+        try ensureWritableUnlocked(projectID)
         let current = try loadUnlocked(projectID: projectID)
         if let done = current.completed.first(where: { $0.eventID == eventID }) {
             guard done.fingerprint == fingerprint else {
@@ -685,11 +853,24 @@ nonisolated final class IssueHistoryStore: @unchecked Sendable {
             .appendingPathComponent("\(projectID.uuidString).json")
     }
 
-    static func eventMediaURL(root: URL, projectID: UUID, eventID: UUID) -> URL {
+    static func projectMediaURL(root: URL, projectID: UUID) -> URL {
         root
             .appendingPathComponent(mediaFolderName, isDirectory: true)
             .appendingPathComponent(projectID.uuidString, isDirectory: true)
+    }
+
+    static func eventMediaURL(root: URL, projectID: UUID, eventID: UUID) -> URL {
+        projectMediaURL(root: root, projectID: projectID)
             .appendingPathComponent(eventID.uuidString, isDirectory: true)
+    }
+
+    private func ensureWritableUnlocked(_ projectID: UUID) throws {
+        if IssueDeletedProjectGate.isBlocked(projectID) {
+            throw IssueHistoryError(
+                code: .projectDeleted,
+                message: "Проект удалён. История замечаний больше не записывается."
+            )
+        }
     }
 
     static func photoURL(root: URL, projectID: UUID, eventID: UUID, fileName: String) -> URL {

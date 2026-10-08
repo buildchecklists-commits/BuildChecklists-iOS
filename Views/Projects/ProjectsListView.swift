@@ -72,6 +72,8 @@ struct ProjectsListView: View {
     @State private var query: String = ""
     @State private var showForm: Bool = false
     @State private var errorText: String?
+    @State private var projectPendingDeletion: Project?
+    @State private var deletionStatusText: String?
 
     @State private var progressCache: [UUID: Double] = [:]
 
@@ -246,9 +248,38 @@ struct ProjectsListView: View {
         } message: {
             Text(errorText ?? "")
         }
+        .alert(
+            "Удалить проект?",
+            isPresented: Binding(
+                get: { projectPendingDeletion != nil },
+                set: { if !$0 { projectPendingDeletion = nil } }
+            )
+        ) {
+            Button("Отмена", role: .cancel) { projectPendingDeletion = nil }
+            Button("Удалить", role: .destructive) {
+                if let project = projectPendingDeletion {
+                    projectPendingDeletion = nil
+                    confirmDelete(project)
+                }
+            }
+        } message: {
+            Text("Будут удалены проект и сохранённая история замечаний с её фотографиями.")
+        }
+        .alert(
+            "Удаление проекта",
+            isPresented: Binding(
+                get: { deletionStatusText != nil },
+                set: { if !$0 { deletionStatusText = nil } }
+            )
+        ) {
+            Button("OK", role: .cancel) { deletionStatusText = nil }
+        } message: {
+            Text(deletionStatusText ?? "")
+        }
 
         .onAppear {
             recalcAllProjectsProgress()
+            reportIncompleteHistoryCleanupIfNeeded()
         }
         .onChange(of: store.projects) { _, _ in
             recalcAllProjectsProgress()
@@ -789,7 +820,7 @@ struct ProjectsListView: View {
             }
 
             Button(role: .destructive) {
-                delete(project)
+                requestDelete(project)
             } label: {
                 Label("Удалить", systemImage: "trash")
             }
@@ -803,11 +834,31 @@ struct ProjectsListView: View {
         editingProject = project
     }
 
-    private func delete(_ project: Project) {
+    private func requestDelete(_ project: Project) {
         guard requireWritableAccess("удалять проекты") else { return }
+        projectPendingDeletion = project
+    }
+
+    private func confirmDelete(_ project: Project) {
         withAnimation {
-            do { try store.deleteProject(project) }
-            catch { errorText = error.localizedDescription }
+            do {
+                let result = try store.deleteProject(project)
+                if let message = result.message {
+                    deletionStatusText = message
+                } else if result.projectRemoved, !result.historyCleanupFinished {
+                    deletionStatusText = IssueHistoryProjectDeletion.incompleteCleanupMessage(projectName: project.name)
+                }
+            } catch {
+                deletionStatusText = error.localizedDescription
+            }
+        }
+    }
+
+    private func reportIncompleteHistoryCleanupIfNeeded() {
+        guard !store.isDemoMode else { return }
+        guard let root = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else { return }
+        if IssueHistoryProjectDeletion.hasIncompleteCleanupIntents(fileRoot: root) {
+            deletionStatusText = "Есть проекты, удалённые из списка, у которых очистка истории замечаний ещё не завершена. История этих проектов больше не пополняется."
         }
     }
 

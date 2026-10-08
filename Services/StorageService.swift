@@ -1,52 +1,144 @@
 import Foundation
 
+/// Remembers whether the last projects load was complete enough to allow rewriting `projects.json`.
+nonisolated final class ProjectsDiskWriteGate: @unchecked Sendable {
+    private let lock = NSLock()
+    private var allowed = true
+
+    var isWriteAllowed: Bool {
+        lock.lock()
+        defer { lock.unlock() }
+        return allowed
+    }
+
+    func apply(_ outcome: ProjectsLoadOutcome) {
+        lock.lock()
+        defer { lock.unlock() }
+        allowed = outcome.allowsProjectsDiskWrite
+    }
+
+    func ensureWritable() throws {
+        lock.lock()
+        let ok = allowed
+        lock.unlock()
+        if !ok { throw ProjectsDiskWriteBlockedError() }
+    }
+}
+
 /// StorageService с мягкой миграцией проектов и безопасным decode.
 /// Для задач используется обычный decode/encode (Вариант A).
 struct StorageService {
+
+    private let documentsDirectory: URL
+    /// Shared across copies of this value-typed service so load outcome gates later saves.
+    private let projectsWriteGate: ProjectsDiskWriteGate
+
+    /// - Parameter documentsDirectory: Override for isolated probes. Production uses the app Documents directory.
+    init(documentsDirectory: URL? = nil, projectsWriteGate: ProjectsDiskWriteGate = ProjectsDiskWriteGate()) {
+        if let documentsDirectory {
+            self.documentsDirectory = documentsDirectory
+        } else {
+            self.documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+        }
+        self.projectsWriteGate = projectsWriteGate
+    }
+
+    /// Whether the last `loadProjectsOutcome()` allows rewriting the projects file.
+    var isProjectsDiskWriteAllowed: Bool { projectsWriteGate.isWriteAllowed }
 
     // MARK: - URLs
 
     /// Файл проектов
     private var projectsURL: URL {
-        let dir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-        return dir.appendingPathComponent("build_checklists_projects.json")
+        documentsDirectory.appendingPathComponent("build_checklists_projects.json")
     }
 
     /// Файл расходов
     private var expensesURL: URL {
-        let dir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-        return dir.appendingPathComponent("build_checklists_expenses.json")
+        documentsDirectory.appendingPathComponent("build_checklists_expenses.json")
     }
 
     /// Файл задач
     private var tasksURL: URL {
-        let dir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-        return dir.appendingPathComponent("build_checklists_tasks.json")
+        documentsDirectory.appendingPathComponent("build_checklists_tasks.json")
     }
 
     // MARK: - PROJECTS (c fallback migration)
 
+    /// Distinguishes a missing file from a trusted empty list, a partial migration, and unreadable data.
+    /// Only `.loaded` means every row was recovered — safe for destructive reconcile / deletion verify.
+    /// Updates the write gate: partial/unreadable block later `saveProjects` until a trusted load succeeds.
+    func loadProjectsOutcome() -> ProjectsLoadOutcome {
+        let outcome: ProjectsLoadOutcome
+        if !FileManager.default.fileExists(atPath: projectsURL.path) {
+            outcome = .missingFile
+        } else {
+            let data: Data
+            do {
+                data = try Data(contentsOf: projectsURL)
+            } catch {
+                outcome = .unreadable(error.localizedDescription)
+                projectsWriteGate.apply(outcome)
+                return outcome
+            }
+
+            do {
+                let decoder = JSONDecoder()
+                decoder.dateDecodingStrategy = .iso8601
+                outcome = .loaded(try decoder.decode([Project].self, from: data))
+                projectsWriteGate.apply(outcome)
+                return outcome
+            } catch {
+                print("❌ [StorageService] Стандартный decode проектов провалился: \(error)")
+            }
+
+            guard let raw = try? JSONSerialization.jsonObject(with: data) as? [[String: Any]] else {
+                outcome = .unreadable("JSON проектов не читается как массив")
+                projectsWriteGate.apply(outcome)
+                return outcome
+            }
+            if raw.isEmpty {
+                outcome = .loaded([])
+            } else {
+                let migrated = migrateProjects(from: data)
+                if migrated.isEmpty {
+                    outcome = .unreadable("Миграция проектов не дала ни одной записи")
+                } else if migrated.count != raw.count {
+                    // Skipped rows may still represent projects in the source file.
+                    print("⚠️ [StorageService] Частичная миграция: \(migrated.count)/\(raw.count) — список не достоверен для удаления истории")
+                    outcome = .partiallyLoaded(migrated)
+                } else {
+                    outcome = .loaded(migrated)
+                }
+            }
+        }
+        projectsWriteGate.apply(outcome)
+        return outcome
+    }
+
     func loadProjects() throws -> [Project] {
-        guard FileManager.default.fileExists(atPath: projectsURL.path) else {
+        switch loadProjectsOutcome() {
+        case .missingFile:
             return []
+        case .loaded(let projects):
+            return projects
+        case .partiallyLoaded:
+            throw NSError(
+                domain: "StorageService",
+                code: 2,
+                userInfo: [NSLocalizedDescriptionKey: "Список проектов восстановлен лишь частично"]
+            )
+        case .unreadable(let message):
+            throw NSError(
+                domain: "StorageService",
+                code: 1,
+                userInfo: [NSLocalizedDescriptionKey: message]
+            )
         }
-
-        let data = try Data(contentsOf: projectsURL)
-
-        // 1. стандартный decode
-        do {
-            let decoder = JSONDecoder()
-            decoder.dateDecodingStrategy = .iso8601
-            return try decoder.decode([Project].self, from: data)
-        } catch {
-            print("❌ [StorageService] Стандартный decode проектов провалился: \(error)")
-        }
-
-        // 2. fallback
-        return migrateProjects(from: data)
     }
 
     func saveProjects(_ projects: [Project]) throws {
+        try projectsWriteGate.ensureWritable()
         let encoder = JSONEncoder()
         encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
         encoder.dateEncodingStrategy = .iso8601

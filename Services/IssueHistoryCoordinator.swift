@@ -223,6 +223,12 @@ nonisolated struct IssueHistoryCoordinator {
         screenStages: [Stage],
         change: IssueHistoryChange
     ) throws -> IssueHistorySnapshot {
+        if IssueDeletedProjectGate.isBlocked(identity.projectID) {
+            throw IssueHistoryError(
+                code: .projectDeleted,
+                message: "Проект удалён. История замечаний больше не записывается."
+            )
+        }
         let before = try loadOrCorrupt(identity.projectID)
         let pendingBefore = before.pending.first { $0.identity.itemKey == identity.itemKey }
         let recovery = try recover(projectID: identity.projectID, pack: identity.pack)

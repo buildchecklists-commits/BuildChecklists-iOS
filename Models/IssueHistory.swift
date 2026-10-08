@@ -45,11 +45,15 @@ nonisolated enum IssueHistoryErrorCode: Equatable, Sendable {
     case pendingBlocks
     case notConfirmed
     case conflict
+    /// Project deletion finished or is in progress; history and progress must not be written again.
+    case projectDeleted
 }
 
-nonisolated struct IssueHistoryError: Error, Equatable {
+nonisolated struct IssueHistoryError: Error, Equatable, LocalizedError {
     var code: IssueHistoryErrorCode
     var message: String
+
+    var errorDescription: String? { message }
 }
 
 /// Checklist item a case is attached to. Titles are not part of the key.

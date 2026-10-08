@@ -24,10 +24,12 @@ nonisolated enum IssueHistoryRuntime {
 
     static func beginDemoSession() {
         demoSession = IssueHistoryMemorySession()
+        IssueDeletedProjectGate.clearSessionBlocks()
     }
 
     static func endDemoSession() {
         demoSession = nil
+        IssueDeletedProjectGate.clearSessionBlocks()
     }
 
     static func store() -> IssueHistoryStore {
@@ -54,6 +56,9 @@ nonisolated enum IssueProgressAutosaveGuard {
     /// `.refused` means the history file could not be read. The caller must not write progress
     /// and must not present the in-memory edit as saved.
     static func adjusting(pack: ChecklistPack, projectID: UUID, memory: [Stage], epoch: Int) -> Adjustment {
+        if IssueDeletedProjectGate.isBlocked(projectID) {
+            return .refused
+        }
         if epoch < IssueProgressEpoch.current {
             return .stale
         }
@@ -123,12 +128,14 @@ nonisolated enum IssueProgressAutosaveGuard {
 enum IssueProgressSaveFeedback {
     static let refusedNotification = Notification.Name("bc.issueHistory.saveRefused")
     static let message = "История замечаний повреждена. Изменение не сохранено. Повреждённый файл не изменён."
+    static let deletedProjectMessage = "Проект удалён. Изменение не сохранено."
 
     static func apply(
         outcome: IssueProgressSaveOutcome,
         stages: [Stage],
         epoch: Int,
-        reload: () -> [Stage]
+        reload: () -> [Stage],
+        projectID: UUID? = nil
     ) -> (stages: [Stage], epoch: Int) {
         switch outcome {
         case .saved(let newEpoch):
@@ -141,6 +148,13 @@ enum IssueProgressSaveFeedback {
             if disk != stages {
                 NotificationCenter.default.post(name: refusedNotification, object: nil)
                 return (disk, epoch)
+            }
+            if let projectID, IssueDeletedProjectGate.isBlocked(projectID) {
+                NotificationCenter.default.post(
+                    name: refusedNotification,
+                    object: nil,
+                    userInfo: ["message": deletedProjectMessage]
+                )
             }
             return (stages, epoch)
         }

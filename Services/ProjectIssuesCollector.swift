@@ -263,6 +263,12 @@ nonisolated enum ChecklistPackStore {
 
     /// Writes the progress file or UserDefaults key and reads it back. A swallowed `try?` is not success.
     static func saveConfirmed(pack: ChecklistPack, projectID: UUID, stages: [Stage]) throws {
+        if IssueDeletedProjectGate.isBlocked(projectID) {
+            throw IssueHistoryError(
+                code: .projectDeleted,
+                message: "Проект удалён. Прогресс больше не записывается."
+            )
+        }
         let data = try JSONEncoder().encode(stages)
         switch pack {
         case .doors:
