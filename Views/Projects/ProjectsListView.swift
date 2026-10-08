@@ -18,22 +18,6 @@ private enum ProjectFilter: String, CaseIterable, Identifiable {
         case .completed: return "Завершённые"
         }
     }
-
-    var compactTitle: String {
-        switch self {
-        case .all: return "Все"
-        case .current: return "Тек."
-        case .completed: return "Готово"
-        }
-    }
-
-    var iconName: String {
-        switch self {
-        case .all: return "square.grid.2x2"
-        case .current: return "clock"
-        case .completed: return "checkmark"
-        }
-    }
 }
 
 private enum ProjectSort: String, CaseIterable, Identifiable {
@@ -491,20 +475,10 @@ struct ProjectsListView: View {
 
     private var controlsView: some View {
         VStack(spacing: 8) {
-            ViewThatFits(in: .horizontal) {
-                filterPicker(title: \.title)
-                    .fixedSize(horizontal: true, vertical: false)
-                filterPicker(title: \.compactTitle)
-                    .fixedSize(horizontal: true, vertical: false)
-                filterPicker(title: nil)
-                    .fixedSize(horizontal: true, vertical: false)
-                filterMenu
+            DemoTrainingFilterBar(filterTitles: ProjectFilter.allCases.map(\.title)) {
+                filterPicker
+                    .demoTrainingAnchor(.projectsListHeader)
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .demoTrainingAnchor(.projectsListHeader)
-
-            // Own row (DEMO only): does not compete with sort / calculator titles in listTools.
-            DemoTrainingEntryRow()
 
             ViewThatFits(in: .horizontal) {
                 listTools(showsTitles: true)
@@ -541,39 +515,16 @@ struct ProjectsListView: View {
         }
     }
 
-    private func filterPicker(title: KeyPath<ProjectFilter, String>?) -> some View {
+    private var filterPicker: some View {
         Picker("Фильтр", selection: $selectedFilter) {
             ForEach(ProjectFilter.allCases) { filter in
-                if let title {
-                    Text(filter[keyPath: title])
-                        .tag(filter)
-                        .accessibilityLabel(filter.title)
-                } else {
-                    Image(systemName: filter.iconName)
-                        .tag(filter)
-                        .accessibilityLabel(filter.title)
-                }
+                Text(filter.title)
+                    .tag(filter)
+                    .accessibilityLabel(filter.title)
             }
         }
         .pickerStyle(.segmented)
         .accessibilityLabel("Фильтр")
-    }
-
-    private var filterMenu: some View {
-        Menu {
-            Picker("Фильтр", selection: $selectedFilter) {
-                ForEach(ProjectFilter.allCases) { filter in
-                    Text(filter.title).tag(filter)
-                }
-            }
-        } label: {
-            Text(selectedFilter.title)
-                .font(.subheadline.weight(.semibold))
-                .lineLimit(1)
-                .minimumScaleFactor(0.55)
-                .frame(maxWidth: .infinity, minHeight: 44)
-        }
-        .accessibilityLabel("Фильтр, \(selectedFilter.title)")
     }
 
     private func calendarLabelStacked() -> some View {

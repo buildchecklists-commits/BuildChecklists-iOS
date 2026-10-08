@@ -225,12 +225,15 @@ private struct PlanHeaderView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
 
-            Picker("Фильтр", selection: $selectedFilter) {
-                ForEach(PlanFilter.allCases) { filter in
-                    Text(filter.title).tag(filter)
+            DemoTrainingFilterBar(filterTitles: PlanFilter.allCases.map(\.title)) {
+                Picker("Фильтр", selection: $selectedFilter) {
+                    ForEach(PlanFilter.allCases) { filter in
+                        Text(filter.title).tag(filter)
+                    }
                 }
+                .pickerStyle(.segmented)
+                .accessibilityLabel("Фильтр")
             }
-            .pickerStyle(.segmented)
             .padding(.horizontal, 16)
             .padding(.top, 8)
 
@@ -262,12 +265,8 @@ private struct PlanHeaderView: View {
             .padding(.horizontal, 16)
 
             VStack(alignment: .leading, spacing: 2) {
-                HStack(alignment: .center, spacing: 8) {
-                    Text("Сроки")
-                        .font(.title2.weight(.bold))
-                    Spacer(minLength: 8)
-                    DemoTrainingEntryCapsule()
-                }
+                Text("Сроки")
+                    .font(.title2.weight(.bold))
 
                 Text("Следите за прогрессом, дедлайнами и фактическими сроками по каждому проекту.")
                     .font(.footnote)
@@ -772,7 +771,7 @@ struct ProfilePlaceholderView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 24) {
 
-                    DemoTrainingEntryRow()
+                    DemoTrainingStandaloneEntry()
 
                     profileHeader
                     accountSection

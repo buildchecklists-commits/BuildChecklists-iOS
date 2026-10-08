@@ -212,13 +212,15 @@ struct BudgetProjectsListView: View {
             .safeAreaInset(edge: .top) {
                 VStack(alignment: .leading, spacing: 14) {
 
-                    // Сегменты
-                    Picker("Фильтр", selection: $selectedFilter) {
-                        ForEach(BudgetFilter.allCases) { filter in
-                            Text(filter.title).tag(filter)
+                    DemoTrainingFilterBar(filterTitles: BudgetFilter.allCases.map(\.title)) {
+                        Picker("Фильтр", selection: $selectedFilter) {
+                            ForEach(BudgetFilter.allCases) { filter in
+                                Text(filter.title).tag(filter)
+                            }
                         }
+                        .pickerStyle(.segmented)
+                        .accessibilityLabel("Фильтр")
                     }
-                    .pickerStyle(.segmented)
                     .padding(.horizontal, 16)
                     .padding(.top, 8)
 
@@ -252,12 +254,8 @@ struct BudgetProjectsListView: View {
 
                     // Заголовок + текст
                     VStack(alignment: .leading, spacing: 2) {
-                        HStack(alignment: .center, spacing: 8) {
-                            Text("Бюджет")
-                                .font(.title2.weight(.bold))
-                            Spacer(minLength: 8)
-                            DemoTrainingEntryCapsule()
-                        }
+                        Text("Бюджет")
+                            .font(.title2.weight(.bold))
 
                         Text("План/факт по этапам и детализация расходов по каждому проекту.")
                             .font(.footnote)

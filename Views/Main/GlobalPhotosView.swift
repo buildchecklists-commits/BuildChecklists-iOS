@@ -480,16 +480,19 @@ private struct GlobalPhotosHeaderView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
 
-            // Сегменты по источнику
-            Picker("Источник", selection: $sourceFilter) {
-                ForEach(GlobalPhotoSource.allCases) { s in
-                    Text(s.title).tag(s)
+            // Сегменты по источнику + DEMO «Обучение»
+            DemoTrainingFilterBar(filterTitles: GlobalPhotoSource.allCases.map(\.title)) {
+                Picker("Источник", selection: $sourceFilter) {
+                    ForEach(GlobalPhotoSource.allCases) { s in
+                        Text(s.title).tag(s)
+                    }
                 }
+                .pickerStyle(.segmented)
+                .accessibilityLabel("Источник")
+                .demoTrainingAnchor(.photosSourceFilter)
             }
-            .pickerStyle(.segmented)
             .padding(.horizontal, 16)
             .padding(.top, 8)
-            .demoTrainingAnchor(.photosSourceFilter)
 
             // Read-only баннер (как единый премиальный UX)
             if store.isReadOnlyMode {
@@ -574,12 +577,8 @@ private struct GlobalPhotosHeaderView: View {
 
             // Заголовок + подзаголовок
             VStack(alignment: .leading, spacing: 2) {
-                HStack(alignment: .center, spacing: 8) {
-                    Text("Фото")
-                        .font(.title2.weight(.bold))
-                    Spacer(minLength: 8)
-                    DemoTrainingEntryCapsule()
-                }
+                Text("Фото")
+                    .font(.title2.weight(.bold))
 
                 Text("Просматривайте фото по проектам, этапам и датам, чтобы контролировать ход стройки.")
                     .font(.footnote)
