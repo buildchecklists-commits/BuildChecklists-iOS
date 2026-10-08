@@ -7,7 +7,7 @@ struct ProjectQuickActions<PlanDestination: View, ExpensesDestination: View, Iss
 
     let openFiles: () -> Void
     let openContacts: () -> Void
-    let exportProjectPDF: () -> Void
+    let openTasks: () -> Void
     let openChecklistReport: () -> Void
     let openReports: () -> Void
     @ViewBuilder var planDestination: () -> PlanDestination
@@ -146,13 +146,13 @@ struct ProjectQuickActions<PlanDestination: View, ExpensesDestination: View, Iss
                 identifier: "project.quickAction.issues",
                 destination: issuesDestination
             )
-        case .projectPDF:
+        case .tasks:
             actionButton(
-                title: "PDF проекта",
-                accessibilityLabel: "PDF проекта. Сводка по объекту, расходам и чек-листам",
-                systemImage: "doc.richtext",
-                identifier: "project.quickAction.projectPDF",
-                action: exportProjectPDF
+                title: "Задачи",
+                accessibilityLabel: "Задачи. Открыть календарь и задачи",
+                systemImage: "calendar.badge.clock",
+                identifier: "project.quickAction.tasks",
+                action: openTasks
             )
         case .checklistPDF:
             actionButton(
@@ -233,7 +233,7 @@ struct ProjectQuickActions<PlanDestination: View, ExpensesDestination: View, Iss
 }
 
 private enum QuickActionSlot: Int, CaseIterable {
-    case plan, expenses, files, contacts, issues, projectPDF, checklistPDF, reports
+    case plan, expenses, files, contacts, issues, tasks, checklistPDF, reports
 }
 
 private struct QuickActionWidthKey: PreferenceKey {

@@ -18,6 +18,8 @@ struct ProjectDashboardView: View {
 
     @State private var showProjectFilesSheet = false
     @State private var showContactsList = false
+    /// Shared tasks calendar (same `TasksCenterView` as the projects list entry).
+    @State private var showTasksCenter = false
 
     // sheet для быстрой формы задачи
     @State private var showQuickTaskForm = false
@@ -101,6 +103,11 @@ struct ProjectDashboardView: View {
                         ProjectContactsListView(projectID: project.id)
                             .environmentObject(store)
                     }
+                }
+                // Own NavigationStack inside TasksCenterView — no extra stack (avoids back + Close).
+                .sheet(isPresented: $showTasksCenter) {
+                    TasksCenterView()
+                        .environmentObject(store)
                 }
                 // Быстрая форма задачи, привязанная к этому проекту
                 .sheet(isPresented: $showQuickTaskForm) {
@@ -456,7 +463,7 @@ struct ProjectDashboardView: View {
         ProjectQuickActions(
             openFiles: { showProjectFilesSheet = true },
             openContacts: { showContactsList = true },
-            exportProjectPDF: { reportLaunch = .ownerSummary },
+            openTasks: { showTasksCenter = true },
             openChecklistReport: { showChecklistReport = true },
             openReports: { reportLaunch = .standard },
             planDestination: {
