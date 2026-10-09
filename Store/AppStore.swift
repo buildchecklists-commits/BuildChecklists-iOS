@@ -1203,8 +1203,8 @@ final class AppStore: ObservableObject {
         guard !projects.isEmpty else { return }
 
         let calendar = Calendar.current
-        let demoStartDate = calendar.date(from: DateComponents(year: 2026, month: 2, day: 1)) ?? Date()
-        let demoEndDate = calendar.date(from: DateComponents(year: 2026, month: 9, day: 30)) ?? Date()
+        let demoStartDate = calendar.date(from: DateComponents(year: 2026, month: 10, day: 1)) ?? Date()
+        let demoEndDate = calendar.date(from: DateComponents(year: 2027, month: 5, day: 1)) ?? Date()
 
         guard let idx = projects.indices.first else { return }
         var project = projects[idx]
