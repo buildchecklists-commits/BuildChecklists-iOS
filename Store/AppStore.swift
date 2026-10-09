@@ -1220,6 +1220,7 @@ final class AppStore: ObservableObject {
     }
 
     /// DEMO-only: предзаполняет сроки этапов demo-проекта для правдоподобного таймлайна.
+    /// Учебный сценарий внутри диапазона проекта 01.10.2026–01.05.2027; не норматив длительности.
     private func prefillDemoTimelineIfNeeded() {
         guard isDemoMode else { return }
         guard !didPrefillDemoTimelineInSession else { return }
@@ -1232,56 +1233,55 @@ final class AppStore: ObservableObject {
         var project = projects[idx]
         guard !project.stages.isEmpty else { return }
 
-        if project.stages.indices.contains(0) {
-            project.stages[0].plannedStart = makeDate(2026, 2, 1)
-            project.stages[0].plannedEnd = makeDate(2026, 2, 28)
-            project.stages[0].actualStart = makeDate(2026, 2, 1)
-            project.stages[0].actualEnd = makeDate(2026, 2, 28)
-            project.stages[0].delayReason = nil
-            project.stages[0].delayComment = nil
-        }
-
-        if project.stages.indices.contains(1) {
-            project.stages[1].plannedStart = makeDate(2026, 3, 1)
-            project.stages[1].plannedEnd = makeDate(2026, 4, 10)
-            project.stages[1].actualStart = makeDate(2026, 3, 1)
-            project.stages[1].actualEnd = makeDate(2026, 4, 18)
-            project.stages[1].delayReason = .weather
-            project.stages[1].delayComment = "Погодные условия"
-        }
-
-        if project.stages.indices.contains(2) {
-            project.stages[2].plannedStart = makeDate(2026, 4, 20)
-            project.stages[2].plannedEnd = makeDate(2026, 5, 25)
-            project.stages[2].actualStart = nil
-            project.stages[2].actualEnd = nil
-            project.stages[2].delayReason = nil
-            project.stages[2].delayComment = nil
-        }
-
-        if project.stages.indices.contains(3) {
-            project.stages[3].plannedStart = makeDate(2026, 5, 26)
-            project.stages[3].plannedEnd = makeDate(2026, 6, 20)
-            project.stages[3].actualStart = nil
-            project.stages[3].actualEnd = nil
-            project.stages[3].delayReason = nil
-            project.stages[3].delayComment = nil
-        }
-
-        if project.stages.indices.contains(4) {
-            project.stages[4].plannedStart = makeDate(2026, 6, 21)
-            project.stages[4].plannedEnd = makeDate(2026, 7, 20)
-            project.stages[4].actualStart = nil
-            project.stages[4].actualEnd = nil
-            project.stages[4].delayReason = nil
-            project.stages[4].delayComment = nil
-        }
-
-        for i in 5..<project.stages.count {
-            project.stages[i].actualStart = nil
-            project.stages[i].actualEnd = nil
+        for i in project.stages.indices {
+            let title = project.stages[i].title.lowercased()
             project.stages[i].delayReason = nil
             project.stages[i].delayComment = nil
+            project.stages[i].actualStart = nil
+            project.stages[i].actualEnd = nil
+
+            // Match by title so order/IDs stay as seeded; parallel intervals are intentional.
+            if title.contains("геология") {
+                project.stages[i].plannedStart = makeDate(2026, 10, 1)
+                project.stages[i].plannedEnd = makeDate(2026, 10, 3)
+                project.stages[i].actualStart = makeDate(2026, 10, 1)
+                project.stages[i].actualEnd = makeDate(2026, 10, 3)
+            } else if title.contains("фундамент") {
+                project.stages[i].plannedStart = makeDate(2026, 10, 4)
+                project.stages[i].plannedEnd = makeDate(2026, 10, 6)
+                project.stages[i].actualStart = makeDate(2026, 10, 4)
+                project.stages[i].actualEnd = makeDate(2026, 10, 8)
+                project.stages[i].delayReason = .weather
+                project.stages[i].delayComment = "Погодные условия"
+            } else if title.contains("стен") {
+                project.stages[i].plannedStart = makeDate(2026, 10, 9)
+                project.stages[i].plannedEnd = makeDate(2026, 11, 15)
+                project.stages[i].actualStart = makeDate(2026, 10, 9)
+            } else if title.contains("перекрыт") {
+                project.stages[i].plannedStart = makeDate(2026, 11, 16)
+                project.stages[i].plannedEnd = makeDate(2026, 12, 5)
+            } else if title.contains("покрытие") {
+                project.stages[i].plannedStart = makeDate(2026, 12, 21)
+                project.stages[i].plannedEnd = makeDate(2026, 12, 31)
+            } else if title.contains("крыш") {
+                project.stages[i].plannedStart = makeDate(2026, 12, 6)
+                project.stages[i].plannedEnd = makeDate(2026, 12, 20)
+            } else if title.contains("инженер") {
+                project.stages[i].plannedStart = makeDate(2027, 1, 1)
+                project.stages[i].plannedEnd = makeDate(2027, 2, 28)
+            } else if title.contains("окн") {
+                project.stages[i].plannedStart = makeDate(2027, 1, 10)
+                project.stages[i].plannedEnd = makeDate(2027, 1, 25)
+            } else if title.contains("двер") {
+                project.stages[i].plannedStart = makeDate(2027, 4, 15)
+                project.stages[i].plannedEnd = makeDate(2027, 4, 25)
+            } else if title.contains("отделк") {
+                project.stages[i].plannedStart = makeDate(2027, 3, 1)
+                project.stages[i].plannedEnd = makeDate(2027, 4, 20)
+            } else if title.contains("благоустр") {
+                project.stages[i].plannedStart = makeDate(2027, 4, 21)
+                project.stages[i].plannedEnd = makeDate(2027, 5, 1)
+            }
         }
 
         projects[idx] = project
