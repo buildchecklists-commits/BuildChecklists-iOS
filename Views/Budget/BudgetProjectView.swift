@@ -8,7 +8,6 @@ import Charts
 /// экспорт, фильтры (этап / тип / период) + список операций.
 struct BudgetProjectView: View {
     @EnvironmentObject var store: AppStore
-    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     let projectID: UUID
@@ -227,6 +226,22 @@ struct BudgetProjectView: View {
         containerWidth = width
     }
 
+    /// Wide plan/fact number columns when the laid-out width (and type size) can hold them.
+    private var usesWidePlanFactColumns: Bool {
+        guard containerWidth > 1 else { return false }
+        if dynamicTypeSize.isAccessibilitySize { return false }
+        if dynamicTypeSize >= .xxxLarge { return containerWidth >= 520 }
+        return containerWidth >= 390
+    }
+
+    /// Side-by-side charts only when there is real room — not “regular size class = iPad”.
+    private var usesSideBySideStageCharts: Bool {
+        guard containerWidth > 1 else { return false }
+        if dynamicTypeSize.isAccessibilitySize { return false }
+        if dynamicTypeSize >= .xxxLarge { return containerWidth >= 700 }
+        return containerWidth >= 560
+    }
+
     private var expensesToolbarButton: some View {
         Button {
             showProjectExpenses = true
@@ -398,11 +413,12 @@ struct BudgetProjectView: View {
                     Divider()
 
                     VStack(alignment: .leading, spacing: 6) {
-                        // На compact (XR) уже колонки чисел — больше места под название этапа.
-                        let planFactValueColWidth: CGFloat = horizontalSizeClass == .compact ? 56 : 96
-                        let numFont: Font = horizontalSizeClass == .compact ? .caption2 : .caption
+                        // Narrow containers keep slim number columns so stage titles stay readable.
+                        let planFactValueColWidth: CGFloat = usesWidePlanFactColumns ? 96 : 56
+                        let numFont: Font = usesWidePlanFactColumns ? .caption : .caption2
+                        let rowSpacing: CGFloat = usesWidePlanFactColumns ? 8 : 6
 
-                        HStack(alignment: .top, spacing: horizontalSizeClass == .compact ? 6 : 8) {
+                        HStack(alignment: .top, spacing: rowSpacing) {
                             Text("Этап")
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
@@ -422,7 +438,7 @@ struct BudgetProjectView: View {
                         }
 
                         ForEach(planFactRowsFiltered, id: \.stage.id) { row in
-                            HStack(alignment: .top, spacing: horizontalSizeClass == .compact ? 6 : 8) {
+                            HStack(alignment: .top, spacing: rowSpacing) {
                                 Text(row.stage.title)
                                     .font(.caption)
                                     .lineLimit(2)
@@ -608,17 +624,17 @@ struct BudgetProjectView: View {
             Text("Расходы по этапам")
                 .font(.headline)
 
-            if horizontalSizeClass == .compact {
-                VStack(alignment: .leading, spacing: 14) {
-                    stageExpensesDonutChart
-                        .frame(maxWidth: .infinity)
-                    stageExpensesLegend
-                }
-            } else {
+            if usesSideBySideStageCharts {
                 HStack(alignment: .center, spacing: 16) {
                     stageExpensesDonutChart
                     stageExpensesLegend
                         .frame(maxWidth: .infinity, alignment: .leading)
+                }
+            } else {
+                VStack(alignment: .leading, spacing: 14) {
+                    stageExpensesDonutChart
+                        .frame(maxWidth: .infinity)
+                    stageExpensesLegend
                 }
             }
 
@@ -1077,7 +1093,8 @@ struct BudgetProjectHeaderView: View {
     let project: Project
     let totalSpent: Decimal
 
-    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    @State private var containerWidth: CGFloat = 0
 
     private static let numberFormatter: NumberFormatter = {
         let f = NumberFormatter()
@@ -1098,6 +1115,14 @@ struct BudgetProjectHeaderView: View {
     private func format(_ value: Decimal) -> String {
         let number = value as NSDecimalNumber
         return Self.numberFormatter.string(from: number) ?? "\(value)"
+    }
+
+    /// Four KPIs in one row only when the laid-out width can hold labels without letter-wrapping.
+    private var showsFourKPIRow: Bool {
+        guard containerWidth > 1 else { return false }
+        if dynamicTypeSize.isAccessibilitySize { return false }
+        if dynamicTypeSize >= .xxxLarge { return containerWidth >= 720 }
+        return containerWidth >= 560
     }
 
     /// Отклонение факта от бюджета: (Факт / Бюджет - 1) в процентах.
@@ -1133,8 +1158,18 @@ struct BudgetProjectHeaderView: View {
                 .font(.title3)
                 .fontWeight(.semibold)
 
-            if horizontalSizeClass == .compact {
-                // iPhone в портрете: 2×2 — подписи не сжимаются до переноса по буквам.
+            if showsFourKPIRow {
+                HStack(spacing: 16) {
+                    budgetKPIBlock
+                    Spacer()
+                    spentKPIBlock
+                    Spacer()
+                    remainingKPIBlock
+                    Spacer()
+                    deviationKPIBlock
+                }
+            } else {
+                // Default / narrow / large type: 2×2 so labels stay word-wrapped, not letter-wrapped.
                 LazyVGrid(
                     columns: [
                         GridItem(.flexible(), spacing: 12),
@@ -1147,16 +1182,6 @@ struct BudgetProjectHeaderView: View {
                     remainingKPIBlock
                     deviationKPIBlock
                 }
-            } else {
-                HStack(spacing: 16) {
-                    budgetKPIBlock
-                    Spacer()
-                    spentKPIBlock
-                    Spacer()
-                    remainingKPIBlock
-                    Spacer()
-                    deviationKPIBlock
-                }
             }
         }
         .padding()
@@ -1164,6 +1189,20 @@ struct BudgetProjectHeaderView: View {
         .background(Color(.systemBackground).opacity(0.9))
         .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
         .shadow(color: Color.black.opacity(0.05), radius: 8, x: 0, y: 4)
+        .background {
+            GeometryReader { geo in
+                Color.clear
+                    .onAppear { updateWidth(geo.size.width) }
+                    .onChange(of: geo.size.width) { _, width in
+                        updateWidth(width)
+                    }
+            }
+        }
+    }
+
+    private func updateWidth(_ width: CGFloat) {
+        guard width > 1, abs(width - containerWidth) > 0.5 else { return }
+        containerWidth = width
     }
 
     private var budgetKPIBlock: some View {

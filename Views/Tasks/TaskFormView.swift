@@ -37,6 +37,8 @@ struct TaskFormView: View {
 
     @State private var showReadOnlyAlert: Bool = false
     @State private var showPaywall: Bool = false
+    /// Laid-out form height — used only to pick date-picker chrome, not to reset draft fields.
+    @State private var formHeight: CGFloat = 0
 
     init(mode: Mode, prefill: CreatePrefill? = nil) {
         self.mode = mode
@@ -74,12 +76,22 @@ struct TaskFormView: View {
 
                 if hasDueDate {
                     // No minimum date: past deadlines are allowed; existing values stay as-is.
-                    DatePicker(
-                        "Дата и время",
-                        selection: $dueDate,
-                        displayedComponents: [.date, .hourAndMinute]
-                    )
-                    .datePickerStyle(.wheel)
+                    // Compact on short panes so Save / project stay reachable; binding is unchanged.
+                    if usesCompactDatePicker {
+                        DatePicker(
+                            "Дата и время",
+                            selection: $dueDate,
+                            displayedComponents: [.date, .hourAndMinute]
+                        )
+                        .datePickerStyle(.compact)
+                    } else {
+                        DatePicker(
+                            "Дата и время",
+                            selection: $dueDate,
+                            displayedComponents: [.date, .hourAndMinute]
+                        )
+                        .datePickerStyle(.wheel)
+                    }
 
                     HStack {
                         Button("Сегодня 18:00") {
@@ -127,6 +139,15 @@ struct TaskFormView: View {
         }
         .navigationTitle(mode.title)
         .navigationBarTitleDisplayMode(.inline)
+        .background {
+            GeometryReader { geo in
+                Color.clear
+                    .onAppear { updateFormHeight(geo.size.height) }
+                    .onChange(of: geo.size.height) { _, height in
+                        updateFormHeight(height)
+                    }
+            }
+        }
         .toolbar {
             ToolbarItem(placement: .cancellationAction) {
                 Button("Отмена") { dismiss() }
@@ -169,6 +190,19 @@ struct TaskFormView: View {
         } message: {
             Text("Эту задачу нельзя будет восстановить.")
         }
+    }
+
+    // MARK: - Layout helpers
+
+    /// Wheel needs ~216pt plus surrounding sections; prefer compact when the pane is short.
+    private var usesCompactDatePicker: Bool {
+        guard formHeight > 1 else { return false }
+        return formHeight < 640
+    }
+
+    private func updateFormHeight(_ height: CGFloat) {
+        guard height > 1, abs(height - formHeight) > 0.5 else { return }
+        formHeight = height
     }
 
     // MARK: - Defaults

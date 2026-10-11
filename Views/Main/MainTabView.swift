@@ -290,9 +290,28 @@ enum ProjectCardChrome {
     /// Шире, чем 16/9 — достаточная высота под прогресс + ряд кнопок / чипы бюджета.
     static let aspectRatio: CGFloat = 16.0 / 11.0
     static let cornerRadius: CGFloat = 20
+    /// Shared column ceiling for Projects / Сроки / Бюджет rows (shell + edit + footer actions).
+    /// Narrow phones keep full width; wide panes center one column.
+    static let preferredMaxContentWidth: CGFloat = 640
 }
 
-/// Один внешний shell: ширина от родителя, высота строго width / (16/11).
+/// Centers a single card column inside a wide parent. Apply to the **whole** row composition
+/// (background, content, edit control, footer actions) — not only the aspect shell.
+struct ProjectCardColumnModifier: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .frame(maxWidth: ProjectCardChrome.preferredMaxContentWidth)
+            .frame(maxWidth: .infinity)
+    }
+}
+
+extension View {
+    func projectCardColumn() -> some View {
+        modifier(ProjectCardColumnModifier())
+    }
+}
+
+/// Один внешний shell: ширина от родителя (колонки), высота строго width / (16/11).
 /// Высота не берётся из идеального размера текста, иначе Dynamic Type раздвигает карточку.
 struct ProjectCardShell<Content: View>: View {
     @ViewBuilder var content: () -> Content
@@ -334,7 +353,7 @@ private struct ProjectCardRatioLayout: Layout {
 /// Pins children to the scroll view's viewport width.
 /// Ideal text width cannot widen the scroll content.
 struct OfferedWidthBox<Content: View>: View {
-    var maxWidth: CGFloat = 640
+    var maxWidth: CGFloat = ProjectCardChrome.preferredMaxContentWidth
     @ViewBuilder var content: () -> Content
     @State private var viewportWidth: CGFloat = 0
 
@@ -667,7 +686,7 @@ struct PlanProjectRow: View {
                 .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity, alignment: .topLeading)
             }
         }
-        .frame(maxWidth: .infinity)
+        .projectCardColumn()
         .padding(.vertical, 4)
     }
 }

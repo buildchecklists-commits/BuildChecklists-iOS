@@ -85,7 +85,7 @@ struct ProjectsListView: View {
     @State private var showCalculator: Bool = false
 
     /// One column. Wide iPad windows center this column instead of placing two narrow cards side by side.
-    private let projectColumnMaxWidth: CGFloat = 640
+    private let projectColumnMaxWidth: CGFloat = ProjectCardChrome.preferredMaxContentWidth
 
     private let gridColumns: [GridItem] = [
         GridItem(.flexible(), spacing: 16)
@@ -683,6 +683,7 @@ struct ProjectsListView: View {
         let deadline = projectDeadline(project.dateEnd, isComplete: isCompleted)
         let fallbackInk = projectCardFallbackInk(colorName: project.cardColor)
 
+        // One shared width for shell, «Ред.», and footer — do not expand the ZStack past the card.
         return ZStack(alignment: .topTrailing) {
             NavigationLink {
                 ProjectDashboardView(projectID: project.id)
@@ -703,6 +704,7 @@ struct ProjectsListView: View {
                 .contentShape(Rectangle())
             }
             .buttonStyle(CardLinkStyle())
+            .frame(maxWidth: .infinity)
             .accessibilityElement(children: .ignore)
             .accessibilityLabel(projectCardSummary(project, progressPercent: progressPercent, deadline: deadline, issueCount: issueCount, isCompleted: isCompleted))
             .accessibilityHint("Открывает проект")
@@ -723,7 +725,6 @@ struct ProjectsListView: View {
             .accessibilitySortPriority(4)
             .accessibilityIdentifier("project.card.edit")
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
         .overlay(alignment: .bottom) {
             HStack(spacing: 4) {
                 projectCardAction(
@@ -764,6 +765,7 @@ struct ProjectsListView: View {
             .padding(.horizontal, 8)
             .padding(.bottom, 6)
         }
+        .projectCardColumn()
         .hoverEffect(.lift)
         .swipeActions(edge: .leading) {
             Button {

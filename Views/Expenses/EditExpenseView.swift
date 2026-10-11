@@ -23,6 +23,7 @@ struct EditExpenseView: View {
     @State private var showPaywall: Bool = false
     @State private var actionErrorText: String?
     @State private var showActionError: Bool = false
+    @FocusState private var amountFieldFocused: Bool
 
     init(expense: ExpenseItem) {
         self.expense = expense
@@ -101,6 +102,7 @@ struct EditExpenseView: View {
             Section("Сумма") {
                 TextField("150 000", text: $amountText)
                     .keyboardType(.numberPad)
+                    .focused($amountFieldFocused)
                     .onChange(of: amountText) { _, new in
                         formatAmountInput(new)
                     }
@@ -141,6 +143,10 @@ struct EditExpenseView: View {
                     save()
                 }
                 .disabled(amount == nil)
+            }
+            ToolbarItemGroup(placement: .keyboard) {
+                Spacer()
+                Button("Готово") { amountFieldFocused = false }
             }
         }
         .sheet(isPresented: $showStagePicker) {

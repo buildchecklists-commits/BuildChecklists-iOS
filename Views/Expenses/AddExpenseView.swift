@@ -19,6 +19,7 @@ struct AddExpenseView: View {
     @State private var showPaywall: Bool = false
     @State private var saveErrorText: String?
     @State private var showSaveError: Bool = false
+    @FocusState private var amountFieldFocused: Bool
 
     // MARK: - Computed
 
@@ -113,6 +114,7 @@ struct AddExpenseView: View {
                                 HStack {
                                     TextField("Например, 150 000", text: $amountText)
                                         .keyboardType(.numberPad)
+                                        .focused($amountFieldFocused)
                                         .onChange(of: amountText) { _, newValue in
                                             formatAmountInput(newValue)
                                         }
@@ -215,6 +217,10 @@ struct AddExpenseView: View {
                     save()
                 }
                 .disabled(isSaveDisabled)
+            }
+            ToolbarItemGroup(placement: .keyboard) {
+                Spacer()
+                Button("Готово") { amountFieldFocused = false }
             }
         }
 

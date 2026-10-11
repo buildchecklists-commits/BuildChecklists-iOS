@@ -16,6 +16,8 @@ struct DemoTrainingOverlay: View {
     @State private var headerChromeHeight: CGFloat = 44
     /// Measured counter + buttons block.
     @State private var controlsChromeHeight: CGFloat = 52
+    /// Window that hosts this overlay (from the overlay’s own UIView), not an arbitrary scene window.
+    @State private var hostWindow: UIWindow?
 
     /// Accessibility / very large typography needs nearly full width and a stacked footer.
     private var prefersExpandedCard: Bool {
@@ -30,9 +32,14 @@ struct DemoTrainingOverlay: View {
     }
 
     /// Bottom band left untouched by the touch blocker so the tab bar can still end the tour.
-    private func tabBarBand(safe: EdgeInsets) -> CGFloat {
+    /// Uses a bottom-docked `UITabBar` in the **host** window when present; never invents +56
+    /// and never treats `safe.bottom` as a stand-in for a top/side tab bar (iPad).
+    private func tabBarBand(overlayBounds: CGRect) -> CGFloat {
         guard surface == .root, training.leavesTabBarHittable else { return 0 }
-        return max(safe.bottom, 0) + 56
+        return DemoTrainingTabBarGeometry.bottomDockedReservedHeight(
+            in: overlayBounds,
+            hostWindow: hostWindow
+        ) ?? 0
     }
 
     var body: some View {
@@ -44,27 +51,30 @@ struct DemoTrainingOverlay: View {
     private var overlayBody: some View {
         GeometryReader { proxy in
             let bounds = proxy.frame(in: .global)
-            // The overlay ignores the safe area, which can zero the proxy insets; the root
-            // overlay spans the window, so fall back to the window's real insets (island / home bar).
-            let window = surface == .root ? DemoTrainingWindowInsets.current : .zero
+            // The overlay ignores the safe area, which can zero the proxy insets; prefer the
+            // host window’s insets (same window as this overlay), not an arbitrary scene window.
+            let windowInsets = surface == .root
+                ? DemoTrainingWindowInsets.insets(for: hostWindow)
+                : .zero
             let safe = EdgeInsets(
-                top: max(proxy.safeAreaInsets.top, window.top),
-                leading: max(proxy.safeAreaInsets.leading, window.left),
-                bottom: max(proxy.safeAreaInsets.bottom, window.bottom),
-                trailing: max(proxy.safeAreaInsets.trailing, window.right)
+                top: max(proxy.safeAreaInsets.top, windowInsets.top),
+                leading: max(proxy.safeAreaInsets.leading, windowInsets.left),
+                bottom: max(proxy.safeAreaInsets.bottom, windowInsets.bottom),
+                trailing: max(proxy.safeAreaInsets.trailing, windowInsets.right)
             )
             let scrolling = training.scrollHint == .scrollDown || training.scrollHint == .scrollUp
             ZStack(alignment: .topLeading) {
                 if training.activeTour != nil {
                     dimAndSpotlight(in: bounds)
 
-                    let band = tabBarBand(safe: safe)
+                    // Recomputed every layout pass (proxy.size / hostWindow) — no timers.
+                    let band = tabBarBand(overlayBounds: bounds)
                     if scrolling {
                         DemoTrainingScrollPassView(isEnabled: true)
                             .frame(width: bounds.width, height: max(0, bounds.height - band))
                             .frame(width: bounds.width, height: bounds.height, alignment: .top)
                             .ignoresSafeArea()
-                        scrollHintBadge(in: bounds, safe: safe)
+                        scrollHintBadge(in: bounds, safe: safe, tabBarBand: band)
                         floatingExit(in: bounds, safe: safe)
                     } else {
                         Color.clear
@@ -78,10 +88,20 @@ struct DemoTrainingOverlay: View {
                 }
             }
             .frame(width: proxy.size.width, height: proxy.size.height)
+            .background {
+                DemoTrainingHostWindowReader { window in
+                    if hostWindow !== window {
+                        hostWindow = window
+                    }
+                }
+            }
             .onAppear {
                 training.updateVisibleBounds(bounds, safeInsets: safe, surface: surface)
             }
             .onChange(of: proxy.size) { _, _ in
+                training.updateVisibleBounds(proxy.frame(in: .global), safeInsets: safe, surface: surface)
+            }
+            .onChange(of: hostWindow) { _, _ in
                 training.updateVisibleBounds(proxy.frame(in: .global), safeInsets: safe, surface: surface)
             }
             .onChange(of: training.stepIndex) { _, _ in
@@ -137,9 +157,10 @@ struct DemoTrainingOverlay: View {
         }
     }
 
-    private func scrollHintBadge(in bounds: CGRect, safe: EdgeInsets) -> some View {
+    private func scrollHintBadge(in bounds: CGRect, safe: EdgeInsets, tabBarBand: CGFloat) -> some View {
         let text = training.scrollHint == .scrollUp ? "Листайте выше" : "Листайте ниже"
         let icon = training.scrollHint == .scrollUp ? "chevron.up" : "chevron.down"
+        let bottomPad = max(tabBarBand, max(safe.bottom, 12))
         return VStack {
             Spacer()
             HStack(spacing: 6) {
@@ -157,7 +178,7 @@ struct DemoTrainingOverlay: View {
             .accessibilityElement(children: .combine)
             .accessibilityLabel("\(text). \(training.stepCounterText)")
             .accessibilityIdentifier("demo.training.scrollHint")
-            .padding(.bottom, max(safe.bottom, 12) + 56)
+            .padding(.bottom, bottomPad)
         }
         .frame(width: bounds.width, height: bounds.height)
         .allowsHitTesting(false)
@@ -420,12 +441,80 @@ struct DemoTrainingOverlay: View {
     }
 }
 
-/// Real device insets of the key window (status bar / Dynamic Island, home indicator).
+/// Safe-area insets from a specific window (prefer the overlay host).
 enum DemoTrainingWindowInsets {
-    static var current: UIEdgeInsets {
-        let scenes = UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }
-        let window = scenes.flatMap(\.windows).first(where: \.isKeyWindow) ?? scenes.flatMap(\.windows).first
-        return window?.safeAreaInsets ?? .zero
+    static func insets(for window: UIWindow?) -> UIEdgeInsets {
+        window?.safeAreaInsets ?? .zero
+    }
+}
+
+/// Resolves `uiView.window` for the SwiftUI overlay — public UIKit only, updates on layout.
+private struct DemoTrainingHostWindowReader: UIViewRepresentable {
+    var onChange: (UIWindow?) -> Void
+
+    func makeUIView(context: Context) -> DemoTrainingHostWindowView {
+        let view = DemoTrainingHostWindowView()
+        view.onChange = onChange
+        view.isUserInteractionEnabled = false
+        view.backgroundColor = .clear
+        return view
+    }
+
+    func updateUIView(_ uiView: DemoTrainingHostWindowView, context: Context) {
+        uiView.onChange = onChange
+        uiView.reportWindowIfNeeded()
+    }
+}
+
+private final class DemoTrainingHostWindowView: UIView {
+    var onChange: ((UIWindow?) -> Void)?
+    private weak var lastWindow: UIWindow?
+
+    override func didMoveToWindow() {
+        super.didMoveToWindow()
+        reportWindowIfNeeded()
+    }
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        reportWindowIfNeeded()
+    }
+
+    func reportWindowIfNeeded() {
+        let next = window
+        guard next !== lastWindow else { return }
+        lastWindow = next
+        onChange?(next)
+    }
+}
+
+/// Public UIKit lookup of a bottom-docked `UITabBar` in the overlay’s host window.
+enum DemoTrainingTabBarGeometry {
+    /// Height from the overlay’s bottom edge up through a bottom-docked tab bar, if one is visible.
+    /// Returns `nil` when the bar is missing, top-placed (common on iPad), or side-placed — callers
+    /// must not invent a bottom band from `safe.bottom` in those cases.
+    static func bottomDockedReservedHeight(in overlayGlobalBounds: CGRect, hostWindow: UIWindow?) -> CGFloat? {
+        guard overlayGlobalBounds.height > 1, overlayGlobalBounds.width > 1 else { return nil }
+        guard let hostWindow, let tabBar = findTabBar(in: hostWindow) else { return nil }
+        guard !tabBar.isHidden, tabBar.alpha > 0.01, tabBar.bounds.height > 1 else { return nil }
+
+        let frame = tabBar.convert(tabBar.bounds, to: nil)
+        // Bottom-docked: sits on the overlay’s bottom edge and spans most of its width.
+        let docksToBottom = frame.maxY >= overlayGlobalBounds.maxY - 2
+        let spansWidth = frame.width >= overlayGlobalBounds.width * 0.55
+        guard docksToBottom, spansWidth else { return nil }
+
+        let reserved = overlayGlobalBounds.maxY - frame.minY
+        guard reserved > 0, reserved <= overlayGlobalBounds.height * 0.35 else { return nil }
+        return reserved
+    }
+
+    private static func findTabBar(in view: UIView) -> UITabBar? {
+        if let tabBar = view as? UITabBar { return tabBar }
+        for subview in view.subviews {
+            if let tabBar = findTabBar(in: subview) { return tabBar }
+        }
+        return nil
     }
 }
 

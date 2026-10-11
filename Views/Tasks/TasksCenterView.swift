@@ -1146,7 +1146,18 @@ struct DayStrip: View {
     let onSelectDate: (Date) -> Void
 
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    @State private var stripWidth: CGFloat = 0
     private let calendar = Calendar.current
+
+    /// Seven equal chips when each day keeps a readable date + weekday + badge; otherwise scroll.
+    private var fitsSevenEqualChips: Bool {
+        guard stripWidth > 1 else { return !dynamicTypeSize.isAccessibilitySize }
+        if dynamicTypeSize.isAccessibilitySize { return false }
+        let minChip: CGFloat = dynamicTypeSize >= .xxxLarge ? 52 : 44
+        let horizontalPadding: CGFloat = 24
+        let spacing: CGFloat = 4 * 6
+        return stripWidth >= minChip * 7 + spacing + horizontalPadding
+    }
 
     var body: some View {
         let weekStart = startOfWeek(for: selectedDate)
@@ -1155,7 +1166,16 @@ struct DayStrip: View {
         }
 
         Group {
-            if dynamicTypeSize.isAccessibilitySize {
+            if fitsSevenEqualChips {
+                // Seven equal cells in the available width — no horizontal clipping of Sunday.
+                HStack(spacing: 4) {
+                    ForEach(days, id: \.self) { day in
+                        dayChip(day, expands: true)
+                    }
+                }
+                .padding(.horizontal, 12)
+                .padding(.vertical, 8)
+            } else {
                 ScrollViewReader { proxy in
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 8) {
@@ -1171,18 +1191,26 @@ struct DayStrip: View {
                     .onChange(of: selectedDate) { _, _ in
                         scrollSelected(into: proxy)
                     }
-                }
-            } else {
-                // Seven equal cells in the available width — no horizontal clipping of Sunday.
-                HStack(spacing: 4) {
-                    ForEach(days, id: \.self) { day in
-                        dayChip(day, expands: true)
+                    .onChange(of: stripWidth) { _, _ in
+                        scrollSelected(into: proxy)
                     }
                 }
-                .padding(.horizontal, 12)
-                .padding(.vertical, 8)
             }
         }
+        .background {
+            GeometryReader { geo in
+                Color.clear
+                    .onAppear { updateStripWidth(geo.size.width) }
+                    .onChange(of: geo.size.width) { _, width in
+                        updateStripWidth(width)
+                    }
+            }
+        }
+    }
+
+    private func updateStripWidth(_ width: CGFloat) {
+        guard width > 1, abs(width - stripWidth) > 0.5 else { return }
+        stripWidth = width
     }
 
     private func scrollSelected(into proxy: ScrollViewProxy) {
