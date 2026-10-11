@@ -104,7 +104,7 @@ struct ProjectDashboardView: View {
                 }
                 // Own NavigationStack inside TasksCenterView — no extra stack (avoids back + Close).
                 .sheet(isPresented: $showTasksCenter) {
-                    TasksCenterView()
+                    TasksCenterView(initialProjectID: project.id)
                         .environmentObject(store)
                 }
 

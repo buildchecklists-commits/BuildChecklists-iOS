@@ -13,33 +13,54 @@ struct TaskFormView: View {
         }
     }
 
+    /// One-shot defaults for a new task. Applied in `init`, never reapplied on `onAppear`.
+    struct CreatePrefill: Equatable {
+        var projectID: UUID? = nil
+        var dueDate: Date? = nil
+        var hasDueDate: Bool = false
+    }
+
     @EnvironmentObject var store: AppStore
     @Environment(\.dismiss) private var dismiss
 
     let mode: Mode
 
-    @State private var title: String = ""
-    @State private var details: String = ""
-    @State private var hasDueDate: Bool = false
-    @State private var dueDate: Date = Date()
+    @State private var title: String
+    @State private var details: String
+    @State private var hasDueDate: Bool
+    @State private var dueDate: Date
     @State private var selectedProjectID: UUID?
-    @State private var isCompleted: Bool = false
+    @State private var isCompleted: Bool
 
     @State private var showDeleteAlert: Bool = false
     @State private var errorText: String?
 
-    // Read-only UX
     @State private var showReadOnlyAlert: Bool = false
     @State private var showPaywall: Bool = false
 
-    init(mode: Mode) {
+    init(mode: Mode, prefill: CreatePrefill? = nil) {
         self.mode = mode
+        switch mode {
+        case .create:
+            let draft = prefill ?? CreatePrefill()
+            _title = State(initialValue: "")
+            _details = State(initialValue: "")
+            _hasDueDate = State(initialValue: draft.hasDueDate)
+            _dueDate = State(initialValue: draft.dueDate ?? Self.defaultDueSuggestion(on: Date()))
+            _selectedProjectID = State(initialValue: draft.projectID)
+            _isCompleted = State(initialValue: false)
+        case .edit(let task):
+            _title = State(initialValue: task.title)
+            _details = State(initialValue: task.details ?? "")
+            _hasDueDate = State(initialValue: task.dueDate != nil)
+            _dueDate = State(initialValue: task.dueDate ?? Self.defaultDueSuggestion(on: Date()))
+            _selectedProjectID = State(initialValue: task.projectID)
+            _isCompleted = State(initialValue: task.isCompleted)
+        }
     }
 
     var body: some View {
         Form {
-
-            // MARK: - Описание
             Section("Описание") {
                 TextField("Что нужно сделать?", text: $title)
                     .demoTrainingAnchor(.taskCalendarFormDescription)
@@ -48,42 +69,36 @@ struct TaskFormView: View {
                     .lineLimit(3, reservesSpace: true)
             }
 
-            // MARK: - Срок
             Section("Срок") {
                 Toggle("У задачи есть крайний срок", isOn: $hasDueDate.animation())
 
                 if hasDueDate {
-
+                    // No minimum date: past deadlines are allowed; existing values stay as-is.
                     DatePicker(
                         "Дата и время",
                         selection: $dueDate,
-                        in: Date()...,
                         displayedComponents: [.date, .hourAndMinute]
                     )
                     .datePickerStyle(.wheel)
 
                     HStack {
                         Button("Сегодня 18:00") {
-                            setQuickTime(hour: 18, minute: 0, today: true)
+                            setQuickTime(hour: 18, minute: 0, dayOffset: 0)
                         }
                         .buttonStyle(.bordered)
 
                         Button("Завтра 09:00") {
-                            setQuickTime(hour: 9, minute: 0, today: false)
+                            setQuickTime(hour: 9, minute: 0, dayOffset: 1)
                         }
                         .buttonStyle(.bordered)
                     }
                 }
             }
 
-            // MARK: - Проект
             Section("Проект") {
-                Picker("Проект", selection: Binding(
-                    get: { selectedProjectID ?? UUID?.none as UUID?? ?? nil },
-                    set: { selectedProjectID = $0 }
-                )) {
+                Picker("Проект", selection: $selectedProjectID) {
                     Text("Без привязки")
-                        .tag(UUID?.none)
+                        .tag(Optional<UUID>.none)
 
                     ForEach(store.projects) { project in
                         Text(project.name)
@@ -92,15 +107,11 @@ struct TaskFormView: View {
                 }
             }
 
-            // MARK: - Статус (для редактирования)
             if case .edit = mode {
                 Section("Статус") {
                     Toggle("Выполнено", isOn: $isCompleted)
                 }
-            }
 
-            // MARK: - Удаление задачи
-            if case .edit = mode {
                 Section {
                     Button(role: .destructive) {
                         if store.isReadOnlyMode {
@@ -114,12 +125,12 @@ struct TaskFormView: View {
                 }
             }
         }
-
         .navigationTitle(mode.title)
         .navigationBarTitleDisplayMode(.inline)
-
-        // MARK: - Верхняя кнопка "Сохранить"
         .toolbar {
+            ToolbarItem(placement: .cancellationAction) {
+                Button("Отмена") { dismiss() }
+            }
             ToolbarItem(placement: .confirmationAction) {
                 Button("Сохранить") {
                     saveTask()
@@ -127,14 +138,10 @@ struct TaskFormView: View {
                 .disabled(title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
             }
         }
-
-        // MARK: - Paywall
         .sheet(isPresented: $showPaywall) {
             PaywallView()
                 .environmentObject(store)
         }
-
-        // MARK: - Read-only предупреждение
         .alert("Режим только просмотр", isPresented: $showReadOnlyAlert) {
             Button("Отмена", role: .cancel) { }
             Button("Разблокировать") {
@@ -148,8 +155,6 @@ struct TaskFormView: View {
         } message: {
             Text("Сейчас активен режим просмотра. Для создания и редактирования задач нужна подписка USER или PRO.")
         }
-
-        // MARK: - Доступ ограничен (бывшая «Ошибка»)
         .alert("Доступ ограничен", isPresented: Binding(
             get: { errorText != nil },
             set: { if !$0 { errorText = nil } }
@@ -158,60 +163,34 @@ struct TaskFormView: View {
         } message: {
             Text(errorText ?? "")
         }
-
-        // MARK: - Удаление подтверждение
         .alert("Удалить задачу?", isPresented: $showDeleteAlert) {
             Button("Удалить", role: .destructive) { deleteTask() }
             Button("Отмена", role: .cancel) { }
         } message: {
             Text("Эту задачу нельзя будет восстановить.")
         }
-
-        // MARK: - OnAppear
-        .onAppear {
-            if case let .edit(task) = mode {
-                title = task.title
-                details = task.details ?? ""
-
-                if let d = task.dueDate {
-                    hasDueDate = true
-                    dueDate = d
-                } else {
-                    hasDueDate = false
-                }
-
-                selectedProjectID = task.projectID
-                isCompleted = task.isCompleted
-            }
-        }
     }
 
-    // MARK: - Быстрые кнопки времени
-    private func setQuickTime(hour: Int, minute: Int, today: Bool) {
+    // MARK: - Defaults
+
+    /// 18:00 on the given calendar day (used for day-scoped create).
+    static func defaultDueSuggestion(on day: Date, calendar: Calendar = .current) -> Date {
+        let start = calendar.startOfDay(for: day)
+        return calendar.date(bySettingHour: 18, minute: 0, second: 0, of: start) ?? start
+    }
+
+    private func setQuickTime(hour: Int, minute: Int, dayOffset: Int) {
         var calendar = Calendar.current
         calendar.locale = Locale(identifier: "ru_RU")
-
-        var components = calendar.dateComponents([.year, .month, .day], from: Date())
-
-        if !today {
-            if let dateTomorrow = calendar.date(byAdding: .day, value: 1, to: Date()) {
-                components = calendar.dateComponents([.year, .month, .day], from: dateTomorrow)
-            }
-        }
-
-        components.hour = hour
-        components.minute = minute
-
-        if let newDate = calendar.date(from: components) {
-            if newDate < Date() {
-                dueDate = calendar.date(byAdding: .day, value: 1, to: newDate) ?? Date()
-            } else {
-                dueDate = newDate
-            }
+        let base = calendar.startOfDay(for: Date())
+        guard let day = calendar.date(byAdding: .day, value: dayOffset, to: base) else { return }
+        if let newDate = calendar.date(bySettingHour: hour, minute: minute, second: 0, of: day) {
+            dueDate = newDate
         }
     }
 
-    // MARK: - Save task
+    // MARK: - Save / delete
+
     private func saveTask() {
         if store.isReadOnlyMode {
             showReadOnlyAlert = true
@@ -251,7 +230,6 @@ struct TaskFormView: View {
         }
     }
 
-    // MARK: - Удаление задачи
     private func deleteTask() {
         if store.isReadOnlyMode {
             showReadOnlyAlert = true
