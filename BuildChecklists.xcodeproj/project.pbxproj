@@ -7,8 +7,22 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		BCDE0A012F70000100AA0001 /* DemoTrainingScrollPassView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCDE0A002F70000100AA0001 /* DemoTrainingScrollPassView.swift */; };
-		BCDE0B012F70000100AA0001 /* DemoTrainingCaptureDriver.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCDE0B002F70000100AA0001 /* DemoTrainingCaptureDriver.swift */; };
+		A1B2C3D42E25000100C0FF03 /* ReportPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D42E25000100C0FF02 /* ReportPage.swift */; };
+		A1B2C3D42E25000100C0FF05 /* ProjectReportSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D42E25000100C0FF04 /* ProjectReportSnapshot.swift */; };
+		A1B2C3D42E25000100C0FF07 /* SummaryReportRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D42E25000100C0FF06 /* SummaryReportRenderer.swift */; };
+		A1B2C3D42E25000100C0FF09 /* CustomerReportRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D42E25000100C0FF08 /* CustomerReportRenderer.swift */; };
+		A1B2C3D42E25000100C0FF0B /* ExpensesReportRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D42E25000100C0FF0A /* ExpensesReportRenderer.swift */; };
+		A1B2C3D42E25000100C0FF0D /* PlanFactReportRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D42E25000100C0FF0C /* PlanFactReportRenderer.swift */; };
+		A1B2C3D42E25000100C0FF0F /* ReportCharts.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D42E25000100C0FF0E /* ReportCharts.swift */; };
+		A1B2C3D42E25000100C0FF22 /* ReportExportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D42E25000100C0FF21 /* ReportExportView.swift */; };
+		A9B8C7D62F10000100AA0002 /* OnboardingFlowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9B8C7D62F10000100AA0001 /* OnboardingFlowView.swift */; };
+		A9B8C7D62F10000100AA0004 /* DemoCoachNote.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9B8C7D62F10000100AA0003 /* DemoCoachNote.swift */; };
+		BC1A5E022F6A100100AA0001 /* IssueHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC1A5E012F6A100100AA0001 /* IssueHistory.swift */; };
+		BC1A5E042F6A100100AA0001 /* IssueHistoryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC1A5E032F6A100100AA0001 /* IssueHistoryStore.swift */; };
+		BC1A5E062F6A100100AA0002 /* IssueHistoryCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC1A5E052F6A100100AA0002 /* IssueHistoryCoordinator.swift */; };
+		BC1A5E082F6A100100AA0002 /* IssueProgressAutosaveGuard.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC1A5E072F6A100100AA0002 /* IssueProgressAutosaveGuard.swift */; };
+		BC1A5E0A2F6A100100AA0003 /* IssueHistoryViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC1A5E092F6A100100AA0003 /* IssueHistoryViews.swift */; };
+		BC1A5E0C2F6A100100AA0004 /* IssueHistoryProjectDeletion.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC1A5E0B2F6A100100AA0004 /* IssueHistoryProjectDeletion.swift */; };
 		BCDE01012F70000100AA0001 /* DemoTrainingPrototypeGate.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCDE01002F70000100AA0001 /* DemoTrainingPrototypeGate.swift */; };
 		BCDE02012F70000100AA0001 /* DemoTrainingModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCDE02002F70000100AA0001 /* DemoTrainingModels.swift */; };
 		BCDE03012F70000100AA0001 /* DemoTrainingController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCDE03002F70000100AA0001 /* DemoTrainingController.swift */; };
@@ -18,36 +32,14 @@
 		BCDE07012F70000100AA0001 /* DemoTrainingEntryButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCDE07002F70000100AA0001 /* DemoTrainingEntryButton.swift */; };
 		BCDE08012F70000100AA0001 /* DemoTrainingHost.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCDE08002F70000100AA0001 /* DemoTrainingHost.swift */; };
 		BCDE09012F70000100AA0001 /* DemoTrainingPreviewGallery.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCDE09002F70000100AA0001 /* DemoTrainingPreviewGallery.swift */; };
+		BCDE0A012F70000100AA0001 /* DemoTrainingScrollPassView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCDE0A002F70000100AA0001 /* DemoTrainingScrollPassView.swift */; };
+		BCDE0B012F70000100AA0001 /* DemoTrainingCaptureDriver.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCDE0B002F70000100AA0001 /* DemoTrainingCaptureDriver.swift */; };
 		CF0524792EBBCFA4008A66AD /* SeedPackLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF0524782EBBCFA0008A66AD /* SeedPackLoader.swift */; };
-		CF9A11002E09212600C0FF01 /* ProjectIssuesCollector.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF9A11001E09212600C0FF01 /* ProjectIssuesCollector.swift */; };
-		BC1A5E022F6A100100AA0001 /* IssueHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC1A5E012F6A100100AA0001 /* IssueHistory.swift */; };
-		BC1A5E042F6A100100AA0001 /* IssueHistoryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC1A5E032F6A100100AA0001 /* IssueHistoryStore.swift */; };
-		BC1A5E0C2F6A100100AA0004 /* IssueHistoryProjectDeletion.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC1A5E0B2F6A100100AA0004 /* IssueHistoryProjectDeletion.swift */; };
-		BC1A5E062F6A100100AA0002 /* IssueHistoryCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC1A5E052F6A100100AA0002 /* IssueHistoryCoordinator.swift */; };
-		BC1A5E082F6A100100AA0002 /* IssueProgressAutosaveGuard.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC1A5E072F6A100100AA0002 /* IssueProgressAutosaveGuard.swift */; };
-		CF9A11122E09212600C0FF11 /* ChecklistReportSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF9A11112E09212600C0FF11 /* ChecklistReportSnapshot.swift */; };
-		CF9A11142E09212600C0FF12 /* ChecklistReportPDFRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF9A11132E09212600C0FF12 /* ChecklistReportPDFRenderer.swift */; };
-		A1B2C3D42E25000100C0FF03 /* ReportPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D42E25000100C0FF02 /* ReportPage.swift */; };
-		A1B2C3D42E25000100C0FF05 /* ProjectReportSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D42E25000100C0FF04 /* ProjectReportSnapshot.swift */; };
-		A1B2C3D42E25000100C0FF07 /* SummaryReportRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D42E25000100C0FF06 /* SummaryReportRenderer.swift */; };
-		A1B2C3D42E25000100C0FF09 /* CustomerReportRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D42E25000100C0FF08 /* CustomerReportRenderer.swift */; };
-		A1B2C3D42E25000100C0FF0B /* ExpensesReportRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D42E25000100C0FF0A /* ExpensesReportRenderer.swift */; };
-		A1B2C3D42E25000100C0FF0D /* PlanFactReportRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D42E25000100C0FF0C /* PlanFactReportRenderer.swift */; };
-		A1B2C3D42E25000100C0FF0F /* ReportCharts.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D42E25000100C0FF0E /* ReportCharts.swift */; };
-		A1B2C3D42E25000100C0FF22 /* ReportExportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D42E25000100C0FF21 /* ReportExportView.swift */; };
-		CF9A11162E09212600C0FF13 /* ChecklistReportExportFile.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF9A11152E09212600C0FF13 /* ChecklistReportExportFile.swift */; };
-		CF9A11182E09212600C0FF14 /* ChecklistReportExportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF9A11172E09212600C0FF14 /* ChecklistReportExportView.swift */; };
-		CF9A11004E09212600C0FF01 /* ProjectIssuesListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF9A11003E09212600C0FF01 /* ProjectIssuesListView.swift */; };
-		BC1A5E0A2F6A100100AA0003 /* IssueHistoryViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC1A5E092F6A100100AA0003 /* IssueHistoryViews.swift */; };
-		CF9A11006E09212600C0FF01 /* IssueEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF9A11005E09212600C0FF01 /* IssueEditorView.swift */; };
-		CF9A11008E09212600C0FF01 /* IssueStageDetailHost.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF9A11007E09212600C0FF01 /* IssueStageDetailHost.swift */; };
-		CF9A1100AE09212600C0FF01 /* IssuePhotoThumbnail.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF9A11009E09212600C0FF01 /* IssuePhotoThumbnail.swift */; };
 		CF0AFFB02ED6F70B00BB7DF8 /* ProjectContact.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF0AFFAF2ED6F70400BB7DF8 /* ProjectContact.swift */; };
 		CF0AFFB22ED6FE8B00BB7DF8 /* ProjectContactsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF0AFFB12ED6FE8600BB7DF8 /* ProjectContactsView.swift */; };
 		CF0AFFB42ED6FEAE00BB7DF8 /* EditProjectContactView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF0AFFB32ED6FEA700BB7DF8 /* EditProjectContactView.swift */; };
 		CF0AFFB62ED7043500BB7DF8 /* ProjectFilesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF0AFFB52ED7043000BB7DF8 /* ProjectFilesView.swift */; };
 		CF0D49E52EBFEF7100FF29AE /* StageListCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF0D49E42EBFEF6F00FF29AE /* StageListCard.swift */; };
-		CF9A111A2E09212600C0FF15 /* ProjectUXColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF9A11192E09212600C0FF15 /* ProjectUXColors.swift */; };
 		CF0D4A192EC020A300FF29AE /* InfoTextManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF0D4A182EC020A100FF29AE /* InfoTextManager.swift */; };
 		CF0D4A1B2EC020CF00FF29AE /* InfoSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF0D4A1A2EC020CD00FF29AE /* InfoSheetView.swift */; };
 		CF0D4AF02EC1275C00FF29AE /* InfoTexts in Resources */ = {isa = PBXBuildFile; fileRef = CF0D4AEF2EC1275C00FF29AE /* InfoTexts */; };
@@ -82,19 +74,27 @@
 		CF5955682EB9EA33006BF803 /* RegisterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF5955672EB9EA25006BF803 /* RegisterView.swift */; };
 		CF59556A2EB9EB41006BF803 /* ProjectFormView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF5955692EB9EB3E006BF803 /* ProjectFormView.swift */; };
 		CF59556C2EB9EB69006BF803 /* ProjectDashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF59556B2EB9EB66006BF803 /* ProjectDashboardView.swift */; };
-		CF9A111C2E09212600C0FF16 /* ChecklistTimelineViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF9A111B2E09212600C0FF16 /* ChecklistTimelineViews.swift */; };
-		CF9A11212E09212700C0FF18 /* ProjectQuickActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF9A11202E09212700C0FF18 /* ProjectQuickActions.swift */; };
 		CF59556E2EB9EB99006BF803 /* StageDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF59556D2EB9EB8D006BF803 /* StageDetailView.swift */; };
 		CF5955702EB9EF18006BF803 /* MediaService.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF59556F2EB9EF15006BF803 /* MediaService.swift */; };
 		CF5955742EB9EFFB006BF803 /* ItemCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF5955732EB9EF97006BF803 /* ItemCardView.swift */; };
 		CF5955752EB9F004006BF803 /* FullScreenImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF5955722EB9EF6E006BF803 /* FullScreenImageView.swift */; };
 		CF5955782EB9F2EA006BF803 /* InfoTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF5955772EB9F2E7006BF803 /* InfoTextView.swift */; };
 		CF5955B12EB9E999006BF803 /* WhatsNewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF5955B02EB9E999006BF803 /* WhatsNewView.swift */; };
-		A9B8C7D62F10000100AA0002 /* OnboardingFlowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9B8C7D62F10000100AA0001 /* OnboardingFlowView.swift */; };
-		A9B8C7D62F10000100AA0004 /* DemoCoachNote.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9B8C7D62F10000100AA0003 /* DemoCoachNote.swift */; };
 		CF7346842EC453850061E531 /* arbolit in Resources */ = {isa = PBXBuildFile; fileRef = CF7346832EC453840061E531 /* arbolit */; };
 		CF7F15762EC6511E008A1732 /* monolithic in Resources */ = {isa = PBXBuildFile; fileRef = CF7F15752EC6511E008A1732 /* monolithic */; };
 		CF8B2D7C2EDA080E00307209 /* GlobalStageCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF8B2D7B2EDA080600307209 /* GlobalStageCategory.swift */; };
+		CF9A11002E09212600C0FF01 /* ProjectIssuesCollector.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF9A11001E09212600C0FF01 /* ProjectIssuesCollector.swift */; };
+		CF9A11004E09212600C0FF01 /* ProjectIssuesListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF9A11003E09212600C0FF01 /* ProjectIssuesListView.swift */; };
+		CF9A11006E09212600C0FF01 /* IssueEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF9A11005E09212600C0FF01 /* IssueEditorView.swift */; };
+		CF9A11008E09212600C0FF01 /* IssueStageDetailHost.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF9A11007E09212600C0FF01 /* IssueStageDetailHost.swift */; };
+		CF9A1100AE09212600C0FF01 /* IssuePhotoThumbnail.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF9A11009E09212600C0FF01 /* IssuePhotoThumbnail.swift */; };
+		CF9A11122E09212600C0FF11 /* ChecklistReportSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF9A11112E09212600C0FF11 /* ChecklistReportSnapshot.swift */; };
+		CF9A11142E09212600C0FF12 /* ChecklistReportPDFRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF9A11132E09212600C0FF12 /* ChecklistReportPDFRenderer.swift */; };
+		CF9A11162E09212600C0FF13 /* ChecklistReportExportFile.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF9A11152E09212600C0FF13 /* ChecklistReportExportFile.swift */; };
+		CF9A11182E09212600C0FF14 /* ChecklistReportExportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF9A11172E09212600C0FF14 /* ChecklistReportExportView.swift */; };
+		CF9A111A2E09212600C0FF15 /* ProjectUXColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF9A11192E09212600C0FF15 /* ProjectUXColors.swift */; };
+		CF9A111C2E09212600C0FF16 /* ChecklistTimelineViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF9A111B2E09212600C0FF16 /* ChecklistTimelineViews.swift */; };
+		CF9A11212E09212700C0FF18 /* ProjectQuickActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF9A11202E09212700C0FF18 /* ProjectQuickActions.swift */; };
 		CFA3FD2B2EDE031900CD8DCE /* StageDelayReasonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFA3FD2A2EDE031400CD8DCE /* StageDelayReasonView.swift */; };
 		CFA3FD2D2EDE076D00CD8DCE /* StageScheduleEditView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFA3FD2C2EDE076700CD8DCE /* StageScheduleEditView.swift */; };
 		CFA3FD2F2EDE079300CD8DCE /* StageCompleteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFA3FD2E2EDE078D00CD8DCE /* StageCompleteView.swift */; };
@@ -148,8 +148,22 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		BCDE0A002F70000100AA0001 /* DemoTrainingScrollPassView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoTrainingScrollPassView.swift; sourceTree = "<group>"; };
-		BCDE0B002F70000100AA0001 /* DemoTrainingCaptureDriver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoTrainingCaptureDriver.swift; sourceTree = "<group>"; };
+		A1B2C3D42E25000100C0FF02 /* ReportPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportPage.swift; sourceTree = "<group>"; };
+		A1B2C3D42E25000100C0FF04 /* ProjectReportSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectReportSnapshot.swift; sourceTree = "<group>"; };
+		A1B2C3D42E25000100C0FF06 /* SummaryReportRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SummaryReportRenderer.swift; sourceTree = "<group>"; };
+		A1B2C3D42E25000100C0FF08 /* CustomerReportRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomerReportRenderer.swift; sourceTree = "<group>"; };
+		A1B2C3D42E25000100C0FF0A /* ExpensesReportRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpensesReportRenderer.swift; sourceTree = "<group>"; };
+		A1B2C3D42E25000100C0FF0C /* PlanFactReportRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanFactReportRenderer.swift; sourceTree = "<group>"; };
+		A1B2C3D42E25000100C0FF0E /* ReportCharts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportCharts.swift; sourceTree = "<group>"; };
+		A1B2C3D42E25000100C0FF21 /* ReportExportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportExportView.swift; sourceTree = "<group>"; };
+		A9B8C7D62F10000100AA0001 /* OnboardingFlowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingFlowView.swift; sourceTree = "<group>"; };
+		A9B8C7D62F10000100AA0003 /* DemoCoachNote.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoCoachNote.swift; sourceTree = "<group>"; };
+		BC1A5E012F6A100100AA0001 /* IssueHistory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IssueHistory.swift; sourceTree = "<group>"; };
+		BC1A5E032F6A100100AA0001 /* IssueHistoryStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IssueHistoryStore.swift; sourceTree = "<group>"; };
+		BC1A5E052F6A100100AA0002 /* IssueHistoryCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IssueHistoryCoordinator.swift; sourceTree = "<group>"; };
+		BC1A5E072F6A100100AA0002 /* IssueProgressAutosaveGuard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IssueProgressAutosaveGuard.swift; sourceTree = "<group>"; };
+		BC1A5E092F6A100100AA0003 /* IssueHistoryViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IssueHistoryViews.swift; sourceTree = "<group>"; };
+		BC1A5E0B2F6A100100AA0004 /* IssueHistoryProjectDeletion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IssueHistoryProjectDeletion.swift; sourceTree = "<group>"; };
 		BCDE01002F70000100AA0001 /* DemoTrainingPrototypeGate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoTrainingPrototypeGate.swift; sourceTree = "<group>"; };
 		BCDE02002F70000100AA0001 /* DemoTrainingModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoTrainingModels.swift; sourceTree = "<group>"; };
 		BCDE03002F70000100AA0001 /* DemoTrainingController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoTrainingController.swift; sourceTree = "<group>"; };
@@ -159,36 +173,14 @@
 		BCDE07002F70000100AA0001 /* DemoTrainingEntryButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoTrainingEntryButton.swift; sourceTree = "<group>"; };
 		BCDE08002F70000100AA0001 /* DemoTrainingHost.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoTrainingHost.swift; sourceTree = "<group>"; };
 		BCDE09002F70000100AA0001 /* DemoTrainingPreviewGallery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoTrainingPreviewGallery.swift; sourceTree = "<group>"; };
+		BCDE0A002F70000100AA0001 /* DemoTrainingScrollPassView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoTrainingScrollPassView.swift; sourceTree = "<group>"; };
+		BCDE0B002F70000100AA0001 /* DemoTrainingCaptureDriver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoTrainingCaptureDriver.swift; sourceTree = "<group>"; };
 		CF0524782EBBCFA0008A66AD /* SeedPackLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeedPackLoader.swift; sourceTree = "<group>"; };
-		CF9A11001E09212600C0FF01 /* ProjectIssuesCollector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectIssuesCollector.swift; sourceTree = "<group>"; };
-		BC1A5E012F6A100100AA0001 /* IssueHistory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IssueHistory.swift; sourceTree = "<group>"; };
-		BC1A5E032F6A100100AA0001 /* IssueHistoryStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IssueHistoryStore.swift; sourceTree = "<group>"; };
-		BC1A5E0B2F6A100100AA0004 /* IssueHistoryProjectDeletion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IssueHistoryProjectDeletion.swift; sourceTree = "<group>"; };
-		BC1A5E052F6A100100AA0002 /* IssueHistoryCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IssueHistoryCoordinator.swift; sourceTree = "<group>"; };
-		BC1A5E072F6A100100AA0002 /* IssueProgressAutosaveGuard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IssueProgressAutosaveGuard.swift; sourceTree = "<group>"; };
-		CF9A11112E09212600C0FF11 /* ChecklistReportSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChecklistReportSnapshot.swift; sourceTree = "<group>"; };
-		CF9A11132E09212600C0FF12 /* ChecklistReportPDFRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChecklistReportPDFRenderer.swift; sourceTree = "<group>"; };
-		A1B2C3D42E25000100C0FF02 /* ReportPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportPage.swift; sourceTree = "<group>"; };
-		A1B2C3D42E25000100C0FF04 /* ProjectReportSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectReportSnapshot.swift; sourceTree = "<group>"; };
-		A1B2C3D42E25000100C0FF06 /* SummaryReportRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SummaryReportRenderer.swift; sourceTree = "<group>"; };
-		A1B2C3D42E25000100C0FF08 /* CustomerReportRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomerReportRenderer.swift; sourceTree = "<group>"; };
-		A1B2C3D42E25000100C0FF0A /* ExpensesReportRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpensesReportRenderer.swift; sourceTree = "<group>"; };
-		A1B2C3D42E25000100C0FF0C /* PlanFactReportRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanFactReportRenderer.swift; sourceTree = "<group>"; };
-		A1B2C3D42E25000100C0FF0E /* ReportCharts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportCharts.swift; sourceTree = "<group>"; };
-		A1B2C3D42E25000100C0FF21 /* ReportExportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportExportView.swift; sourceTree = "<group>"; };
-		CF9A11152E09212600C0FF13 /* ChecklistReportExportFile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChecklistReportExportFile.swift; sourceTree = "<group>"; };
-		CF9A11172E09212600C0FF14 /* ChecklistReportExportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChecklistReportExportView.swift; sourceTree = "<group>"; };
-		CF9A11003E09212600C0FF01 /* ProjectIssuesListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectIssuesListView.swift; sourceTree = "<group>"; };
-		BC1A5E092F6A100100AA0003 /* IssueHistoryViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IssueHistoryViews.swift; sourceTree = "<group>"; };
-		CF9A11005E09212600C0FF01 /* IssueEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IssueEditorView.swift; sourceTree = "<group>"; };
-		CF9A11007E09212600C0FF01 /* IssueStageDetailHost.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IssueStageDetailHost.swift; sourceTree = "<group>"; };
-		CF9A11009E09212600C0FF01 /* IssuePhotoThumbnail.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IssuePhotoThumbnail.swift; sourceTree = "<group>"; };
 		CF0AFFAF2ED6F70400BB7DF8 /* ProjectContact.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectContact.swift; sourceTree = "<group>"; };
 		CF0AFFB12ED6FE8600BB7DF8 /* ProjectContactsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectContactsView.swift; sourceTree = "<group>"; };
 		CF0AFFB32ED6FEA700BB7DF8 /* EditProjectContactView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditProjectContactView.swift; sourceTree = "<group>"; };
 		CF0AFFB52ED7043000BB7DF8 /* ProjectFilesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectFilesView.swift; sourceTree = "<group>"; };
 		CF0D49E42EBFEF6F00FF29AE /* StageListCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StageListCard.swift; sourceTree = "<group>"; };
-		CF9A11192E09212600C0FF15 /* ProjectUXColors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectUXColors.swift; sourceTree = "<group>"; };
 		CF0D4A182EC020A100FF29AE /* InfoTextManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfoTextManager.swift; sourceTree = "<group>"; };
 		CF0D4A1A2EC020CD00FF29AE /* InfoSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfoSheetView.swift; sourceTree = "<group>"; };
 		CF0D4AEF2EC1275C00FF29AE /* InfoTexts */ = {isa = PBXFileReference; lastKnownFileType = folder; name = InfoTexts; path = Resources/InfoTexts; sourceTree = "<group>"; };
@@ -224,19 +216,27 @@
 		CF5955672EB9EA25006BF803 /* RegisterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegisterView.swift; sourceTree = "<group>"; };
 		CF5955692EB9EB3E006BF803 /* ProjectFormView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectFormView.swift; sourceTree = "<group>"; };
 		CF59556B2EB9EB66006BF803 /* ProjectDashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectDashboardView.swift; sourceTree = "<group>"; };
-		CF9A111B2E09212600C0FF16 /* ChecklistTimelineViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChecklistTimelineViews.swift; sourceTree = "<group>"; };
-		CF9A11202E09212700C0FF18 /* ProjectQuickActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectQuickActions.swift; sourceTree = "<group>"; };
 		CF59556D2EB9EB8D006BF803 /* StageDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StageDetailView.swift; sourceTree = "<group>"; };
 		CF59556F2EB9EF15006BF803 /* MediaService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaService.swift; sourceTree = "<group>"; };
 		CF5955722EB9EF6E006BF803 /* FullScreenImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FullScreenImageView.swift; sourceTree = "<group>"; };
 		CF5955732EB9EF97006BF803 /* ItemCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemCardView.swift; sourceTree = "<group>"; };
 		CF5955772EB9F2E7006BF803 /* InfoTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfoTextView.swift; sourceTree = "<group>"; };
 		CF5955B02EB9E999006BF803 /* WhatsNewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WhatsNewView.swift; sourceTree = "<group>"; };
-		A9B8C7D62F10000100AA0001 /* OnboardingFlowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingFlowView.swift; sourceTree = "<group>"; };
-		A9B8C7D62F10000100AA0003 /* DemoCoachNote.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoCoachNote.swift; sourceTree = "<group>"; };
 		CF7346832EC453840061E531 /* arbolit */ = {isa = PBXFileReference; lastKnownFileType = folder; name = arbolit; path = Resources/InfoTexts/walls/arbolit; sourceTree = "<group>"; };
 		CF7F15752EC6511E008A1732 /* monolithic */ = {isa = PBXFileReference; lastKnownFileType = folder; name = monolithic; path = Resources/InfoTexts/walls/monolithic; sourceTree = "<group>"; };
 		CF8B2D7B2EDA080600307209 /* GlobalStageCategory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobalStageCategory.swift; sourceTree = "<group>"; };
+		CF9A11001E09212600C0FF01 /* ProjectIssuesCollector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectIssuesCollector.swift; sourceTree = "<group>"; };
+		CF9A11003E09212600C0FF01 /* ProjectIssuesListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectIssuesListView.swift; sourceTree = "<group>"; };
+		CF9A11005E09212600C0FF01 /* IssueEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IssueEditorView.swift; sourceTree = "<group>"; };
+		CF9A11007E09212600C0FF01 /* IssueStageDetailHost.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IssueStageDetailHost.swift; sourceTree = "<group>"; };
+		CF9A11009E09212600C0FF01 /* IssuePhotoThumbnail.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IssuePhotoThumbnail.swift; sourceTree = "<group>"; };
+		CF9A11112E09212600C0FF11 /* ChecklistReportSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChecklistReportSnapshot.swift; sourceTree = "<group>"; };
+		CF9A11132E09212600C0FF12 /* ChecklistReportPDFRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChecklistReportPDFRenderer.swift; sourceTree = "<group>"; };
+		CF9A11152E09212600C0FF13 /* ChecklistReportExportFile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChecklistReportExportFile.swift; sourceTree = "<group>"; };
+		CF9A11172E09212600C0FF14 /* ChecklistReportExportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChecklistReportExportView.swift; sourceTree = "<group>"; };
+		CF9A11192E09212600C0FF15 /* ProjectUXColors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectUXColors.swift; sourceTree = "<group>"; };
+		CF9A111B2E09212600C0FF16 /* ChecklistTimelineViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChecklistTimelineViews.swift; sourceTree = "<group>"; };
+		CF9A11202E09212700C0FF18 /* ProjectQuickActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectQuickActions.swift; sourceTree = "<group>"; };
 		CFA3FD2A2EDE031400CD8DCE /* StageDelayReasonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StageDelayReasonView.swift; sourceTree = "<group>"; };
 		CFA3FD2C2EDE076700CD8DCE /* StageScheduleEditView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StageScheduleEditView.swift; sourceTree = "<group>"; };
 		CFA3FD2E2EDE078D00CD8DCE /* StageCompleteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StageCompleteView.swift; sourceTree = "<group>"; };
@@ -1102,6 +1102,46 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		A1B2C3D42E25000100C0FF01 /* Reports */ = {
+			isa = PBXGroup;
+			children = (
+				A1B2C3D42E25000100C0FF02 /* ReportPage.swift */,
+				A1B2C3D42E25000100C0FF04 /* ProjectReportSnapshot.swift */,
+				A1B2C3D42E25000100C0FF06 /* SummaryReportRenderer.swift */,
+				A1B2C3D42E25000100C0FF08 /* CustomerReportRenderer.swift */,
+				A1B2C3D42E25000100C0FF0A /* ExpensesReportRenderer.swift */,
+				A1B2C3D42E25000100C0FF0C /* PlanFactReportRenderer.swift */,
+				A1B2C3D42E25000100C0FF0E /* ReportCharts.swift */,
+			);
+			path = Reports;
+			sourceTree = "<group>";
+		};
+		A1B2C3D42E25000100C0FF20 /* Reports */ = {
+			isa = PBXGroup;
+			children = (
+				A1B2C3D42E25000100C0FF21 /* ReportExportView.swift */,
+			);
+			path = Reports;
+			sourceTree = "<group>";
+		};
+		BCDE00002F70000100AA0000 /* DemoTraining */ = {
+			isa = PBXGroup;
+			children = (
+				BCDE01002F70000100AA0001 /* DemoTrainingPrototypeGate.swift */,
+				BCDE02002F70000100AA0001 /* DemoTrainingModels.swift */,
+				BCDE03002F70000100AA0001 /* DemoTrainingController.swift */,
+				BCDE04002F70000100AA0001 /* DemoTrainingAnchor.swift */,
+				BCDE05002F70000100AA0001 /* DemoTrainingOverlay.swift */,
+				BCDE06002F70000100AA0001 /* DemoTrainingMenuView.swift */,
+				BCDE07002F70000100AA0001 /* DemoTrainingEntryButton.swift */,
+				BCDE08002F70000100AA0001 /* DemoTrainingHost.swift */,
+				BCDE09002F70000100AA0001 /* DemoTrainingPreviewGallery.swift */,
+				BCDE0A002F70000100AA0001 /* DemoTrainingScrollPassView.swift */,
+				BCDE0B002F70000100AA0001 /* DemoTrainingCaptureDriver.swift */,
+			);
+			path = DemoTraining;
+			sourceTree = "<group>";
+		};
 		CF4358EA2F37B9AF00A6C03D /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -1216,20 +1256,6 @@
 			path = Models;
 			sourceTree = "<group>";
 		};
-		A1B2C3D42E25000100C0FF01 /* Reports */ = {
-			isa = PBXGroup;
-			children = (
-				A1B2C3D42E25000100C0FF02 /* ReportPage.swift */,
-				A1B2C3D42E25000100C0FF04 /* ProjectReportSnapshot.swift */,
-				A1B2C3D42E25000100C0FF06 /* SummaryReportRenderer.swift */,
-				A1B2C3D42E25000100C0FF08 /* CustomerReportRenderer.swift */,
-				A1B2C3D42E25000100C0FF0A /* ExpensesReportRenderer.swift */,
-				A1B2C3D42E25000100C0FF0C /* PlanFactReportRenderer.swift */,
-				A1B2C3D42E25000100C0FF0E /* ReportCharts.swift */,
-			);
-			path = Reports;
-			sourceTree = "<group>";
-		};
 		CF5955432EB9DAF4006BF803 /* Services */ = {
 			isa = PBXGroup;
 			children = (
@@ -1260,32 +1286,6 @@
 				CF59555F2EB9E90D006BF803 /* StorageService.swift */,
 			);
 			path = Services;
-			sourceTree = "<group>";
-		};
-		A1B2C3D42E25000100C0FF20 /* Reports */ = {
-			isa = PBXGroup;
-			children = (
-				A1B2C3D42E25000100C0FF21 /* ReportExportView.swift */,
-			);
-			path = Reports;
-			sourceTree = "<group>";
-		};
-		BCDE00002F70000100AA0000 /* DemoTraining */ = {
-			isa = PBXGroup;
-			children = (
-				BCDE01002F70000100AA0001 /* DemoTrainingPrototypeGate.swift */,
-				BCDE02002F70000100AA0001 /* DemoTrainingModels.swift */,
-				BCDE03002F70000100AA0001 /* DemoTrainingController.swift */,
-				BCDE04002F70000100AA0001 /* DemoTrainingAnchor.swift */,
-				BCDE05002F70000100AA0001 /* DemoTrainingOverlay.swift */,
-				BCDE06002F70000100AA0001 /* DemoTrainingMenuView.swift */,
-				BCDE07002F70000100AA0001 /* DemoTrainingEntryButton.swift */,
-				BCDE08002F70000100AA0001 /* DemoTrainingHost.swift */,
-				BCDE09002F70000100AA0001 /* DemoTrainingPreviewGallery.swift */,
-				BCDE0A002F70000100AA0001 /* DemoTrainingScrollPassView.swift */,
-				BCDE0B002F70000100AA0001 /* DemoTrainingCaptureDriver.swift */,
-			);
-			path = DemoTraining;
 			sourceTree = "<group>";
 		};
 		CF5955442EB9DB06006BF803 /* Views */ = {
@@ -1788,7 +1788,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 9;
+				CURRENT_PROJECT_VERSION = 10;
 				DEVELOPMENT_TEAM = Z7PX9G8K4B;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -1802,7 +1802,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.3;
+				MARKETING_VERSION = 2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.mikhail.buildchecklists.arm;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -1823,7 +1823,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 9;
+				CURRENT_PROJECT_VERSION = 10;
 				DEVELOPMENT_TEAM = Z7PX9G8K4B;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -1837,7 +1837,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.3;
+				MARKETING_VERSION = 2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.mikhail.buildchecklists.arm;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
