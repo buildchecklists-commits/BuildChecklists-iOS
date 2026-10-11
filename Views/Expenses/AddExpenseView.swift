@@ -17,6 +17,8 @@ struct AddExpenseView: View {
     // Read-only UX
     @State private var showReadOnlyAlert: Bool = false
     @State private var showPaywall: Bool = false
+    @State private var saveErrorText: String?
+    @State private var showSaveError: Bool = false
 
     // MARK: - Computed
 
@@ -222,6 +224,11 @@ struct AddExpenseView: View {
         } message: {
             Text("Доступен только просмотр. Чтобы добавлять, редактировать или удалять расходы, оформите или продлите подписку.")
         }
+        .alert("Не удалось сохранить", isPresented: $showSaveError) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text(saveErrorText ?? "Ошибка сохранения расхода.")
+        }
 
         // Paywall (оставлено без изменений, но больше не открывается отсюда)
         .sheet(isPresented: $showPaywall) {
@@ -292,7 +299,8 @@ struct AddExpenseView: View {
             try store.addExpense(input)
             dismiss()
         } catch {
-            debugPrint("❌ addExpense error:", error.localizedDescription)
+            saveErrorText = error.localizedDescription
+            showSaveError = true
         }
     }
 }

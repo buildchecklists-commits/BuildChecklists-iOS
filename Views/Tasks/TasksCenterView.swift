@@ -327,6 +327,10 @@ struct TasksCenterView: View {
 
     // MARK: - List
 
+    private var showsTasksLoadFailure: Bool {
+        store.tasksLoadUnreadable && !store.isDemoMode
+    }
+
     private var contentList: some View {
         List {
             // Calendar lives inside the list so SE / large Dynamic Type can scroll to tasks.
@@ -345,15 +349,30 @@ struct TasksCenterView: View {
             }
             .listRowBackground(Color(.systemBackground))
 
-            dayModeControls
-            headerStats
-
-            if filterBySelectedDate {
-                dayModeSections
-            } else if activeFilter != .all {
-                filteredFlatSection
+            if showsTasksLoadFailure {
+                Section {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Не удалось прочитать задачи")
+                            .font(.subheadline.weight(.semibold))
+                        Text("Файл задач повреждён или недоступен. Это не означает, что задач нет — данные на диске не очищены. Перезапустите приложение. Не создавайте и не удаляйте задачи, пока ошибка не исчезнет.")
+                            .font(.footnote)
+                            .foregroundStyle(.secondary)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                    .padding(.vertical, 8)
+                    .accessibilityIdentifier("tasks.loadUnreadable")
+                }
             } else {
-                generalModeSections
+                dayModeControls
+                headerStats
+
+                if filterBySelectedDate {
+                    dayModeSections
+                } else if activeFilter != .all {
+                    filteredFlatSection
+                } else {
+                    generalModeSections
+                }
             }
         }
         .listStyle(.insetGrouped)

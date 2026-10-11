@@ -21,6 +21,8 @@ struct EditExpenseView: View {
     // Read-only UX
     @State private var showReadOnlyAlert: Bool = false
     @State private var showPaywall: Bool = false
+    @State private var actionErrorText: String?
+    @State private var showActionError: Bool = false
 
     init(expense: ExpenseItem) {
         self.expense = expense
@@ -163,6 +165,11 @@ struct EditExpenseView: View {
         } message: {
             Text("Доступен только просмотр. Чтобы редактировать или удалять расходы, оформите или продлите подписку.")
         }
+        .alert("Ошибка", isPresented: $showActionError) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text(actionErrorText ?? "Операция с расходом не выполнена.")
+        }
 
         // Paywall (оставлено без изменений, но больше не открывается отсюда)
         .sheet(isPresented: $showPaywall) {
@@ -225,7 +232,8 @@ struct EditExpenseView: View {
             try store.updateExpense(expense, with: input)
             dismiss()
         } catch {
-            debugPrint("❌ updateExpense error:", error.localizedDescription)
+            actionErrorText = error.localizedDescription
+            showActionError = true
         }
     }
 
@@ -234,7 +242,8 @@ struct EditExpenseView: View {
             try store.deleteExpense(expense)
             dismiss()
         } catch {
-            debugPrint("❌ deleteExpense error:", error.localizedDescription)
+            actionErrorText = error.localizedDescription
+            showActionError = true
         }
     }
 }

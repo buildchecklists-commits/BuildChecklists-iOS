@@ -29,6 +29,38 @@ struct ProjectsDiskWriteBlockedError: Error, Equatable, LocalizedError {
     }
 }
 
+/// Outcome of reading a flat JSON list file (tasks / expenses).
+/// Distinguishes a missing file (first launch) from a trusted empty list and from unreadable data.
+enum ListFileLoadOutcome<Element: Equatable>: Equatable {
+    case missingFile
+    case loaded([Element])
+    case unreadable(String)
+
+    /// Missing file and a trusted decode may create/replace the store; unreadable must not.
+    var allowsDiskWrite: Bool {
+        switch self {
+        case .missingFile, .loaded:
+            return true
+        case .unreadable:
+            return false
+        }
+    }
+}
+
+/// Thrown when tasks.json must not be overwritten after a failed load.
+struct TasksDiskWriteBlockedError: Error, Equatable, LocalizedError {
+    var errorDescription: String? {
+        "Файл задач не удалось прочитать. Сохранение задач временно недоступно, чтобы не затереть данные на диске. Перезапустите приложение. Не создавайте и не удаляйте задачи, пока ошибка не исчезнет."
+    }
+}
+
+/// Thrown when expenses.json must not be overwritten after a failed load.
+struct ExpensesDiskWriteBlockedError: Error, Equatable, LocalizedError {
+    var errorDescription: String? {
+        "Файл расходов не удалось прочитать. Сохранение расходов временно недоступно, чтобы не затереть данные на диске. Перезапустите приложение. Не создавайте и не удаляйте расходы, пока ошибка не исчезнет."
+    }
+}
+
 /// Blocks history and checklist progress writes for project IDs with a saved deletion intent
 /// or an in-session DEMO deletion.
 nonisolated enum IssueDeletedProjectGate {

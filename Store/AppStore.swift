@@ -53,6 +53,11 @@ final class AppStore: ObservableObject {
     @Published private(set) var expenses: [ExpenseItem] = []
     @Published private(set) var tasks: [TaskItem] = []
 
+    /// Last non-DEMO load of tasks.json failed (unreadable). UI must not claim “no tasks”.
+    @Published private(set) var tasksLoadUnreadable: Bool = false
+    /// Last non-DEMO load of expenses.json failed (unreadable). UI must not claim “no expenses”.
+    @Published private(set) var expensesLoadUnreadable: Bool = false
+
     @Published private(set) var isRegistered: Bool = false
     @Published private(set) var userRole: UserRole = .demo
 
@@ -174,6 +179,8 @@ final class AppStore: ObservableObject {
         guard !isDemoMode else {
             BCTiming.log("bootstrap end (demo, skip storage)")
             debugPrint("🔸 Demo mode active — skip loading projects/expenses/tasks")
+            tasksLoadUnreadable = false
+            expensesLoadUnreadable = false
             if projects.isEmpty {
                 createDemoProjectIfNeeded()
                 if let id = projects.first?.id {
@@ -194,9 +201,7 @@ final class AppStore: ObservableObject {
             projects = loaded
             BCTiming.log("bootstrap: loadProjects end (\(projects.count))")
             debugPrint("📁 Projects loaded:", projects.count)
-            BCTiming.log("bootstrap: migrateStagesIfNeeded start")
-            migrateStagesIfNeededAfterSeedUpdate()
-            BCTiming.log("bootstrap: migrateStagesIfNeeded end")
+            // Do not auto-replace existing project stages from seeds — that wiped dates/ids/items.
         case .partiallyLoaded(let partial):
             // Show what we could recover. Writes to projects.json stay blocked (StorageService gate).
             projects = partial
@@ -214,30 +219,50 @@ final class AppStore: ObservableObject {
         )
 
         BCTiming.log("bootstrap: loadExpenses start")
-        do {
-            expenses = try storage.loadExpenses()
+        let expensesOutcome = storage.loadExpensesOutcome()
+        switch expensesOutcome {
+        case .missingFile:
+            expenses = []
+            expensesLoadUnreadable = false
+            BCTiming.log("bootstrap: loadExpenses end (missing file)")
+        case .loaded(let loaded):
+            expenses = loaded
+            expensesLoadUnreadable = false
             BCTiming.log("bootstrap: loadExpenses end (\(expenses.count))")
             debugPrint("💰 Expenses loaded:", expenses.count)
-        } catch {
+        case .unreadable(let message):
+            // Keep empty UI memory but do not treat as “no expenses” for disk writes / empty UI copy.
             expenses = []
-            BCTiming.log("bootstrap: loadExpenses error")
-            debugPrint("❌ Load expenses error:", error.localizedDescription)
+            expensesLoadUnreadable = true
+            BCTiming.log("bootstrap: loadExpenses error (disk writes blocked)")
+            debugPrint("❌ Load expenses error (disk writes blocked):", message)
         }
 
         BCTiming.log("bootstrap: loadTasks start")
-        do {
-            tasks = try storage.loadTasks()
+        let tasksOutcome = storage.loadTasksOutcome()
+        switch tasksOutcome {
+        case .missingFile:
+            tasks = []
+            tasksLoadUnreadable = false
+            BCTiming.log("bootstrap: loadTasks end (missing file)")
+        case .loaded(let loaded):
+            tasks = loaded
+            tasksLoadUnreadable = false
             BCTiming.log("bootstrap: loadTasks end (\(tasks.count))")
             debugPrint("✅ Tasks loaded:", tasks.count)
-        } catch {
+        case .unreadable(let message):
             tasks = []
-            BCTiming.log("bootstrap: loadTasks error")
-            debugPrint("❌ Load tasks error:", error.localizedDescription)
+            tasksLoadUnreadable = true
+            BCTiming.log("bootstrap: loadTasks error (disk writes blocked)")
+            debugPrint("❌ Load tasks error (disk writes blocked):", message)
         }
 
         if !isDemoMode {
+            // Unreadable tasks: leave pending notifications untouched (nil), do not clear as if empty.
+            let tasksTrusted = tasksOutcome.allowsDiskWrite
             TaskNotificationService.shared.rescheduleAllNotifications {
                 guard !self.isDemoMode else { return nil }
+                guard tasksTrusted else { return nil }
                 return self.tasks
             }
         }
@@ -326,35 +351,6 @@ final class AppStore: ObservableObject {
         if isReadOnlyMode { throw AppStoreError.subscriptionExpiredReadOnly }
     }
 
-    // MARK: - Stage migration
-
-    private func migrateStagesIfNeededAfterSeedUpdate() {
-        guard !seeds.isEmpty else { return }
-
-        let seedTitles = seeds.map { $0.title }
-        var changed = false
-
-        for index in projects.indices {
-            let projectStageTitles = projects[index].stages.map { $0.title }
-
-            if projectStageTitles != seedTitles {
-                var project = projects[index]
-                project.stages = seeds.map { $0.materialize(using: project, loader: seedLoader) }
-                projects[index] = project
-                changed = true
-            }
-        }
-
-        if changed {
-            do {
-                try persistProjects()
-                debugPrint("✅ Stage migration applied for some projects")
-            } catch {
-                debugPrint("❌ Stage migration persist error:", error.localizedDescription)
-            }
-        }
-    }
-
     // MARK: - Demo mode
 
     func showsDemoCoach(_ step: DemoCoachStep) -> Bool {
@@ -406,6 +402,8 @@ final class AppStore: ObservableObject {
         projects = []
         expenses = []
         tasks = []
+        tasksLoadUnreadable = false
+        expensesLoadUnreadable = false
 
         createDemoProjectIfNeeded()
         prefillDemoTimelineIfNeeded()
@@ -460,8 +458,35 @@ final class AppStore: ObservableObject {
                 projectsOutcome: projectsOutcome,
                 fileRoot: FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first
             )
-            do { self.expenses = try self.storage.loadExpenses() } catch { self.expenses = [] }
-            do { self.tasks = try self.storage.loadTasks() } catch { self.tasks = [] }
+            switch self.storage.loadExpensesOutcome() {
+            case .missingFile:
+                self.expenses = []
+                self.expensesLoadUnreadable = false
+            case .loaded(let loaded):
+                self.expenses = loaded
+                self.expensesLoadUnreadable = false
+            case .unreadable:
+                self.expenses = []
+                self.expensesLoadUnreadable = true
+            }
+            let tasksOutcome = self.storage.loadTasksOutcome()
+            switch tasksOutcome {
+            case .missingFile:
+                self.tasks = []
+                self.tasksLoadUnreadable = false
+            case .loaded(let loaded):
+                self.tasks = loaded
+                self.tasksLoadUnreadable = false
+            case .unreadable:
+                self.tasks = []
+                self.tasksLoadUnreadable = true
+            }
+            let tasksTrusted = tasksOutcome.allowsDiskWrite
+            TaskNotificationService.shared.rescheduleAllNotifications {
+                guard !self.isDemoMode else { return nil }
+                guard tasksTrusted else { return nil }
+                return self.tasks
+            }
             self.isMainDataReady = true
         }
     }
@@ -512,7 +537,19 @@ final class AppStore: ObservableObject {
         projects = []
         expenses = []
         tasks = []
-        try persistAll()
+        tasksLoadUnreadable = false
+        expensesLoadUnreadable = false
+        // Do not unlock write gates here — that would bypass an unreadable load.
+        // Clear disk stores only when a prior trusted load already allowed writes.
+        if storage.isProjectsDiskWriteAllowed {
+            try storage.saveProjects([])
+        }
+        if storage.isExpensesDiskWriteAllowed {
+            try storage.saveExpenses([])
+        }
+        if storage.isTasksDiskWriteAllowed {
+            try storage.saveTasks([])
+        }
     }
 
     // MARK: - Account deletion (App Review 5.1.1(v))
@@ -545,6 +582,8 @@ final class AppStore: ObservableObject {
         projects = []
         expenses = []
         tasks = []
+        tasksLoadUnreadable = false
+        expensesLoadUnreadable = false
 
         // 6) вернуть вкладку по умолчанию
         selectedTab = .projects
@@ -557,6 +596,7 @@ final class AppStore: ObservableObject {
 
     func addExpense(_ input: NewExpenseInput) throws {
         try ensureCanMutate()
+        try ensureExpensesDiskWritable()
         guard let amount = input.amount else { return }
 
         let expense = ExpenseItem(
@@ -570,18 +610,22 @@ final class AppStore: ObservableObject {
             note: input.note
         )
 
-        expenses.insert(expense, at: 0)
-        try persistExpenses()
+        var next = expenses
+        next.insert(expense, at: 0)
+        try commitExpenses(next)
     }
 
     func deleteExpense(_ expense: ExpenseItem) throws {
         try ensureCanMutate()
-        expenses.removeAll { $0.id == expense.id }
-        try persistExpenses()
+        try ensureExpensesDiskWritable()
+        var next = expenses
+        next.removeAll { $0.id == expense.id }
+        try commitExpenses(next)
     }
 
     func updateExpense(_ expense: ExpenseItem, with input: NewExpenseInput) throws {
         try ensureCanMutate()
+        try ensureExpensesDiskWritable()
         guard let amount = input.amount else { return }
         guard let idx = expenses.firstIndex(where: { $0.id == expense.id }) else { return }
 
@@ -597,8 +641,9 @@ final class AppStore: ObservableObject {
             note: input.note
         )
 
-        expenses[idx] = updated
-        try persistExpenses()
+        var next = expenses
+        next[idx] = updated
+        try commitExpenses(next)
     }
 
     func expenses(for projectID: UUID) -> [ExpenseItem] {
@@ -781,14 +826,26 @@ final class AppStore: ObservableObject {
         try persistProjects()
     }
 
+    /// Updates project metadata / attachments without rematerializing stages from seeds.
+    /// Construction-type pickers only change the type field; pack checklists live in ProgressStore
+    /// (Foundation/Walls/… screens), not in a wholesale `stages = seeds.map(materialize)`.
     func updateProjectMeta(_ id: UUID, change: (inout Project) -> Void) throws {
         try ensureCanMutate()
         guard let idx = projects.firstIndex(where: { $0.id == id }) else { return }
 
-        change(&projects[idx])
-        projects[idx].stages = seeds.map { $0.materialize(using: projects[idx], loader: seedLoader) }
+        var updated = projects[idx]
+        change(&updated)
+        // Keep existing stages: ids, titles, order, dates, delay reasons, items, statuses, attachments.
 
-        try persistProjects()
+        if isDemoMode {
+            projects[idx] = updated
+            return
+        }
+
+        var next = projects
+        next[idx] = updated
+        try storage.saveProjects(next)
+        projects = next
     }
 
     func updateProject(_ project: Project) throws {
@@ -813,10 +870,12 @@ final class AppStore: ObservableObject {
             return try deleteDemoProject(existing)
         }
 
-        // Refuse before staging when the last load was partial/unreadable.
+        // Refuse before any side effects when a store load was untrusted.
         guard storage.isProjectsDiskWriteAllowed else {
             throw ProjectsDiskWriteBlockedError()
         }
+        try storage.ensureTasksWritable()
+        try storage.ensureExpensesWritable()
 
         guard let fileRoot = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else {
             throw IssueHistoryError(code: .writeFailed, message: "Каталог документов недоступен")
@@ -998,6 +1057,7 @@ final class AppStore: ObservableObject {
 
     private func addTaskInternal(title: String, details: String?, projectID: UUID?, dueDate: Date?) throws {
         try ensureCanMutate()
+        try ensureTasksDiskWritable()
 
         let task = TaskItem(
             id: UUID(),
@@ -1008,8 +1068,9 @@ final class AppStore: ObservableObject {
             isCompleted: false
         )
 
-        tasks.insert(task, at: 0)
-        try persistTasks()
+        var next = tasks
+        next.insert(task, at: 0)
+        try commitTasks(next)
 
         syncSavedTaskNotification(task, allowPrompt: true)
     }
@@ -1035,6 +1096,7 @@ final class AppStore: ObservableObject {
         isCompleted: Bool
     ) throws {
         try ensureCanMutate()
+        try ensureTasksDiskWritable()
         guard let index = tasks.firstIndex(where: { $0.id == task.id }) else { return }
 
         var updated = tasks[index]
@@ -1044,8 +1106,9 @@ final class AppStore: ObservableObject {
         updated.dueDate = dueDate
         updated.isCompleted = isCompleted
 
-        tasks[index] = updated
-        try persistTasks()
+        var next = tasks
+        next[index] = updated
+        try commitTasks(next)
 
         syncSavedTaskNotification(updated, allowPrompt: true)
     }
@@ -1064,21 +1127,25 @@ final class AppStore: ObservableObject {
 
     func toggleTaskCompletion(_ task: TaskItem) throws {
         try ensureCanMutate()
+        try ensureTasksDiskWritable()
         guard let index = tasks.firstIndex(where: { $0.id == task.id }) else { return }
 
         var updated = task
         updated.isCompleted.toggle()
 
-        tasks[index] = updated
-        try persistTasks()
+        var next = tasks
+        next[index] = updated
+        try commitTasks(next)
 
         syncSavedTaskNotification(updated, allowPrompt: false)
     }
 
     func deleteTask(_ task: TaskItem) throws {
         try ensureCanMutate()
-        tasks.removeAll { $0.id == task.id }
-        try persistTasks()
+        try ensureTasksDiskWritable()
+        var next = tasks
+        next.removeAll { $0.id == task.id }
+        try commitTasks(next)
 
         if isDemoMode {
             demoSessionTaskIDs.remove(task.id)
@@ -1136,6 +1203,32 @@ final class AppStore: ObservableObject {
     private func persistTasks() throws {
         guard !isDemoMode else { return }
         try storage.saveTasks(tasks)
+    }
+
+    /// DEMO skips disk; otherwise require a trusted load before mutating memory.
+    private func ensureTasksDiskWritable() throws {
+        guard !isDemoMode else { return }
+        try storage.ensureTasksWritable()
+    }
+
+    private func ensureExpensesDiskWritable() throws {
+        guard !isDemoMode else { return }
+        try storage.ensureExpensesWritable()
+    }
+
+    /// Write to disk first (when not DEMO), then publish memory — avoids UI “saved” with a blocked write.
+    private func commitTasks(_ next: [TaskItem]) throws {
+        if !isDemoMode {
+            try storage.saveTasks(next)
+        }
+        tasks = next
+    }
+
+    private func commitExpenses(_ next: [ExpenseItem]) throws {
+        if !isDemoMode {
+            try storage.saveExpenses(next)
+        }
+        expenses = next
     }
 
     private func persistAll() throws {

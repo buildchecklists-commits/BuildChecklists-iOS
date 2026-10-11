@@ -19,6 +19,8 @@ struct ProjectExpensesView: View {
 
     // Read-only
     @State private var showReadOnlyAlert = false
+    @State private var actionErrorText: String?
+    @State private var showActionError = false
 
     private var isReadOnlyBlocked: Bool {
         store.isReadOnlyMode && !store.isDemoMode
@@ -126,11 +128,28 @@ struct ProjectExpensesView: View {
 
     // MARK: - Body
 
+    private var showsExpensesLoadFailure: Bool {
+        store.expensesLoadUnreadable && !store.isDemoMode
+    }
+
     var body: some View {
         Group {
             if let project {
                 List {
-                    if !projectExpenses.isEmpty {
+                    if showsExpensesLoadFailure {
+                        Section {
+                            VStack(alignment: .leading, spacing: 8) {
+                                Text("Не удалось прочитать расходы")
+                                    .font(.headline)
+                                Text("Файл расходов повреждён или недоступен. Это не означает, что расходов нет — данные на диске не очищены. Перезапустите приложение. Не создавайте и не удаляйте расходы, пока ошибка не исчезнет.")
+                                    .font(.subheadline)
+                                    .foregroundStyle(.secondary)
+                                    .fixedSize(horizontal: false, vertical: true)
+                            }
+                            .padding(.vertical, 12)
+                            .accessibilityIdentifier("expenses.loadUnreadable")
+                        }
+                    } else if !projectExpenses.isEmpty {
                         summarySection(project)
                         byCategorySection
                         historySection
@@ -221,6 +240,11 @@ struct ProjectExpensesView: View {
                     Button("OK", role: .cancel) {}
                 } message: {
                     Text(AppAlerts.readOnly.message)
+                }
+                .alert("Ошибка", isPresented: $showActionError) {
+                    Button("OK", role: .cancel) {}
+                } message: {
+                    Text(actionErrorText ?? "Операция с расходом не выполнена.")
                 }
             } else {
                 Text("Проект не найден")
@@ -378,7 +402,8 @@ struct ProjectExpensesView: View {
                                 do {
                                     try store.deleteExpense(expense)
                                 } catch {
-                                    debugPrint("❌ deleteExpense error:", error.localizedDescription)
+                                    actionErrorText = error.localizedDescription
+                                    showActionError = true
                                 }
                             } label: {
                                 Label("Удалить", systemImage: "trash")

@@ -17,6 +17,18 @@ nonisolated final class ProjectsDiskWriteGate: @unchecked Sendable {
         allowed = outcome.allowsProjectsDiskWrite
     }
 
+    func allowWrite() {
+        lock.lock()
+        allowed = true
+        lock.unlock()
+    }
+
+    func blockWrite() {
+        lock.lock()
+        allowed = false
+        lock.unlock()
+    }
+
     func ensureWritable() throws {
         lock.lock()
         let ok = allowed
@@ -25,26 +37,98 @@ nonisolated final class ProjectsDiskWriteGate: @unchecked Sendable {
     }
 }
 
+/// Independent write gate for one flat list file (tasks or expenses).
+/// Starts closed: saves are forbidden until a confirmed `loaded` or `missingFile` outcome.
+nonisolated final class ListDiskWriteGate: @unchecked Sendable {
+    private let lock = NSLock()
+    private var allowed = false
+    private let makeBlocked: @Sendable () -> Error
+
+    init(makeBlocked: @escaping @Sendable () -> Error) {
+        self.makeBlocked = makeBlocked
+    }
+
+    var isWriteAllowed: Bool {
+        lock.lock()
+        defer { lock.unlock() }
+        return allowed
+    }
+
+    func apply<Element: Equatable>(_ outcome: ListFileLoadOutcome<Element>) {
+        lock.lock()
+        defer { lock.unlock() }
+        allowed = outcome.allowsDiskWrite
+    }
+
+    func allowWrite() {
+        lock.lock()
+        allowed = true
+        lock.unlock()
+    }
+
+    func blockWrite() {
+        lock.lock()
+        allowed = false
+        lock.unlock()
+    }
+
+    func ensureWritable() throws {
+        lock.lock()
+        let ok = allowed
+        lock.unlock()
+        if !ok { throw makeBlocked() }
+    }
+}
+
 /// StorageService с мягкой миграцией проектов и безопасным decode.
-/// Для задач используется обычный decode/encode (Вариант A).
+/// Tasks/expenses: trusted load or missing file may write; unreadable decode blocks saves.
 struct StorageService {
 
     private let documentsDirectory: URL
     /// Shared across copies of this value-typed service so load outcome gates later saves.
     private let projectsWriteGate: ProjectsDiskWriteGate
+    private let tasksWriteGate: ListDiskWriteGate
+    private let expensesWriteGate: ListDiskWriteGate
 
     /// - Parameter documentsDirectory: Override for isolated probes. Production uses the app Documents directory.
-    init(documentsDirectory: URL? = nil, projectsWriteGate: ProjectsDiskWriteGate = ProjectsDiskWriteGate()) {
+    init(
+        documentsDirectory: URL? = nil,
+        projectsWriteGate: ProjectsDiskWriteGate = ProjectsDiskWriteGate(),
+        tasksWriteGate: ListDiskWriteGate = ListDiskWriteGate { TasksDiskWriteBlockedError() },
+        expensesWriteGate: ListDiskWriteGate = ListDiskWriteGate { ExpensesDiskWriteBlockedError() }
+    ) {
         if let documentsDirectory {
             self.documentsDirectory = documentsDirectory
         } else {
             self.documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
         }
         self.projectsWriteGate = projectsWriteGate
+        self.tasksWriteGate = tasksWriteGate
+        self.expensesWriteGate = expensesWriteGate
     }
 
     /// Whether the last `loadProjectsOutcome()` allows rewriting the projects file.
     var isProjectsDiskWriteAllowed: Bool { projectsWriteGate.isWriteAllowed }
+    var isTasksDiskWriteAllowed: Bool { tasksWriteGate.isWriteAllowed }
+    var isExpensesDiskWriteAllowed: Bool { expensesWriteGate.isWriteAllowed }
+
+    func ensureTasksWritable() throws { try tasksWriteGate.ensureWritable() }
+    func ensureExpensesWritable() throws { try expensesWriteGate.ensureWritable() }
+
+    /// After a verified wipe that removed every Documents item, allow creating fresh list files.
+    /// Must not be used to bypass an unreadable load (e.g. ordinary logout).
+    func allowAllListDiskWritesAfterExplicitWipe() {
+        projectsWriteGate.allowWrite()
+        tasksWriteGate.allowWrite()
+        expensesWriteGate.allowWrite()
+    }
+
+    /// Incomplete wipe: block all store writes until a confirmed load or a successful wipe.
+    private func blockAllDiskWritesAfterFailedWipe() {
+        projectsWriteGate.blockWrite()
+        tasksWriteGate.blockWrite()
+        expensesWriteGate.blockWrite()
+    }
 
     // MARK: - URLs
 
@@ -148,15 +232,30 @@ struct StorageService {
 
     // MARK: - EXPENSES
 
+    /// Updates the expenses write gate. Unreadable files never look like an empty list.
+    func loadExpensesOutcome() -> ListFileLoadOutcome<ExpenseItem> {
+        let outcome = loadListOutcome(url: expensesURL, as: ExpenseItem.self, label: "расходов")
+        expensesWriteGate.apply(outcome)
+        return outcome
+    }
+
     func loadExpenses() throws -> [ExpenseItem] {
-        guard FileManager.default.fileExists(atPath: expensesURL.path) else { return [] }
-        let data = try Data(contentsOf: expensesURL)
-        let decoder = JSONDecoder()
-        decoder.dateDecodingStrategy = .iso8601
-        return try decoder.decode([ExpenseItem].self, from: data)
+        switch loadExpensesOutcome() {
+        case .missingFile:
+            return []
+        case .loaded(let items):
+            return items
+        case .unreadable(let message):
+            throw NSError(
+                domain: "StorageService",
+                code: 3,
+                userInfo: [NSLocalizedDescriptionKey: message]
+            )
+        }
     }
 
     func saveExpenses(_ expenses: [ExpenseItem]) throws {
+        try expensesWriteGate.ensureWritable()
         let encoder = JSONEncoder()
         encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
         encoder.dateEncodingStrategy = .iso8601
@@ -164,33 +263,62 @@ struct StorageService {
         try data.write(to: expensesURL, options: .atomic)
     }
 
-    // MARK: - TASKS (Вариант A: обычный decode/encode)
+    // MARK: - TASKS
+
+    /// Updates the tasks write gate. Decode/read errors block later saves.
+    func loadTasksOutcome() -> ListFileLoadOutcome<TaskItem> {
+        let outcome = loadListOutcome(url: tasksURL, as: TaskItem.self, label: "задач")
+        tasksWriteGate.apply(outcome)
+        return outcome
+    }
 
     func loadTasks() throws -> [TaskItem] {
-        guard FileManager.default.fileExists(atPath: tasksURL.path) else {
+        switch loadTasksOutcome() {
+        case .missingFile:
             return []
-        }
-
-        let data = try Data(contentsOf: tasksURL)
-
-        let decoder = JSONDecoder()
-        decoder.dateDecodingStrategy = .iso8601
-
-        do {
-            return try decoder.decode([TaskItem].self, from: data)
-        } catch {
-            print("❌ [StorageService] Ошибка decode задач: \(error)")
-            return []   // в Варианте A возвращаем пустой массив
+        case .loaded(let items):
+            return items
+        case .unreadable(let message):
+            throw NSError(
+                domain: "StorageService",
+                code: 4,
+                userInfo: [NSLocalizedDescriptionKey: message]
+            )
         }
     }
 
     func saveTasks(_ tasks: [TaskItem]) throws {
+        try tasksWriteGate.ensureWritable()
         let encoder = JSONEncoder()
         encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
         encoder.dateEncodingStrategy = .iso8601
-
         let data = try encoder.encode(tasks)
         try data.write(to: tasksURL, options: .atomic)
+    }
+
+    private func loadListOutcome<T: Decodable & Equatable>(
+        url: URL,
+        as type: T.Type,
+        label: String
+    ) -> ListFileLoadOutcome<T> {
+        guard FileManager.default.fileExists(atPath: url.path) else {
+            return .missingFile
+        }
+        let data: Data
+        do {
+            data = try Data(contentsOf: url)
+        } catch {
+            print("❌ [StorageService] Ошибка чтения файла \(label): \(error)")
+            return .unreadable(error.localizedDescription)
+        }
+        do {
+            let decoder = JSONDecoder()
+            decoder.dateDecodingStrategy = .iso8601
+            return .loaded(try decoder.decode([T].self, from: data))
+        } catch {
+            print("❌ [StorageService] Ошибка decode \(label): \(error)")
+            return .unreadable(error.localizedDescription)
+        }
     }
 
     // MARK: - MIGRATION (projects only)
@@ -394,11 +522,52 @@ struct StorageService {
 
     /// Полное удаление всех локальных данных приложения из Documents.
     /// Используется для "Delete Account" (App Review 5.1.1(v)), т.к. backend отсутствует.
+    /// Succeeds and opens write gates only when every item in Documents was removed.
+    /// A partial wipe blocks all store writes until a confirmed load or a later successful wipe.
     func wipeAllUserData() throws {
-        let dir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-        let items = try FileManager.default.contentsOfDirectory(at: dir, includingPropertiesForKeys: nil, options: [])
+        let fm = FileManager.default
+        let dir = documentsDirectory
+        let items = try fm.contentsOfDirectory(at: dir, includingPropertiesForKeys: nil, options: [])
+        var failedNames: [String] = []
         for url in items {
-            try? FileManager.default.removeItem(at: url)
+            do {
+                try fm.removeItem(at: url)
+            } catch {
+                print("❌ [StorageService] wipe remove failed \(url.lastPathComponent): \(error)")
+                failedNames.append(url.lastPathComponent)
+            }
         }
+
+        let remainingNames: [String]
+        do {
+            remainingNames = try fm.contentsOfDirectory(at: dir, includingPropertiesForKeys: nil, options: [])
+                .map(\.lastPathComponent)
+        } catch {
+            blockAllDiskWritesAfterFailedWipe()
+            throw NSError(
+                domain: "StorageService",
+                code: 5,
+                userInfo: [
+                    NSLocalizedDescriptionKey:
+                        "Не удалось проверить результат очистки локальных данных. Запись временно недоступна, пока данные не будут загружены заново или очистка не завершится успешно."
+                ]
+            )
+        }
+
+        if !failedNames.isEmpty || !remainingNames.isEmpty {
+            blockAllDiskWritesAfterFailedWipe()
+            let names = Array(Set(failedNames + remainingNames)).sorted().joined(separator: ", ")
+            throw NSError(
+                domain: "StorageService",
+                code: 5,
+                userInfo: [
+                    NSLocalizedDescriptionKey:
+                        "Не удалось полностью очистить локальные данные. Остались файлы: \(names). Запись временно недоступна, пока данные не будут загружены заново или очистка не завершится успешно."
+                ]
+            )
+        }
+
+        // Documents is empty — same as a first install.
+        allowAllListDiskWritesAfterExplicitWipe()
     }
 }
