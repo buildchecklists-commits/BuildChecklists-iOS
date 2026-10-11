@@ -311,26 +311,38 @@ struct DemoTrainingCalculatorNavigationModifier: ViewModifier {
 // MARK: - Sheet bridges and overlay
 
 /// Keeps a view's own `@State` sheet / disclosure flag in sync with a controller request flag.
-/// The controller flag drives the UI; closing the UI also clears the flag.
+///
+/// Outside a tour the flag stays `false`. Re-subscribing `onReceive` (common when a sheet
+/// presents) would otherwise deliver that `false` and immediately dismiss a user-opened UI.
+/// Only a presentation that the tour itself requested is closed when the flag returns to `false`.
 struct DemoTrainingFlagBridge: ViewModifier {
     @Binding var isOn: Bool
     let flag: AnyPublisher<Bool, Never>
     let clear: @MainActor () -> Void
-    /// Swiping a tour sheet away ends the tour instead of leaving an invisible one behind.
+    /// Swiping a tour-owned sheet away ends the tour instead of leaving an invisible one behind.
     var endsTourWhenDismissedByUser = false
+    /// True while the local UI was opened because the tour set the request flag.
+    @State private var ownedByTour = false
 
     func body(content: Content) -> some View {
         content
             .onReceive(flag.removeDuplicates().receive(on: DispatchQueue.main)) { requested in
-                if requested != isOn { isOn = requested }
+                if requested {
+                    ownedByTour = true
+                    if !isOn { isOn = true }
+                } else if ownedByTour {
+                    // Tour released this window (next/back/exit). Leave user-owned UI alone.
+                    ownedByTour = false
+                    if isOn { isOn = false }
+                }
             }
             .onChange(of: isOn) { _, now in
                 guard !now else { return }
-                let training = DemoTrainingController.shared
-                let wasRequested = training.activeTour != nil && training.currentSurface == .sheet
+                let wasTourOwned = ownedByTour
+                ownedByTour = false
                 clear()
-                if endsTourWhenDismissedByUser && wasRequested {
-                    training.exitTour()
+                if endsTourWhenDismissedByUser && wasTourOwned {
+                    DemoTrainingController.shared.exitTour()
                 }
             }
     }
